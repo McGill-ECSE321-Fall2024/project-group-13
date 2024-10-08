@@ -1,14 +1,13 @@
 package group_13.game_store.model;
 
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 import java.sql.Date;
 
-// line 113 "model.ump"
-// line 235 "model.ump"
+// line 108 "model.ump"
+// line 215 "model.ump"
 public class Reply
 {
 
@@ -87,5 +86,6 @@ public class Reply
             "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }
+
 
 

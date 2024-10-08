@@ -1,13 +1,12 @@
 package group_13.game_store.model;
 
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 
-// line 90 "model.ump"
-// line 218 "model.ump"
+// line 86 "model.ump"
+// line 200 "model.ump"
 public class GameCopy
 {
 
@@ -15,44 +14,69 @@ public class GameCopy
   // MEMBER VARIABLES
   //------------------------
 
-  //GameCopy Attributes
-  private String copyID;
+  //GameCopy Associations
+  private Order order;
+  private Game game;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public GameCopy(String aCopyID)
+  public GameCopy(Order aOrder, Game aGame)
   {
-    copyID = aCopyID;
+    if (!setOrder(aOrder))
+    {
+      throw new RuntimeException("Unable to create GameCopy due to aOrder. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    if (!setGame(aGame))
+    {
+      throw new RuntimeException("Unable to create GameCopy due to aGame. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setCopyID(String aCopyID)
+  /* Code from template association_GetOne */
+  public Order getOrder()
+  {
+    return order;
+  }
+  /* Code from template association_GetOne */
+  public Game getGame()
+  {
+    return game;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setOrder(Order aNewOrder)
   {
     boolean wasSet = false;
-    copyID = aCopyID;
-    wasSet = true;
+    if (aNewOrder != null)
+    {
+      order = aNewOrder;
+      wasSet = true;
+    }
+    return wasSet;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setGame(Game aNewGame)
+  {
+    boolean wasSet = false;
+    if (aNewGame != null)
+    {
+      game = aNewGame;
+      wasSet = true;
+    }
     return wasSet;
   }
 
-  public String getCopyID()
-  {
-    return copyID;
-  }
-
   public void delete()
-  {}
-
-
-  public String toString()
   {
-    return super.toString() + "["+
-            "copyID" + ":" + getCopyID()+ "]";
+    order = null;
+    game = null;
   }
+
 }
+
 
 

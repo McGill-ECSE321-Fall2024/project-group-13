@@ -1,14 +1,13 @@
 package group_13.game_store.model;
 
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 import java.sql.Date;
 
-// line 104 "model.ump"
-// line 230 "model.ump"
+// line 99 "model.ump"
+// line 210 "model.ump"
 public class Review
 {
 
@@ -24,19 +23,29 @@ public class Review
   private Date date;
 
   //Review Associations
+  private Customer reviewer;
+  private Game reviewedGame;
   private Reply reply;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Review(int aReviewID, String aDescription, int aScore, int aLikes, Date aDate)
+  public Review(int aReviewID, String aDescription, int aScore, int aLikes, Date aDate, Customer aReviewer, Game aReviewedGame)
   {
     reviewID = aReviewID;
     description = aDescription;
     score = aScore;
     likes = aLikes;
     date = aDate;
+    if (!setReviewer(aReviewer))
+    {
+      throw new RuntimeException("Unable to create Review due to aReviewer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    if (!setReviewedGame(aReviewedGame))
+    {
+      throw new RuntimeException("Unable to create Review due to aReviewedGame. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
   }
 
   //------------------------
@@ -108,6 +117,16 @@ public class Review
     return date;
   }
   /* Code from template association_GetOne */
+  public Customer getReviewer()
+  {
+    return reviewer;
+  }
+  /* Code from template association_GetOne */
+  public Game getReviewedGame()
+  {
+    return reviewedGame;
+  }
+  /* Code from template association_GetOne */
   public Reply getReply()
   {
     return reply;
@@ -117,6 +136,28 @@ public class Review
   {
     boolean has = reply != null;
     return has;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setReviewer(Customer aNewReviewer)
+  {
+    boolean wasSet = false;
+    if (aNewReviewer != null)
+    {
+      reviewer = aNewReviewer;
+      wasSet = true;
+    }
+    return wasSet;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setReviewedGame(Game aNewReviewedGame)
+  {
+    boolean wasSet = false;
+    if (aNewReviewedGame != null)
+    {
+      reviewedGame = aNewReviewedGame;
+      wasSet = true;
+    }
+    return wasSet;
   }
   /* Code from template association_SetUnidirectionalOptionalOne */
   public boolean setReply(Reply aNewReply)
@@ -129,6 +170,8 @@ public class Review
 
   public void delete()
   {
+    reviewer = null;
+    reviewedGame = null;
     reply = null;
   }
 
@@ -141,8 +184,11 @@ public class Review
             "score" + ":" + getScore()+ "," +
             "likes" + ":" + getLikes()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "reviewer = "+(getReviewer()!=null?Integer.toHexString(System.identityHashCode(getReviewer())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "reviewedGame = "+(getReviewedGame()!=null?Integer.toHexString(System.identityHashCode(getReviewedGame())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "reply = "+(getReply()!=null?Integer.toHexString(System.identityHashCode(getReply())):"null");
   }
 }
+
 
 

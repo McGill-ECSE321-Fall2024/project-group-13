@@ -1,13 +1,12 @@
 package group_13.game_store.model;
 
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 
-// line 52 "model.ump"
-// line 190 "model.ump"
+// line 48 "model.ump"
+// line 178 "model.ump"
 public class WishlistItem
 {
 
@@ -15,19 +14,20 @@ public class WishlistItem
   // MEMBER VARIABLES
   //------------------------
 
-  //WishlistItem Attributes
-  private String wishlistItemID;
-
   //WishlistItem Associations
+  private Customer customer;
   private Game addedgames;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public WishlistItem(String aWishlistItemID, Game aAddedgames)
+  public WishlistItem(Customer aCustomer, Game aAddedgames)
   {
-    wishlistItemID = aWishlistItemID;
+    if (!setCustomer(aCustomer))
+    {
+      throw new RuntimeException("Unable to create WishlistItem due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
     if (!setAddedgames(aAddedgames))
     {
       throw new RuntimeException("Unable to create WishlistItem due to aAddedgames. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -37,23 +37,26 @@ public class WishlistItem
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setWishlistItemID(String aWishlistItemID)
+  /* Code from template association_GetOne */
+  public Customer getCustomer()
   {
-    boolean wasSet = false;
-    wishlistItemID = aWishlistItemID;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public String getWishlistItemID()
-  {
-    return wishlistItemID;
+    return customer;
   }
   /* Code from template association_GetOne */
   public Game getAddedgames()
   {
     return addedgames;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setCustomer(Customer aNewCustomer)
+  {
+    boolean wasSet = false;
+    if (aNewCustomer != null)
+    {
+      customer = aNewCustomer;
+      wasSet = true;
+    }
+    return wasSet;
   }
   /* Code from template association_SetUnidirectionalOne */
   public boolean setAddedgames(Game aNewAddedgames)
@@ -69,14 +72,8 @@ public class WishlistItem
 
   public void delete()
   {
+    customer = null;
     addedgames = null;
   }
 
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "wishlistItemID" + ":" + getWishlistItemID()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "addedgames = "+(getAddedgames()!=null?Integer.toHexString(System.identityHashCode(getAddedgames())):"null");
-  }
 }

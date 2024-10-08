@@ -6,8 +6,8 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
-// line 140 "model.ump"
-// line 248 "model.ump"
+// line 135 "model.ump"
+// line 226 "model.ump"
 public class Promotion
 {
 
@@ -134,5 +134,6 @@ public class Promotion
             "  " + "endDate" + "=" + (getEndDate() != null ? !getEndDate().equals(this)  ? getEndDate().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }
+
 
 

@@ -5,10 +5,9 @@ package group_13.game_store.model;
 
 
 import java.sql.Date;
-import java.util.*;
 
-// line 64 "model.ump"
-// line 201 "model.ump"
+// line 59 "model.ump"
+// line 189 "model.ump"
 public class Order
 {
 
@@ -24,20 +23,23 @@ public class Order
   private boolean isReturned;
 
   //Order Associations
-  private List<GameCopy> gameCopies;
+  private Customer customer;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Order(int aOrderID, Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned)
+  public Order(int aOrderID, Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
   {
     orderID = aOrderID;
     purchaseDate = aPurchaseDate;
     totalPrice = aTotalPrice;
     returnDate = aReturnDate;
     isReturned = aIsReturned;
-    gameCopies = new ArrayList<GameCopy>();
+    if (!setCustomer(aCustomer))
+    {
+      throw new RuntimeException("Unable to create Order due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
   }
 
   //------------------------
@@ -113,97 +115,26 @@ public class Order
   {
     return isReturned;
   }
-  /* Code from template association_GetMany */
-  public GameCopy getGameCopy(int index)
+  /* Code from template association_GetOne */
+  public Customer getCustomer()
   {
-    GameCopy aGameCopy = gameCopies.get(index);
-    return aGameCopy;
+    return customer;
   }
-
-  public List<GameCopy> getGameCopies()
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setCustomer(Customer aNewCustomer)
   {
-    List<GameCopy> newGameCopies = Collections.unmodifiableList(gameCopies);
-    return newGameCopies;
-  }
-
-  public int numberOfGameCopies()
-  {
-    int number = gameCopies.size();
-    return number;
-  }
-
-  public boolean hasGameCopies()
-  {
-    boolean has = gameCopies.size() > 0;
-    return has;
-  }
-
-  public int indexOfGameCopy(GameCopy aGameCopy)
-  {
-    int index = gameCopies.indexOf(aGameCopy);
-    return index;
-  }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfGameCopies()
-  {
-    return 0;
-  }
-  /* Code from template association_AddUnidirectionalMany */
-  public boolean addGameCopy(GameCopy aGameCopy)
-  {
-    boolean wasAdded = false;
-    if (gameCopies.contains(aGameCopy)) { return false; }
-    gameCopies.add(aGameCopy);
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeGameCopy(GameCopy aGameCopy)
-  {
-    boolean wasRemoved = false;
-    if (gameCopies.contains(aGameCopy))
+    boolean wasSet = false;
+    if (aNewCustomer != null)
     {
-      gameCopies.remove(aGameCopy);
-      wasRemoved = true;
+      customer = aNewCustomer;
+      wasSet = true;
     }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addGameCopyAt(GameCopy aGameCopy, int index)
-  {  
-    boolean wasAdded = false;
-    if(addGameCopy(aGameCopy))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfGameCopies()) { index = numberOfGameCopies() - 1; }
-      gameCopies.remove(aGameCopy);
-      gameCopies.add(index, aGameCopy);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveGameCopyAt(GameCopy aGameCopy, int index)
-  {
-    boolean wasAdded = false;
-    if(gameCopies.contains(aGameCopy))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfGameCopies()) { index = numberOfGameCopies() - 1; }
-      gameCopies.remove(aGameCopy);
-      gameCopies.add(index, aGameCopy);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addGameCopyAt(aGameCopy, index);
-    }
-    return wasAdded;
+    return wasSet;
   }
 
   public void delete()
   {
-    gameCopies.clear();
+    customer = null;
   }
 
 
@@ -214,6 +145,9 @@ public class Order
             "totalPrice" + ":" + getTotalPrice()+ "," +
             "isReturned" + ":" + getIsReturned()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "purchaseDate" + "=" + (getPurchaseDate() != null ? !getPurchaseDate().equals(this)  ? getPurchaseDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "returnDate" + "=" + (getReturnDate() != null ? !getReturnDate().equals(this)  ? getReturnDate().toString().replaceAll("  ","    ") : "this" : "null");
+            "  " + "returnDate" + "=" + (getReturnDate() != null ? !getReturnDate().equals(this)  ? getReturnDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "customer = "+(getCustomer()!=null?Integer.toHexString(System.identityHashCode(getCustomer())):"null");
   }
 }
+
+

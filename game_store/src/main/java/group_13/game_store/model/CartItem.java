@@ -5,8 +5,8 @@ package group_13.game_store.model;
 
 
 
-// line 57 "model.ump"
-// line 195 "model.ump"
+// line 52 "model.ump"
+// line 183 "model.ump"
 public class CartItem
 {
 
@@ -15,18 +15,23 @@ public class CartItem
   //------------------------
 
   //CartItem Attributes
-  private int cartItemID;
+  private int quantity;
 
   //CartItem Associations
+  private Customer customer;
   private Game addedGames;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public CartItem(int aCartItemID, Game aAddedGames)
+  public CartItem(int aQuantity, Customer aCustomer, Game aAddedGames)
   {
-    cartItemID = aCartItemID;
+    quantity = aQuantity;
+    if (!setCustomer(aCustomer))
+    {
+      throw new RuntimeException("Unable to create CartItem due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
     if (!setAddedGames(aAddedGames))
     {
       throw new RuntimeException("Unable to create CartItem due to aAddedGames. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -37,22 +42,38 @@ public class CartItem
   // INTERFACE
   //------------------------
 
-  public boolean setCartItemID(int aCartItemID)
+  public boolean setQuantity(int aQuantity)
   {
     boolean wasSet = false;
-    cartItemID = aCartItemID;
+    quantity = aQuantity;
     wasSet = true;
     return wasSet;
   }
 
-  public int getCartItemID()
+  public int getQuantity()
   {
-    return cartItemID;
+    return quantity;
+  }
+  /* Code from template association_GetOne */
+  public Customer getCustomer()
+  {
+    return customer;
   }
   /* Code from template association_GetOne */
   public Game getAddedGames()
   {
     return addedGames;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setCustomer(Customer aNewCustomer)
+  {
+    boolean wasSet = false;
+    if (aNewCustomer != null)
+    {
+      customer = aNewCustomer;
+      wasSet = true;
+    }
+    return wasSet;
   }
   /* Code from template association_SetUnidirectionalOne */
   public boolean setAddedGames(Game aNewAddedGames)
@@ -68,6 +89,7 @@ public class CartItem
 
   public void delete()
   {
+    customer = null;
     addedGames = null;
   }
 
@@ -75,9 +97,11 @@ public class CartItem
   public String toString()
   {
     return super.toString() + "["+
-            "cartItemID" + ":" + getCartItemID()+ "]" + System.getProperties().getProperty("line.separator") +
+            "quantity" + ":" + getQuantity()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "customer = "+(getCustomer()!=null?Integer.toHexString(System.identityHashCode(getCustomer())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "addedGames = "+(getAddedGames()!=null?Integer.toHexString(System.identityHashCode(getAddedGames())):"null");
   }
 }
+
 
 

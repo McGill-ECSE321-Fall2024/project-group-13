@@ -5,8 +5,8 @@ package group_13.game_store.model;
 
 
 
-// line 96 "model.ump"
-// line 225 "model.ump"
+// line 91 "model.ump"
+// line 205 "model.ump"
 public class GameCategory
 {
 

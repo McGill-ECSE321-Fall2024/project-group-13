@@ -1,6 +1,5 @@
 package group_13.game_store.model;
 
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
@@ -8,7 +7,7 @@ package group_13.game_store.model;
 import java.sql.Date;
 
 // line 28 "model.ump"
-// line 170 "model.ump"
+// line 168 "model.ump"
 public class PaymentInformation
 {
 
@@ -145,5 +144,6 @@ public class PaymentInformation
             "  " + "billingAddress = "+(getBillingAddress()!=null?Integer.toHexString(System.identityHashCode(getBillingAddress())):"null");
   }
 }
+
 
 

@@ -1,13 +1,12 @@
 package group_13.game_store.model;
 
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 
 // line 2 "model.ump"
-// line 253 "model.ump"
+// line 150 "model.ump"
 public class UserAccount
 {
 
@@ -134,5 +133,6 @@ public class UserAccount
             "permissionLevel" + ":" + getPermissionLevel()+ "]";
   }
 }
+
 
 

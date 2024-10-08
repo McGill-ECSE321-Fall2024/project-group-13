@@ -6,7 +6,7 @@ package group_13.game_store.model;
 
 
 // line 22 "model.ump"
-// line 165 "model.ump"
+// line 163 "model.ump"
 public class DeliveryInformation
 {
 
@@ -95,5 +95,6 @@ public class DeliveryInformation
             "  " + "deliveryAddress = "+(getDeliveryAddress()!=null?Integer.toHexString(System.identityHashCode(getDeliveryAddress())):"null");
   }
 }
+
 
 
