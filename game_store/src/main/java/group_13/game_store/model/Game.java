@@ -5,10 +5,22 @@ package group_13.game_store.model;
 
 
 
-// line 68 "model.ump"
-// line 194 "model.ump"
+import java.io.Serializable;
+import java.util.Objects;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+
+@Entity
 public class Game
 {
+  // foreign keys
+  @EmbeddedId
+	private Key key;
 
   //------------------------
   // ENUMERATIONS
@@ -21,6 +33,8 @@ public class Game
   //------------------------
 
   //Game Attributes
+  @Id
+  @GeneratedValue
   private int gameID;
   private String title;
   private String description;
@@ -53,6 +67,45 @@ public class Game
       throw new RuntimeException("Unable to create Game due to aCategory. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
+  @Embeddable
+  public static class Key implements Serializable {
+    @ManyToOne
+    private GameCategory gameCategory;
+    
+    @ManyToOne
+    private Promotion gamePromotion;
+
+    public Key() {
+      // does super here have any args?
+      super();
+    }
+
+    public GameCategory getCategory() {
+			return gameCategory;
+		}
+		public Promotion getPromotion() {
+			return gamePromotion;
+		}
+
+    @Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Key)) {
+				return false;
+			}
+			Key thatGame = (Key) obj;
+			return this.getCategory().getCategoryID() == thatGame.getCategory().getCategoryID()
+					&& this.getPromotion().getPromotionID() == thatGame.getPromotion().getPromotionID();
+		}
+
+    @Override
+		public int hashCode() {
+			return Objects.hash(this.getCategory().getCategoryID(), this.getPromotion().getPromotionID());
+		}
+
+
+  }
+
+
 
   //------------------------
   // INTERFACE
