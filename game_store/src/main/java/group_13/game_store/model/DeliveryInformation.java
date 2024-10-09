@@ -5,10 +5,6 @@ package group_13.game_store.model;
 
 
 
-import java.io.Serializable;
-import java.util.Objects;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -17,10 +13,6 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class DeliveryInformation
 {
-  // foreign keys
-  @EmbeddedId
-	private Key key;
-
   //------------------------
   // MEMBER VARIABLES
   //------------------------
@@ -32,6 +24,7 @@ public class DeliveryInformation
   private String deliveryName;
 
   //DeliveryInformation Associations
+  @ManyToOne
   private Address deliveryAddress;
 
   //------------------------
@@ -46,39 +39,6 @@ public class DeliveryInformation
     {
       throw new RuntimeException("Unable to create DeliveryInformation due to aDeliveryAddress. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-  }
-
-  @Embeddable
-  public static class Key implements Serializable {
-    @ManyToOne
-    private Address addressLocation;
-
-    public Key() {
-      // does super here have any args?
-      super();
-    }
-
-    public Address getAddress() {
-			return addressLocation;
-		}
-
-    @Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof Key)) {
-				return false;
-			}
-
-      // downcasting object
-			Key thatDeliveryInformation = (Key) obj;
-			return this.getAddress().getAddressID() == thatDeliveryInformation.getAddress().getAddressID();
-		}
-
-    @Override
-		public int hashCode() {
-			return Objects.hash(this.getAddress().getAddressID());
-		}
-
-
   }
 
   //------------------------
