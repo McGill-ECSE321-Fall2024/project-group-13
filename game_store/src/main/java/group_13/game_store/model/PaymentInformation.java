@@ -6,8 +6,14 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
 // line 28 "model.ump"
 // line 168 "model.ump"
+@Entity
 public class PaymentInformation
 {
 
@@ -16,6 +22,8 @@ public class PaymentInformation
   //------------------------
 
   //PaymentInformation Attributes
+  @Id
+  @GeneratedValue
   private int paymentInfoID;
   private int cardNumber;
   private String billingName;
@@ -23,6 +31,7 @@ public class PaymentInformation
   private int cvvCode;
 
   //PaymentInformation Associations
+  @ManyToOne
   private Address billingAddress;
 
   //------------------------
