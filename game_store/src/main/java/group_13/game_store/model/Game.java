@@ -67,6 +67,7 @@ public class Game
       throw new RuntimeException("Unable to create Game due to aCategory. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
+  
   @Embeddable
   public static class Key implements Serializable {
     @ManyToOne
