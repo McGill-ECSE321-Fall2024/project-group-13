@@ -6,8 +6,13 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 // line 135 "model.ump"
 // line 226 "model.ump"
+@Entity
 public class Promotion
 {
 
@@ -16,6 +21,8 @@ public class Promotion
   //------------------------
 
   //Promotion Attributes
+  @Id
+  @GeneratedValue
   private int promotionID;
   private int percentage;
   private Date startDate;
@@ -26,6 +33,11 @@ public class Promotion
   //------------------------
   // CONSTRUCTOR
   //------------------------
+
+  // Hibernate needs a no-args constructor, but it can be protected
+  protected Promotion()
+  {
+  }
 
   public Promotion(int aPromotionID, int aPercentage, Date aStartDate, Date aEndDate, String aTitle, String aDescription)
   {
