@@ -5,147 +5,80 @@ package group_13.game_store.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 
 // line 48 "model.ump"
 // line 178 "model.ump"
 @Entity
-@Table(name = "wishlist_assistant")
-public class WishlistItem implements Serializable
+public class WishlistItem
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
-  //Composite Key
   @EmbeddedId
-  private WishlistItemId id;
+  private Key key;
   
-  //WishlistItem Associations
-  @MapsId("username")
-  @ManyToOne
-  @JoinColumn(name = "username", nullable = false)
-  private Customer customer;
-
-  @MapsId("gameId")
-  @ManyToOne
-  @JoinColumn(name = "game_id", nullable = false)
-  private Game addedgames;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public WishlistItem(Customer aCustomer, Game aAddedgames)
-  {
-    if (!setCustomer(aCustomer))
-    {
-      throw new RuntimeException("Unable to create WishlistItem due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    if (!setAddedgames(aAddedgames))
-    {
-      throw new RuntimeException("Unable to create WishlistItem due to aAddedgames. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+  protected WishlistItem(){
   }
 
-  //------------------------
-  // INTERFACE
-  //------------------------
-  /* Code from template association_GetOne */
-  public Customer getCustomer()
-  {
-    return customer;
-  }
-  /* Code from template association_GetOne */
-  public Game getAddedgames()
-  {
-    return addedgames;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setCustomer(Customer aNewCustomer)
-  {
-    boolean wasSet = false;
-    if (aNewCustomer != null)
-    {
-      customer = aNewCustomer;
-      wasSet = true;
-    }
-    return wasSet;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setAddedgames(Game aNewAddedgames)
-  {
-    boolean wasSet = false;
-    if (aNewAddedgames != null)
-    {
-      addedgames = aNewAddedgames;
-      wasSet = true;
-    }
-    return wasSet;
+  public WishlistItem(Key key){
+    this.key = key;
   }
 
-  public void delete()
+  public Key getKey()
   {
-    customer = null;
-    addedgames = null;
+    return key;
   }
-
-}
-
 
 @Embeddable
 class WishlistItemId implements Serializable {
-  @Column(name = "username")
-  private String username;
+  @ManyToOne
+  private UserAccount userAccount;
 
-  @Column(name = "game_id")
-  private Long gameId;
+  @ManyToOne
+  private Game game;
 
-  // Default constructor
-  public WishlistItemId() {}
-
-  // Constructor
-  public WishlistItemId(String username, Long gameId) {
-    this.username = username;
-    this.gameId = gameId;
+  public Key() {
+    super();
   }
 
-  // Getters and setters
-  public String getUsername() {
-    return username;
+  public key(UserAccount userAccount, Game game) {
+    this.userAccount = userAccount;
+    this.game = game;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public UserAccount getUserAccount(){
+    return userAccount;
   }
 
-  public Long getGameId() {
-    return gameId;
+  public Game getGame(){
+    return game;
   }
-
-  public void setGameId(Long gameId) {
-    this.gameId = gameId;
-  }
+  
 
   // Equals and hashCode
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    WishlistItemId that = (WishlistItemId) o;
-    return username.equals(that.username) && gameId.equals(that.gameId);
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Key)) {
+       return false;
+    }
+    Key that = (Key) obj;
+    return this.getUserAccount().getUserAccountID() == that.getUserAccount().getUserAccountID()
+            && this.getGame().getGameID() == that.getGame().getGameID();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(username, gameId);
+    return Objects.hash(this.getUserAccount().getUserAccountID(), this.getGame().getGameID());
   }
 }
