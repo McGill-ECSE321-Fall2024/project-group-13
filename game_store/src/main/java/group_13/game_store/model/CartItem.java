@@ -33,7 +33,7 @@ public class CartItem
   protected CartItem(){
   }
 
-  public CartItem(Key key, Int quantity){
+  public CartItem(Key key, int quantity){
     this.key = key;
     this.quantity = quantity;
   }
@@ -63,7 +63,7 @@ public class CartItem
   
 
 @Embeddable
-class CartItemId implements Serializable {
+class Key implements Serializable {
   @ManyToOne
   private UserAccount userAccount;
 
@@ -74,7 +74,7 @@ class CartItemId implements Serializable {
     super();
   }
 
-  public key(UserAccount userAccount, Game game) {
+  public Key(UserAccount userAccount, Game game) {
     this.userAccount = userAccount;
     this.game = game;
   }
