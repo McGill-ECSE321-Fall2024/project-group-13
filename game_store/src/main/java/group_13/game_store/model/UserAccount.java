@@ -7,16 +7,13 @@ package group_13.game_store.model;
 
 // line 2 "model.ump"
 // line 150 "model.ump"
+@Entity
 public class UserAccount
 {
-
-  //------------------------
-  // MEMBER VARIABLES
-  //------------------------
-
-  //UserAccount Attributes
-  private String name;
+  @Id
+  @GeneratedValue
   private String username;
+  private String name;
   private String email;
   private String password;
   private String phoneNumber;
