@@ -7,6 +7,7 @@ package group_13.game_store.model;
 
 // line 37 "model.ump"
 // line 231 "model.ump"
+@Entity
 public class Employee extends UserAccount
 {
 
