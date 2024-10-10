@@ -7,18 +7,30 @@ package group_13.game_store.model;
 
 // line 52 "model.ump"
 // line 183 "model.ump"
-public class CartItem
+@Entity
+@Table(name = "cart_assistant")
+public class CartItem implements Serializable
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
+  @EmbeddedId
+  private CartItemId id;
+  
   //CartItem Attributes
+  @Column(name = "no_game_copies", nullable = false)
   private int quantity;
 
   //CartItem Associations
+  @MapsId("username")
+  @ManyToOne
+  @JoinColumn(name = "username", nullable = false)
   private Customer customer;
+
+  @MapsId("gameId")
+  @ManyToOne
+  @JoinColumn(name = "game_id", nullable = false)
   private Game addedGames;
 
   //------------------------
@@ -104,4 +116,52 @@ public class CartItem
 }
 
 
+@Embeddable
+class CartItemId implements Serializable {
+  @Column(name = "username")
+  private String username;
+
+  @Column(name = "game_id")
+  private Long gameId;
+
+  // Default constructor
+  public CartItemId() {}
+
+  // Constructor
+  public CartItemId(String username, Long gameId) {
+    this.username = username;
+    this.gameId = gameId;
+  }
+
+  // Getters and setters
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public Long getGameId() {
+    return gameId;
+  }
+
+  public void setGameId(Long gameId) {
+    this.gameId = gameId;
+  }
+
+  // Equals and hashCode
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    CartItemId that = (CartItemId) o;
+    return username.equals(that.username) && gameId.equals(that.gameId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(username, gameId);
+  }
+}
 
