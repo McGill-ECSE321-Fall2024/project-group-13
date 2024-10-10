@@ -41,7 +41,7 @@ public class WishlistItem
   }
 
 @Embeddable
-class WishlistItemId implements Serializable {
+class Key implements Serializable {
   @ManyToOne
   private UserAccount userAccount;
 
@@ -52,7 +52,7 @@ class WishlistItemId implements Serializable {
     super();
   }
 
-  public key(UserAccount userAccount, Game game) {
+  public Key(UserAccount userAccount, Game game) {
     this.userAccount = userAccount;
     this.game = game;
   }
