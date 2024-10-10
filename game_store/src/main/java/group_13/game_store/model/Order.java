@@ -6,8 +6,14 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
 // line 59 "model.ump"
 // line 189 "model.ump"
+@Entity
 public class Order
 {
 
@@ -16,6 +22,8 @@ public class Order
   //------------------------
 
   //Order Attributes
+  @Id
+  @GeneratedValue
   private int orderID;
   private Date purchaseDate;
   private int totalPrice;
@@ -23,17 +31,16 @@ public class Order
   private boolean isReturned;
 
   //Order Associations
+  @ManyToOne
   private Customer customer;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  @Entity
+
   public Order(int aOrderID, Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
   {
-    @Id
-    @GeneratedValue
     orderID = aOrderID;
     purchaseDate = aPurchaseDate;
     totalPrice = aTotalPrice;
