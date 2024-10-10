@@ -14,71 +14,68 @@ import jakarta.persistence.EmbeddedId;
 // line 48 "model.ump"
 // line 178 "model.ump"
 @Entity
-public class WishlistItem
-{
+public class WishlistItem {
 
-  //------------------------
+  // ------------------------
   // MEMBER VARIABLES
-  //------------------------
+  // ------------------------
   @EmbeddedId
   private Key key;
-  
 
-  //------------------------
+  // ------------------------
   // CONSTRUCTOR
-  //------------------------
+  // ------------------------
 
-  protected WishlistItem(){
+  protected WishlistItem() {
   }
 
-  public WishlistItem(Key key){
+  public WishlistItem(Key key) {
     this.key = key;
   }
 
-  public Key getKey()
-  {
+  public Key getKey() {
     return key;
   }
 
-@Embeddable
-class Key implements Serializable {
-  @ManyToOne
-  private UserAccount userAccount;
+  @Embeddable
+  class Key implements Serializable {
+    @ManyToOne
+    private UserAccount userAccount;
 
-  @ManyToOne
-  private Game game;
+    @ManyToOne
+    private Game game;
 
-  public Key() {
-    super();
-  }
-
-  public Key(UserAccount userAccount, Game game) {
-    this.userAccount = userAccount;
-    this.game = game;
-  }
-
-  public UserAccount getUserAccount(){
-    return userAccount;
-  }
-
-  public Game getGame(){
-    return game;
-  }
-  
-
-  // Equals and hashCode
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Key)) {
-       return false;
+    public Key() {
+      super();
     }
-    Key that = (Key) obj;
-    return this.getUserAccount().getUserAccountID() == that.getUserAccount().getUserAccountID()
-            && this.getGame().getGameID() == that.getGame().getGameID();
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.getUserAccount().getUserAccountID(), this.getGame().getGameID());
+    public Key(UserAccount userAccount, Game game) {
+      this.userAccount = userAccount;
+      this.game = game;
+    }
+
+    public UserAccount getUserAccount() {
+      return userAccount;
+    }
+
+    public Game getGame() {
+      return game;
+    }
+
+    // Equals and hashCode
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof Key)) {
+        return false;
+      }
+      Key that = (Key) obj;
+      return this.getUserAccount().getUsername() == that.getUserAccount().getUsername()
+          && this.getGame().getGameID() == that.getGame().getGameID();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.getUserAccount().getUsername(), this.getGame().getGameID());
+    }
   }
 }
