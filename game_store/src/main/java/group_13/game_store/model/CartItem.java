@@ -19,7 +19,7 @@ import jakarta.persistence.Column;
 // line 52 "model.ump"
 // line 183 "model.ump"
 @Entity
-public class CartItem implements Serializable
+public class CartItem
 {
 
   //------------------------
