@@ -38,7 +38,7 @@ public class WishlistItem {
   }
 
   @Embeddable
-  class Key implements Serializable {
+  public static class Key implements Serializable {
     @ManyToOne
     private UserAccount userAccount;
 
