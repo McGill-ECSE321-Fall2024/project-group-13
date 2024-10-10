@@ -10,18 +10,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 // line 59 "model.ump"
-// line 189 "model.ump"
+// line 191 "model.ump"
 @Entity
+// Need to add this annotation to specify the table name because order is a reserved keyword in SQL
+@Table(name = "game_order")
 public class Order
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
-  //Order Attributes
   @Id
   @GeneratedValue
   private int orderID;
@@ -37,7 +38,6 @@ public class Order
   //------------------------
   // CONSTRUCTOR
   //------------------------
-
 
   public Order(int aOrderID, Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
   {
