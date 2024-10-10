@@ -6,8 +6,15 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+
 // line 99 "model.ump"
 // line 210 "model.ump"
+@Entity
 public class Review
 {
 
@@ -16,6 +23,8 @@ public class Review
   //------------------------
 
   //Review Attributes
+  @Id
+  @GeneratedValue
   private int reviewID;
   private String description;
   private int score;
@@ -23,8 +32,11 @@ public class Review
   private Date date;
 
   //Review Associations
+  @ManyToOne
   private Customer reviewer;
+  @ManyToOne
   private Game reviewedGame;
+  @OneToOne(optional = true)
   private Reply reply;
 
   //------------------------
