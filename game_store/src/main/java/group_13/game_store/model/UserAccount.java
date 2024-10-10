@@ -8,6 +8,7 @@ package group_13.game_store.model;
 // line 2 "model.ump"
 // line 150 "model.ump"
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class UserAccount
 {
   @Id

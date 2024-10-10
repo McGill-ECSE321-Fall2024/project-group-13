@@ -8,6 +8,7 @@ import java.sql.Date;
 
 // line 12 "model.ump"
 // line 155 "model.ump"
+@Entity
 public class Customer extends UserAccount
 {
 
