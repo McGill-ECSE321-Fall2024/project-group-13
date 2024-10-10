@@ -3,40 +3,46 @@ package group_13.game_store.model;
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
+import java.io.Serializable;
+import java.util.Objects;
 
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.EmbeddedId;
 
 // line 52 "model.ump"
 // line 183 "model.ump"
+@Entity
 public class CartItem
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
+  @EmbeddedId
+  private Key key;
+  
   //CartItem Attributes
   private int quantity;
 
-  //CartItem Associations
-  private Customer customer;
-  private Game addedGames;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
-
-  public CartItem(int aQuantity, Customer aCustomer, Game aAddedGames)
-  {
-    quantity = aQuantity;
-    if (!setCustomer(aCustomer))
-    {
-      throw new RuntimeException("Unable to create CartItem due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    if (!setAddedGames(aAddedGames))
-    {
-      throw new RuntimeException("Unable to create CartItem due to aAddedGames. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+  protected CartItem(){
   }
+
+  public CartItem(Key key, int quantity){
+    this.key = key;
+    this.quantity = quantity;
+  }
+
+  public Key getKey()
+  {
+    return key;
+  }
+
 
   //------------------------
   // INTERFACE
@@ -54,54 +60,48 @@ public class CartItem
   {
     return quantity;
   }
-  /* Code from template association_GetOne */
-  public Customer getCustomer()
-  {
-    return customer;
+  
+
+@Embeddable
+class Key implements Serializable {
+  @ManyToOne
+  private UserAccount userAccount;
+
+  @ManyToOne
+  private Game game;
+
+  public Key() {
+    super();
   }
-  /* Code from template association_GetOne */
-  public Game getAddedGames()
-  {
-    return addedGames;
+
+  public Key(UserAccount userAccount, Game game) {
+    this.userAccount = userAccount;
+    this.game = game;
   }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setCustomer(Customer aNewCustomer)
-  {
-    boolean wasSet = false;
-    if (aNewCustomer != null)
-    {
-      customer = aNewCustomer;
-      wasSet = true;
+
+  public UserAccount getUserAccount(){
+    return userAccount;
+  }
+
+  public Game getGame(){
+    return game;
+  }
+  
+
+  // Equals and hashCode
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Key)) {
+       return false;
     }
-    return wasSet;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setAddedGames(Game aNewAddedGames)
-  {
-    boolean wasSet = false;
-    if (aNewAddedGames != null)
-    {
-      addedGames = aNewAddedGames;
-      wasSet = true;
-    }
-    return wasSet;
+    Key that = (Key) obj;
+    return this.getUserAccount().getUserAccountID() == that.getUserAccount().getUserAccountID()
+            && this.getGame().getGameID() == that.getGame().getGameID();
   }
 
-  public void delete()
-  {
-    customer = null;
-    addedGames = null;
-  }
-
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "quantity" + ":" + getQuantity()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "customer = "+(getCustomer()!=null?Integer.toHexString(System.identityHashCode(getCustomer())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "addedGames = "+(getAddedGames()!=null?Integer.toHexString(System.identityHashCode(getAddedGames())):"null");
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.getUserAccount().getUserAccountID(), this.getGame().getGameID());
   }
 }
-
-
 

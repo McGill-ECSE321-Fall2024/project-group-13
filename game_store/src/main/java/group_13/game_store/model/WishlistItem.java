@@ -3,77 +3,82 @@ package group_13.game_store.model;
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
+import java.io.Serializable;
+import java.util.Objects;
 
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.EmbeddedId;
 
 // line 48 "model.ump"
 // line 178 "model.ump"
+@Entity
 public class WishlistItem
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
-  //WishlistItem Associations
-  private Customer customer;
-  private Game addedgames;
+  @EmbeddedId
+  private Key key;
+  
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public WishlistItem(Customer aCustomer, Game aAddedgames)
-  {
-    if (!setCustomer(aCustomer))
-    {
-      throw new RuntimeException("Unable to create WishlistItem due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    if (!setAddedgames(aAddedgames))
-    {
-      throw new RuntimeException("Unable to create WishlistItem due to aAddedgames. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+  protected WishlistItem(){
   }
 
-  //------------------------
-  // INTERFACE
-  //------------------------
-  /* Code from template association_GetOne */
-  public Customer getCustomer()
-  {
-    return customer;
-  }
-  /* Code from template association_GetOne */
-  public Game getAddedgames()
-  {
-    return addedgames;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setCustomer(Customer aNewCustomer)
-  {
-    boolean wasSet = false;
-    if (aNewCustomer != null)
-    {
-      customer = aNewCustomer;
-      wasSet = true;
-    }
-    return wasSet;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setAddedgames(Game aNewAddedgames)
-  {
-    boolean wasSet = false;
-    if (aNewAddedgames != null)
-    {
-      addedgames = aNewAddedgames;
-      wasSet = true;
-    }
-    return wasSet;
+  public WishlistItem(Key key){
+    this.key = key;
   }
 
-  public void delete()
+  public Key getKey()
   {
-    customer = null;
-    addedgames = null;
+    return key;
   }
 
+@Embeddable
+class Key implements Serializable {
+  @ManyToOne
+  private UserAccount userAccount;
+
+  @ManyToOne
+  private Game game;
+
+  public Key() {
+    super();
+  }
+
+  public Key(UserAccount userAccount, Game game) {
+    this.userAccount = userAccount;
+    this.game = game;
+  }
+
+  public UserAccount getUserAccount(){
+    return userAccount;
+  }
+
+  public Game getGame(){
+    return game;
+  }
+  
+
+  // Equals and hashCode
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Key)) {
+       return false;
+    }
+    Key that = (Key) obj;
+    return this.getUserAccount().getUserAccountID() == that.getUserAccount().getUserAccountID()
+            && this.getGame().getGameID() == that.getGame().getGameID();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.getUserAccount().getUserAccountID(), this.getGame().getGameID());
+  }
 }
