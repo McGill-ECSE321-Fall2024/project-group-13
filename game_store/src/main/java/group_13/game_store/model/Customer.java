@@ -17,7 +17,10 @@ public class Customer extends UserAccount
   //------------------------
 
   //Customer Associations
+  @OneToOne(optional=true)
   private PaymentInformation paymentInformation;
+
+  @OneToOne
   private DeliveryInformation deliveryInformation;
 
   //------------------------
