@@ -11,11 +11,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.EmbeddedId;
 
-import jakarta.persistence.MapsId;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-
 // line 52 "model.ump"
 // line 183 "model.ump"
 @Entity
@@ -29,7 +24,6 @@ public class CartItem
   private Key key;
   
   //CartItem Attributes
-  @GeneratedValue
   private int quantity;
 
 
