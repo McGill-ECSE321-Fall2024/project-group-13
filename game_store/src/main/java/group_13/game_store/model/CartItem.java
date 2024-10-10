@@ -35,7 +35,7 @@ public class CartItem
 
   public CartItem(Key key, Int quantity){
     this.key = key;
-    this.quantity = quantity
+    this.quantity = quantity;
   }
 
   public Key getKey()
@@ -75,7 +75,7 @@ class CartItemId implements Serializable {
   }
 
   public key(UserAccount userAccount, Game game) {
-    this.userAccount = userAccount,
+    this.userAccount = userAccount;
     this.game = game;
   }
 
