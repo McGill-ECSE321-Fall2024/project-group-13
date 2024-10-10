@@ -6,6 +6,9 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+
 // line 12 "model.ump"
 // line 155 "model.ump"
 @Entity

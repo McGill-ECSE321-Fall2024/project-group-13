@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 
@@ -23,6 +24,7 @@ public class GameCopy
   //------------------------
 
   //GameCopy Associations
+  @EmbeddedId
   private Key key;
 
   //------------------------
