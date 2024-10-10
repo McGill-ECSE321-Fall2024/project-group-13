@@ -14,94 +14,86 @@ import jakarta.persistence.EmbeddedId;
 // line 52 "model.ump"
 // line 183 "model.ump"
 @Entity
-public class CartItem
-{
+public class CartItem {
 
-  //------------------------
+  // ------------------------
   // MEMBER VARIABLES
-  //------------------------
+  // ------------------------
   @EmbeddedId
   private Key key;
-  
-  //CartItem Attributes
+
+  // CartItem Attributes
   private int quantity;
 
-
-  //------------------------
+  // ------------------------
   // CONSTRUCTOR
-  //------------------------
-  protected CartItem(){
+  // ------------------------
+  protected CartItem() {
   }
 
-  public CartItem(Key key, int quantity){
+  public CartItem(Key key, int quantity) {
     this.key = key;
     this.quantity = quantity;
   }
 
-  public Key getKey()
-  {
+  public Key getKey() {
     return key;
   }
 
-
-  //------------------------
+  // ------------------------
   // INTERFACE
-  //------------------------
+  // ------------------------
 
-  public boolean setQuantity(int aQuantity)
-  {
+  public boolean setQuantity(int aQuantity) {
     boolean wasSet = false;
     quantity = aQuantity;
     wasSet = true;
     return wasSet;
   }
 
-  public int getQuantity()
-  {
+  public int getQuantity() {
     return quantity;
   }
-  
 
-@Embeddable
-class Key implements Serializable {
-  @ManyToOne
-  private UserAccount userAccount;
+  @Embeddable
+  class Key implements Serializable {
+    @ManyToOne
+    private UserAccount userAccount;
 
-  @ManyToOne
-  private Game game;
+    @ManyToOne
+    private Game game;
 
-  public Key() {
-    super();
-  }
-
-  public Key(UserAccount userAccount, Game game) {
-    this.userAccount = userAccount;
-    this.game = game;
-  }
-
-  public UserAccount getUserAccount(){
-    return userAccount;
-  }
-
-  public Game getGame(){
-    return game;
-  }
-  
-
-  // Equals and hashCode
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Key)) {
-       return false;
+    public Key() {
+      super();
     }
-    Key that = (Key) obj;
-    return this.getUserAccount().getUserAccountID() == that.getUserAccount().getUserAccountID()
-            && this.getGame().getGameID() == that.getGame().getGameID();
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.getUserAccount().getUserAccountID(), this.getGame().getGameID());
+    public Key(UserAccount userAccount, Game game) {
+      this.userAccount = userAccount;
+      this.game = game;
+    }
+
+    public UserAccount getUserAccount() {
+      return userAccount;
+    }
+
+    public Game getGame() {
+      return game;
+    }
+
+    // Equals and hashCode
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof Key)) {
+        return false;
+      }
+      Key that = (Key) obj;
+      return this.getUserAccount().getUsername() == that.getUserAccount().getUsername()
+          && this.getGame().getGameID() == that.getGame().getGameID();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.getUserAccount().getUsername(), this.getGame().getGameID());
+    }
   }
 }
-
