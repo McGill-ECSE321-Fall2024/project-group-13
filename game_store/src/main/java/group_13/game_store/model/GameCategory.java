@@ -1,5 +1,9 @@
 package group_13.game_store.model;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Entity;
+
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
@@ -7,6 +11,7 @@ package group_13.game_store.model;
 
 // line 91 "model.ump"
 // line 205 "model.ump"
+@Entity
 public class GameCategory
 {
 
@@ -21,6 +26,8 @@ public class GameCategory
   //------------------------
 
   //GameCategory Attributes
+  @Id
+  @GeneratedValue
   private int categoryID;
   private String description;
   private VisibilityStatus status;

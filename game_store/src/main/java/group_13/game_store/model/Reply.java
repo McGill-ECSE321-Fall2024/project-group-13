@@ -6,8 +6,13 @@ package group_13.game_store.model;
 
 import java.sql.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 // line 108 "model.ump"
 // line 215 "model.ump"
+@Entity
 public class Reply
 {
 
@@ -16,6 +21,8 @@ public class Reply
   //------------------------
 
   //Reply Attributes
+  @Id
+  @GeneratedValue
   private int replyID;
   private String text;
   private Date date;
