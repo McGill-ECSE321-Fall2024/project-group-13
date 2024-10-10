@@ -33,8 +33,9 @@ public class CartItem
   protected CartItem(){
   }
 
-  public CartItem(Key key){
+  public CartItem(Key key, Int quantity){
     this.key = key;
+    this.quantity = quantity
   }
 
   public Key getKey()
