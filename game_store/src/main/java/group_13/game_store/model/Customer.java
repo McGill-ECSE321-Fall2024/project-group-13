@@ -20,7 +20,7 @@ public class Customer extends UserAccount
   @OneToOne(optional=true)
   private PaymentInformation paymentInformation;
 
-  @OneToOne
+  @OneToOne(optional=true)
   private DeliveryInformation deliveryInformation;
 
   //------------------------
