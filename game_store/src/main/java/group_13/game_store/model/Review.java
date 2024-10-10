@@ -31,8 +31,11 @@ public class Review
   // CONSTRUCTOR
   //------------------------
 
+  @Entity
   public Review(int aReviewID, String aDescription, int aScore, int aLikes, Date aDate, Customer aReviewer, Game aReviewedGame)
   {
+    @Id
+    @GeneratedValue
     reviewID = aReviewID;
     description = aDescription;
     score = aScore;

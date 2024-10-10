@@ -29,8 +29,11 @@ public class Order
   // CONSTRUCTOR
   //------------------------
 
+  @Entity
   public Order(int aOrderID, Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
   {
+    @Id
+    @GeneratedValue
     orderID = aOrderID;
     purchaseDate = aPurchaseDate;
     totalPrice = aTotalPrice;
