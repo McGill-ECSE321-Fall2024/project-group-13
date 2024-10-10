@@ -1,5 +1,9 @@
 package group_13.game_store.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
@@ -7,6 +11,7 @@ package group_13.game_store.model;
 
 // line 121 "model.ump"
 // line 221 "model.ump"
+@Entity
 public class Address
 {
 
@@ -15,6 +20,8 @@ public class Address
   //------------------------
 
   //Address Attributes
+  @Id
+  @GeneratedValue 
   private int addressID;
   private String street;
   private String postalCode;
