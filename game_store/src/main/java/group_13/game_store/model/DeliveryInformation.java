@@ -5,20 +5,26 @@ package group_13.game_store.model;
 
 
 
-// line 22 "model.ump"
-// line 163 "model.ump"
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+@Entity
 public class DeliveryInformation
 {
-
   //------------------------
   // MEMBER VARIABLES
   //------------------------
-
+  
   //DeliveryInformation Attributes
+  @Id
+  @GeneratedValue
   private int deliveryInfoID;
   private String deliveryName;
 
   //DeliveryInformation Associations
+  @ManyToOne
   private Address deliveryAddress;
 
   //------------------------

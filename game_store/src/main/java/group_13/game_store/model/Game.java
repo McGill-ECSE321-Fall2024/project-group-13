@@ -5,11 +5,16 @@ package group_13.game_store.model;
 
 
 
-// line 68 "model.ump"
-// line 194 "model.ump"
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+
+@Entity
 public class Game
 {
-
   //------------------------
   // ENUMERATIONS
   //------------------------
@@ -21,6 +26,8 @@ public class Game
   //------------------------
 
   //Game Attributes
+  @Id
+  @GeneratedValue
   private int gameID;
   private String title;
   private String description;
@@ -31,7 +38,9 @@ public class Game
   private VisibilityStatus status;
 
   //Game Associations
+  @ManyToOne
   private GameCategory category;
+  @ManyToOne
   private Promotion promotion;
 
   //------------------------
