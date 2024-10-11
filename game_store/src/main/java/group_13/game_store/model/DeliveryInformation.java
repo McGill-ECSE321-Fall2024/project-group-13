@@ -40,6 +40,10 @@ public class DeliveryInformation
     }
   }
 
+  public DeliveryInformation() {
+    
+  }
+
   //------------------------
   // INTERFACE
   //------------------------

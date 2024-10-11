@@ -58,7 +58,9 @@ public class GameRepositoryTests {
 
         //assert
         assertNotNull(randomGameFromDB);
-        // checking all fields of Game
+        assertNotNull(randomGameFromDB.getPromotion());
+        assertNotNull(randomGameFromDB.getCategory());
+        // checking all fields of Game, its category and its promotion
         assertEquals(randomGame.getTitle(), randomGameFromDB.getTitle());
         assertEquals(randomGame.getDescription(), randomGameFromDB.getDescription());
         assertEquals(randomGame.getImg(), randomGameFromDB.getImg());
