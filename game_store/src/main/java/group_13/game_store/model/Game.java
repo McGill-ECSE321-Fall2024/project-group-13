@@ -47,9 +47,8 @@ public class Game
   // CONSTRUCTOR
   //------------------------
 
-  public Game(int aGameID, String aTitle, String aDescription, String aImg, int aStock, double aPrice, String aParentalRating, VisibilityStatus aStatus, GameCategory aCategory)
+  public Game(String aTitle, String aDescription, String aImg, int aStock, double aPrice, String aParentalRating, VisibilityStatus aStatus, GameCategory aCategory)
   {
-    gameID = aGameID;
     title = aTitle;
     description = aDescription;
     img = aImg;

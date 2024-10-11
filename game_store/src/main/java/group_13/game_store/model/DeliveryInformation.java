@@ -31,9 +31,8 @@ public class DeliveryInformation
   // CONSTRUCTOR
   //------------------------
 
-  public DeliveryInformation(int aDeliveryInfoID, String aDeliveryName, Address aDeliveryAddress)
+  public DeliveryInformation(String aDeliveryName, Address aDeliveryAddress)
   {
-    deliveryInfoID = aDeliveryInfoID;
     deliveryName = aDeliveryName;
     if (!setDeliveryAddress(aDeliveryAddress))
     {

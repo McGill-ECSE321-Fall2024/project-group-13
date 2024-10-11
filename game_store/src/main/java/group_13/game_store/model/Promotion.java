@@ -39,9 +39,8 @@ public class Promotion
   {
   }
 
-  public Promotion(int aPromotionID, int aPercentage, Date aStartDate, Date aEndDate, String aTitle, String aDescription)
+  public Promotion(int aPercentage, Date aStartDate, Date aEndDate, String aTitle, String aDescription)
   {
-    promotionID = aPromotionID;
     percentage = aPercentage;
     startDate = aStartDate;
     endDate = aEndDate;

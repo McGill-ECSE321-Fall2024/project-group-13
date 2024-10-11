@@ -32,9 +32,8 @@ public class GameCopy
   // CONSTRUCTOR
   //------------------------
 
-  public GameCopy(int aCopyID, Order aOrder, Game aGame)
+  public GameCopy(Order aOrder, Game aGame)
   {
-    copyID = aCopyID;
     if (!setOrder(aOrder))
     {
       throw new RuntimeException("Unable to create GameCopy due to aOrder. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");

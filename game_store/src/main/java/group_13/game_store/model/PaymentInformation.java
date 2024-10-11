@@ -38,9 +38,8 @@ public class PaymentInformation
   // CONSTRUCTOR
   //------------------------
 
-  public PaymentInformation(int aPaymentInfoID, int aCardNumber, String aBillingName, Date aExpiryDate, int aCvvCode, Address aBillingAddress)
+  public PaymentInformation(int aCardNumber, String aBillingName, Date aExpiryDate, int aCvvCode, Address aBillingAddress)
   {
-    paymentInfoID = aPaymentInfoID;
     cardNumber = aCardNumber;
     billingName = aBillingName;
     expiryDate = aExpiryDate;

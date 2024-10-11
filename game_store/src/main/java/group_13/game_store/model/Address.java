@@ -35,9 +35,8 @@ public class Address
   // CONSTRUCTOR
   //------------------------
 
-  public Address(int aAddressID, String aStreet, String aPostalCode, int aNumber, String aCity, String aStateOrProvince, String aCountry, int aApartmentNo)
+  public Address(String aStreet, String aPostalCode, int aNumber, String aCity, String aStateOrProvince, String aCountry, int aApartmentNo)
   {
-    addressID = aAddressID;
     street = aStreet;
     postalCode = aPostalCode;
     number = aNumber;

@@ -4,8 +4,6 @@ package group_13.game_store.model;
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
-import java.sql.Date;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 
