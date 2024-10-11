@@ -19,7 +19,7 @@ import group_13.game_store.model.PaymentInformation;
 @SpringBootTest
 public class CustomerRepositoryTests {
     @Autowired
-    private CustomerRepository cutomerRepo;
+    private CustomerRepository customerRepo;
 
     @Autowired
     private PaymentInformationRepository paymentRepo;
@@ -33,7 +33,7 @@ public class CustomerRepositoryTests {
     @BeforeEach
     @AfterEach
     public void clearDatabase(){
-        cutomerRepo.deleteAll();
+        customerRepo.deleteAll();
         paymentRepo.deleteAll();
         deliveryRepo.deleteAll();
         addressRepo.deleteAll();
@@ -59,10 +59,10 @@ public class CustomerRepositoryTests {
         nicolas.setDeliveryInformation(nicolasDelivery);
         nicolas.setPaymentInformation(nicolasPayment);
 
-        nicolas = cutomerRepo.save(nicolas);
+        nicolas = customerRepo.save(nicolas);
 
         //Act
-        Customer nicolasFromDb = cutomerRepo.findByUsername("nicolasIsAmazing");
+        Customer nicolasFromDb = customerRepo.findByUsername("nicolasIsAmazing");
 
         //Assert
         assertNotNull(nicolasFromDb);
