@@ -28,6 +28,11 @@ public class UserAccount
   // CONSTRUCTOR
   //------------------------
 
+  //No args constructor for hibernate.
+  protected UserAccount()
+  {
+  }
+
   public UserAccount(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel)
   {
     name = aName;
