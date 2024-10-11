@@ -39,9 +39,8 @@ public class Order
   // CONSTRUCTOR
   //------------------------
 
-  public Order(int aOrderID, Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
+  public Order(Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
   {
-    orderID = aOrderID;
     purchaseDate = aPurchaseDate;
     totalPrice = aTotalPrice;
     returnDate = aReturnDate;

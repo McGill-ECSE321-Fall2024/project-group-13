@@ -31,9 +31,8 @@ public class Reply
   // CONSTRUCTOR
   //------------------------
 
-  public Reply(int aReplyID, String aText, Date aDate)
+  public Reply(String aText, Date aDate)
   {
-    replyID = aReplyID;
     text = aText;
     date = aDate;
   }

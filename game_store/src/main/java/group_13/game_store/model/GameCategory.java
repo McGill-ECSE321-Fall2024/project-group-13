@@ -37,9 +37,8 @@ public class GameCategory
   // CONSTRUCTOR
   //------------------------
 
-  public GameCategory(int aCategoryID, String aDescription, VisibilityStatus aStatus, String aName)
+  public GameCategory(String aDescription, VisibilityStatus aStatus, String aName)
   {
-    categoryID = aCategoryID;
     description = aDescription;
     status = aStatus;
     name = aName;

@@ -1,7 +1,6 @@
 package group_13.game_store.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -18,7 +17,6 @@ import jakarta.persistence.InheritanceType;
 public class UserAccount
 {
   @Id
-  @GeneratedValue
   private String username;
   private String name;
   private String email;

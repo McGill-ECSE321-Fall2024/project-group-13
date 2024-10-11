@@ -37,3 +37,6 @@ out/
 .vscode/
 .vscode/settings.json
 
+#MAC
+.DS_STORE
+
