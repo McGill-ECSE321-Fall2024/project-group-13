@@ -47,7 +47,7 @@ public class Address
   }
 
   // Constructor for Hibernate
-  public Address() {
+  protected Address() {
   }
 
   //------------------------

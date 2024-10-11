@@ -37,6 +37,8 @@ public class GameCategory
   // CONSTRUCTOR
   //------------------------
 
+  
+
   public GameCategory(String aDescription, VisibilityStatus aStatus, String aName)
   {
     description = aDescription;
@@ -45,7 +47,7 @@ public class GameCategory
   }
 
   // Constructor for Hibernate
-  public GameCategory() {
+  protected GameCategory() {
   }
 
   //------------------------

@@ -40,8 +40,8 @@ public class DeliveryInformation
     }
   }
 
-  public DeliveryInformation() {
-    
+  // Constructor for Hibernate
+  protected DeliveryInformation() {
   }
 
   //------------------------

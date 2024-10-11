@@ -26,6 +26,7 @@ public class WishlistItem {
   // CONSTRUCTOR
   // ------------------------
 
+  // Constructor for Hibernate
   protected WishlistItem() {
   }
 
