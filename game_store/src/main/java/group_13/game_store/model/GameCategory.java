@@ -44,6 +44,10 @@ public class GameCategory
     name = aName;
   }
 
+  // Constructor for Hibernate
+  public GameCategory() {
+  }
+
   //------------------------
   // INTERFACE
   //------------------------

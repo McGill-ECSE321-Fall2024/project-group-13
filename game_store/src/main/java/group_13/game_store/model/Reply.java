@@ -37,6 +37,10 @@ public class Reply
     date = aDate;
   }
 
+  // Constructor for Hibernate
+  public Reply() {
+  }
+
   //------------------------
   // INTERFACE
   //------------------------
