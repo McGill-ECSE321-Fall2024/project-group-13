@@ -49,7 +49,7 @@ public class CustomerRepositoryTests {
         addressRepo.save(nicolasAddress);
         
         //Create the Payment Information, Delivery Information for Nicolas so that we can test the associations are correctly saved in the database
-        PaymentInformation nicolasPayment = new PaymentInformation(2712231312422312, "nicolas", Date.valueOf("2026-10-11"), 252, nicolasAddress);
+        PaymentInformation nicolasPayment = new PaymentInformation(27122313, "nicolas", Date.valueOf("2026-10-11"), 252, nicolasAddress);
         paymentRepo.save(nicolasPayment);
 
         DeliveryInformation nicolasDelivery = new DeliveryInformation("NicolasDelivery", nicolasAddress);
