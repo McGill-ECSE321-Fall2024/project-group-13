@@ -39,6 +39,10 @@ public class Order
   // CONSTRUCTOR
   //------------------------
 
+  // Hibernate needs a no-args constructor, but it can be protected
+  protected Order() {
+  }
+
   public Order(Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
   {
     purchaseDate = aPurchaseDate;
