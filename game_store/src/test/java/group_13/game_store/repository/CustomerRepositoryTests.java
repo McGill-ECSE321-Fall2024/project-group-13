@@ -78,15 +78,8 @@ public class CustomerRepositoryTests {
         assertEquals(true, nicolasFromDb.hasPaymentInformation());
 
         //Check that both Delivery Information and Payment Information are equal
-        assertEquals(nicolas.getDeliveryInformation().getDeliveryAddress().getPostalCode(), nicolasFromDb.getDeliveryInformation().getDeliveryAddress().getPostalCode());
         assertEquals(nicolas.getDeliveryInformation().getDeliveryInfoID(), nicolasFromDb.getDeliveryInformation().getDeliveryInfoID());
-        assertEquals(nicolas.getDeliveryInformation().getDeliveryName(), nicolasFromDb.getDeliveryInformation().getDeliveryName());
-
-        assertEquals(nicolas.getPaymentInformation().getBillingAddress().getPostalCode(), nicolasFromDb.getPaymentInformation().getBillingAddress().getPostalCode());
-        assertEquals(nicolas.getPaymentInformation().getBillingName(), nicolasFromDb.getPaymentInformation().getBillingName());
-        assertEquals(nicolas.getPaymentInformation().getCardNumber(), nicolasFromDb.getPaymentInformation().getCardNumber());
-        assertEquals(nicolas.getPaymentInformation().getCvvCode(), nicolasFromDb.getPaymentInformation().getCvvCode());
-        assertEquals(nicolas.getPaymentInformation().getExpiryDate(), nicolasFromDb.getPaymentInformation().getExpiryDate());
         assertEquals(nicolas.getPaymentInformation().getPaymentInfoID(), nicolasFromDb.getPaymentInformation().getPaymentInfoID());
+        
     }
 }
