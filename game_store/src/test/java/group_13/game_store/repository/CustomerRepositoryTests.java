@@ -48,10 +48,8 @@ public class CustomerRepositoryTests {
         Address nicolasAddress = new Address("pine", "R5H 7K9", 15, "Monteal", "Quebec", "Canada", 21);
         addressRepo.save(nicolasAddress);
         
-        Date expiryDate = new Date(12312412);
-        
         //Create the Payment Information, Delivery Information for Nicolas so that we can test the associations are correctly saved in the database
-        PaymentInformation nicolasPayment = new PaymentInformation(2712-2313-1242-2312, "nicolas", expiryDate, 252, nicolasAddress);
+        PaymentInformation nicolasPayment = new PaymentInformation(2712231312422312, "nicolas", Date.valueOf("2026-10-11"), 252, nicolasAddress);
         paymentRepo.save(nicolasPayment);
 
         DeliveryInformation nicolasDelivery = new DeliveryInformation("NicolasDelivery", nicolasAddress);
