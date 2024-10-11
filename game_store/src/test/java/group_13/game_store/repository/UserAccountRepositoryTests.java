@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.UserAccount;
 
 @SpringBootTest
