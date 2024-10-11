@@ -25,7 +25,7 @@ public class PaymentInformation
   @Id
   @GeneratedValue
   private int paymentInfoID;
-  private int cardNumber;
+  private long cardNumber;
   private String billingName;
   private Date expiryDate;
   private int cvvCode;
@@ -38,7 +38,7 @@ public class PaymentInformation
   // CONSTRUCTOR
   //------------------------
 
-  public PaymentInformation(int aCardNumber, String aBillingName, Date aExpiryDate, int aCvvCode, Address aBillingAddress)
+  public PaymentInformation(long aCardNumber, String aBillingName, Date aExpiryDate, int aCvvCode, Address aBillingAddress)
   {
     cardNumber = aCardNumber;
     billingName = aBillingName;
@@ -48,6 +48,10 @@ public class PaymentInformation
     {
       throw new RuntimeException("Unable to create PaymentInformation due to aBillingAddress. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
+  }
+
+  // Constructor for Hibernate
+  public PaymentInformation() {
   }
 
   //------------------------
@@ -62,7 +66,7 @@ public class PaymentInformation
     return wasSet;
   }
 
-  public boolean setCardNumber(int aCardNumber)
+  public boolean setCardNumber(long aCardNumber)
   {
     boolean wasSet = false;
     cardNumber = aCardNumber;
@@ -99,7 +103,7 @@ public class PaymentInformation
     return paymentInfoID;
   }
 
-  public int getCardNumber()
+  public long getCardNumber()
   {
     return cardNumber;
   }

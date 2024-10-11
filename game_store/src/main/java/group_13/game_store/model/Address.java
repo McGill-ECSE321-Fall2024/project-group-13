@@ -46,6 +46,10 @@ public class Address
     apartmentNo = aApartmentNo;
   }
 
+  // Constructor for Hibernate
+  public Address() {
+  }
+
   //------------------------
   // INTERFACE
   //------------------------
