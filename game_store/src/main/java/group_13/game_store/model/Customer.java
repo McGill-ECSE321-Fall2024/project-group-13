@@ -28,6 +28,10 @@ public class Customer extends UserAccount
   // CONSTRUCTOR
   //------------------------
 
+  protected Customer()
+  {
+  }
+
   public Customer(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel)
   {
     super(aName, aUsername, aEmail, aPassword, aPhoneNumber, aPermissionLevel);

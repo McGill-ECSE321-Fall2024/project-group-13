@@ -24,6 +24,10 @@ public class Employee extends UserAccount
   // CONSTRUCTOR
   //------------------------
 
+  protected Employee()
+  {
+  }
+
   public Employee(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel, boolean aIsActive)
   {
     super(aName, aUsername, aEmail, aPassword, aPhoneNumber, aPermissionLevel);

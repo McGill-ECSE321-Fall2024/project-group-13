@@ -21,6 +21,11 @@ public class Owner extends UserAccount
   // CONSTRUCTOR
   //------------------------
 
+  //No args constructor for hibernate.
+  protected Owner()
+  {
+  }
+
   public Owner(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel)
   {
     super(aName, aUsername, aEmail, aPassword, aPhoneNumber, aPermissionLevel);
