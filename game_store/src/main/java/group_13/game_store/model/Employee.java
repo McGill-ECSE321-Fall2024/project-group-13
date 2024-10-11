@@ -24,6 +24,7 @@ public class Employee extends UserAccount
   // CONSTRUCTOR
   //------------------------
 
+  // Constructor for Hibernate
   protected Employee()
   {
   }

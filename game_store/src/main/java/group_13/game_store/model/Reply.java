@@ -38,7 +38,7 @@ public class Reply
   }
 
   // Constructor for Hibernate
-  public Reply() {
+  protected Reply() {
   }
 
   //------------------------

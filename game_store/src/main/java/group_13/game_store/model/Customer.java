@@ -28,6 +28,7 @@ public class Customer extends UserAccount
   // CONSTRUCTOR
   //------------------------
 
+  // Constructor for Hibernate
   protected Customer()
   {
   }

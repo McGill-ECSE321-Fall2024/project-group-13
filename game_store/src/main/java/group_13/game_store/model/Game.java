@@ -62,7 +62,8 @@ public class Game
     }
   }
 
-  public Game() {
+  // Constructor for Hibernate
+  protected Game() {
   }
 
   //------------------------

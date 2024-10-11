@@ -51,7 +51,7 @@ public class PaymentInformation
   }
 
   // Constructor for Hibernate
-  public PaymentInformation() {
+  protected PaymentInformation() {
   }
 
   //------------------------
