@@ -34,6 +34,9 @@ public class CustomerRepositoryTests {
     @AfterEach
     public void clearDatabase(){
         cutomerRepo.deleteAll();
+        paymentRepo.deleteAll();
+        deliveryRepo.deleteAll();
+        addressRepo.deleteAll();
     }
 
     @Test
