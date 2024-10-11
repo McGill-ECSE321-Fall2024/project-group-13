@@ -43,6 +43,10 @@ public class Review
   // CONSTRUCTOR
   //------------------------
 
+   // Hibernate needs a no-args constructor, but it can be protected
+  protected Review() {
+  }
+
   public Review(String aDescription, int aScore, int aLikes, Date aDate, Customer aReviewer, Game aReviewedGame)
   {
     description = aDescription;
