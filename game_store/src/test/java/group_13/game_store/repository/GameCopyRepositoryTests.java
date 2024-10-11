@@ -66,5 +66,9 @@ public class GameCopyRepositoryTests {
         assertEquals(gameCopy.getGame().getGameID(), copyFromDb.getGame().getGameID());
         assertNotNull(copyFromDb.getOrder());
 		assertEquals(gameCopy.getOrder().getOrderID(), copyFromDb.getOrder().getOrderID());
+        assertNotNull(copyFromDb.getOrder().getCustomer());
+        assertEquals(gameCopy.getOrder().getCustomer().getUsername(), copyFromDb.getOrder().getCustomer().getUsername());
+        assertNotNull(copyFromDb.getGame().getCategory());
+        assertEquals(gameCopy.getGame().getCategory().getCategoryID(), copyFromDb.getGame().getCategory().getCategoryID());
 	}
 }
