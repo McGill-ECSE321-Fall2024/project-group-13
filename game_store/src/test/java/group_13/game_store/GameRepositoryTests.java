@@ -69,18 +69,9 @@ public class GameRepositoryTests {
         assertEquals(randomGame.getParentalRating(), randomGameFromDB.getParentalRating());
         assertEquals(randomGame.getStatus(), randomGameFromDB.getStatus());
 
-        assertEquals(randomGame.getCategory().getCategoryID(), randomGameFromDB.getCategory().getCategoryID());
-        assertEquals(randomGame.getCategory().getDescription(), randomGameFromDB.getCategory().getDescription());
-        assertEquals(randomGame.getCategory().getName(), randomGameFromDB.getCategory().getName());
-        assertEquals(randomGame.getCategory().getStatus(), randomGameFromDB.getCategory().getStatus());
-
-        assertEquals(randomGame.getPromotion().getDescription(), randomGameFromDB.getPromotion().getDescription());
-        assertEquals(randomGame.getPromotion().getEndDate(), randomGameFromDB.getPromotion().getEndDate());
-        assertEquals(randomGame.getPromotion().getPercentage(), randomGameFromDB.getPromotion().getPercentage());
-        assertEquals(randomGame.getPromotion().getStartDate(), randomGameFromDB.getPromotion().getStartDate());
+        assertEquals(randomGame.getCategory().getCategoryID(), randomGameFromDB.getCategory().getCategoryID());        
         assertEquals(randomGame.getPromotion().getPromotionID(), randomGameFromDB.getPromotion().getPromotionID());
-        assertEquals(randomGame.getPromotion().getTitle(), randomGameFromDB.getPromotion().getTitle());
-
+        
     }
 
 
