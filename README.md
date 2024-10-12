@@ -32,5 +32,5 @@ Report available [here](https://github.com/McGill-ECSE321-Fall2024/project-group
 | Garrett Woodson     | Software Engineer        | Model & DB Schema     | 14.5 hours         | Led team with action items and contributed to diagram and tests |
 | Marrec Bois         | Software Engineer        | Model & DB Schema     | X hours         | Contributed to database schema and testing framework  |
 | Promit Hossein      | Computer Engineer        | Model & DB Schema     | 15 hours         | Contributed to diagram design and testing framework |
-| Tim Roma            | Software Engineer        | Model & DB Schema     | X hours         | Worked database schema design & tests  |
+| Tim Roma            | Software Engineer        | Model & DB Schema     | 14.5 hours         | Worked database schema design & tests  |
 
