@@ -8,6 +8,8 @@ This project is an e-commerce website designed to allow users to purchase video 
 
 The first part of the project centered on constructing the model diagram and database schema, and integrating them into the persistence layer, which will serve as the foundation for the website. Tests were also written to ensure everything is functioning as expected.
 
+Report available [here](https://github.com/McGill-ECSE321-Fall2024/project-group-13/wiki/Game-Store-App-Wiki)
+
 ---
 
 ## Team Members
