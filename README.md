@@ -25,12 +25,12 @@ Report available [here](https://github.com/McGill-ECSE321-Fall2024/project-group
 
 ## Individual Effort Overview
 
-| Name                | Role                    | Deliverable           | Hours Committed | Main Tasks                                          |
-|---------------------|-------------------------|-----------------------|-----------------|-----------------------------------------------------|
-| William Blackmore   | Software Engineer        | Del. 1 - Model & DB Schema     | 25.5 hours         | Worked on model diagram, database setup & coded classes and tests  |
-| Nicolas Dolgopolyy  | Software Engineer        | Del. 1 - Model & DB Schema     | 15.5 hours         | Contributed to diagram design and wrote report |
-| Garrett Woodson     | Software Engineer        | Del. 1 - Model & DB Schema     | 14.5 hours         | Led team with action items and contributed to diagram and tests |
-| Marrec Bois         | Software Engineer        | Del. 1 - Model & DB Schema     | 15.5 hours         | Contributed to database schema and testing framework  |
-| Promit Hossein      | Computer Engineer        | Del. 1 - Model & DB Schema     | 15 hours         | Contributed to diagram design and testing framework |
-| Tim Roma            | Software Engineer        | Del. 1 - Model & DB Schema     | 14.5 hours         | Worked database schema design & tests  |
+| Name                |  Deliverable           | Hours Committed | Team Roles                                        |
+|---------------------|-----------------------|-----------------|-----------------------------------------------------|
+| William Blackmore   | Del. 1 - Model & DB Schema     | 25.5 hours         | Worked on model diagram, database setup & coded classes and tests  |
+| Nicolas Dolgopolyy  | Del. 1 - Model & DB Schema     | 15.5 hours         | Contributed to diagram design and wrote report |
+| Garrett Woodson     | Del. 1 - Model & DB Schema     | 14.5 hours         | Led team with action items and contributed to diagram and tests |
+| Marrec Bois         | Del. 1 - Model & DB Schema     | 15.5 hours         | Contributed to database schema and testing framework  |
+| Promit Hossein      | Del. 1 - Model & DB Schema     | 15 hours         | Contributed to diagram design and testing framework |
+| Tim Roma            | Del. 1 - Model & DB Schema     | 14.5 hours         | Worked database schema design & tests  |
 
