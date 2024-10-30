@@ -13,10 +13,11 @@ import group_13.game_store.model.Address;
 
 @SpringBootTest
 public class AddressRepositoryTests {
-
+    // loading an instance of the local table consisting of rows of Address instances from the local database
     @Autowired
     private AddressRepository addressRepository;
 
+    // clearing the Adress table that was loaded in before testing 
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
@@ -27,6 +28,7 @@ public class AddressRepositoryTests {
     public void testWriteAndReadAddress() {
         // Arrange
         Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
+        // saving the above Address instance in the cleared Address table 
         savedAddress = addressRepository.save(savedAddress);
         int savedAddressID = savedAddress.getAddressID();
 
@@ -34,7 +36,9 @@ public class AddressRepositoryTests {
         Address readAddress = addressRepository.findByAddressID(savedAddressID);
 
         // Assert
+        // ensuring the loaded Address row instance actually exists in the table of the local database
         assertNotNull(readAddress);
+        // verifying if all the fields of Address instance that was created before saving it into the local database matches the fields of the loaded row instance of Address from the table
         assertEquals(savedAddressID, readAddress.getAddressID());
         assertEquals(savedAddress.getStreet(), readAddress.getStreet());
         assertEquals(savedAddress.getPostalCode(), readAddress.getPostalCode());
