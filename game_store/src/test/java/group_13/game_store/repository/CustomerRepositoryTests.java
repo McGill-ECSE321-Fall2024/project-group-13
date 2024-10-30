@@ -44,7 +44,7 @@ public class CustomerRepositoryTests {
     @Test
     public void testCreateAndReadCustomerAccount(){
         //Arrange
-        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325", 1);
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
         
         //Create a fake Address and a fake Date that are needed for nicolasPayment and nicolasDelivery so that we can test those
         Address nicolasAddress = new Address("pine", "R5H 7K9", 15, "Monteal", "Quebec", "Canada", 21);

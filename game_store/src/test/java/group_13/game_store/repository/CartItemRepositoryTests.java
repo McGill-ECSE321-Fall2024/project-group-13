@@ -46,7 +46,7 @@ public class CartItemRepositoryTests {
         GameCategory savedGameCategory = new GameCategory("This game category is a test",
                 GameCategory.VisibilityStatus.Visible, "Test Category");
 
-        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325", 1);
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
         
         Game game = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, savedGameCategory);
 

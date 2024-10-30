@@ -33,9 +33,9 @@ public class Customer extends UserAccount
   {
   }
 
-  public Customer(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel)
+  public Customer(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber)
   {
-    super(aName, aUsername, aEmail, aPassword, aPhoneNumber, aPermissionLevel);
+    super(aName, aUsername, aEmail, aPassword, aPhoneNumber);
   }
 
   //------------------------
@@ -45,6 +45,12 @@ public class Customer extends UserAccount
   public PaymentInformation getPaymentInformation()
   {
     return paymentInformation;
+  }
+
+  //Method to get the permission level from a customer
+  public int getPermissionLevel()
+  {
+    return 1;
   }
 
   public boolean hasPaymentInformation()

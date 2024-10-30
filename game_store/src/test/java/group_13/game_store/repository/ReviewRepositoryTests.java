@@ -45,7 +45,7 @@ public class ReviewRepositoryTests {
     public void testCreateAndReadReview() {
         // Arrange
         GameCategory gameCategory = new GameCategory("Shooter game in the first person", GameCategory.VisibilityStatus.Visible, "FPS");
-        Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890", 1);
+        Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890");
         Game game = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
         Review review = new Review("Very good game!", 4, 0, Date.valueOf("2024-10-11"), customer, game);
         
