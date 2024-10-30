@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 public class CartItemRepositoryTests {
 
+    // loading an instance of the local tables containing rows of CartItem, Games, Customer, and GameCategory instances from the local database
     @Autowired
     private CartItemRepository cartItemRepository;
 
@@ -25,10 +26,11 @@ public class CartItemRepositoryTests {
 
     @Autowired
     private CustomerRepository customerRepository;
-
+    
     @Autowired
     private GameCategoryRepository gameCategoryRepository;
 
+    // clearing the CartItem, Games, Customer, and GameCategory tables that were loaded in before testing
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
@@ -52,17 +54,23 @@ public class CartItemRepositoryTests {
 
         CartItem savedCartItem = new CartItem(key, 1);
 
+        // saving the above CartItem, Games, Customer, and GameCategory instances in the cleared CartItem, Games, Customer, and GameCategory tables 
         savedGameCategory = gameCategoryRepository.save(savedGameCategory);
         nicolas = customerRepository.save(nicolas);
         game = gameRepository.save(game);
         savedCartItem = cartItemRepository.save(savedCartItem);
 
         // Act
+        // loading the key instance of CartItem, bceause it's a composite key, and not a primary key that will identify a CartItem row
         CartItem readCartItem = cartItemRepository.findByKey(key);
 
         // Assert
+        // ensuring the loaded cartItem row instance actually exists in the table of the local database
         assertNotNull(readCartItem);
+        // ensuring that the composite key actually exists in the table of the local database
         assertNotNull(readCartItem.getKey());
+        // verifying if all the fields of CartItem instance that was created before saving it into the local database matches the fields of the loaded row instance of CartItem from the table
+        // not verifying the IDs of the other fields, because those fields are tested elsewhere, so it is redundant to test them again to check if their fields match the fields of the instances that were created before saving it in the local database
         assertEquals(savedCartItem.getQuantity(), readCartItem.getQuantity());
         assertNotNull(readCartItem.getKey().getUserAccount());
         assertNotNull(readCartItem.getKey().getGame());

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 public class WishlistItemRepositoryTests {
-
+    // loading an instance of the local tables containing rows of WishlistItem, Games, Customer, and GameCategory instances from the local database
     @Autowired
     private WishlistItemRepository wishlistItemRepository;
 
@@ -28,6 +28,7 @@ public class WishlistItemRepositoryTests {
     @Autowired
     private GameCategoryRepository gameCategoryRepository;
 
+    // clearing the WishlistItem, Games, Customer, and GameCategory tables that were loaded in before testing
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
@@ -48,6 +49,7 @@ public class WishlistItemRepositoryTests {
 
         WishlistItem savedWishlistItem = new WishlistItem(key);
 
+        // saving the above WishlistItem, Games, Customer, and GameCategory instances in the cleared WishlistItem, Games, Customer, and GameCategory tables 
         savedGameCategory = gameCategoryRepository.save(savedGameCategory);
         nicolas = customerRepository.save(nicolas);
         game = gameRepository.save(game);
@@ -57,10 +59,13 @@ public class WishlistItemRepositoryTests {
         WishlistItem readWishlistItem = wishlistItemRepository.findByKey(savedWishlistItem.getKey());
 
         // Assert
+        // ensuring the loaded WishlistItem row instance actually exists in the table of the local database
         assertNotNull(readWishlistItem);
+        // ensuring that the composite key actually exists in the table of the local database
         assertNotNull(readWishlistItem.getKey());
         assertNotNull(readWishlistItem.getKey().getUserAccount());
         assertNotNull(readWishlistItem.getKey().getGame());
+        // verifying if all the fields of WishlistItem instance that was created before saving it into the local database matches the fields of the loaded row instance of WishlistItem from the table
         assertEquals(savedWishlistItem.getKey().getUserAccount().getUsername(), readWishlistItem.getKey().getUserAccount().getUsername());
         assertEquals(savedWishlistItem.getKey().getGame().getGameID(), readWishlistItem.getKey().getGame().getGameID());
 
