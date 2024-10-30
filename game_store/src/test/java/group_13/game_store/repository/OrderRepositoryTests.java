@@ -34,7 +34,7 @@ public class OrderRepositoryTests {
     public void testCreateandReadOrder() {
         // Arrange
         Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890");
-        Order order = new Order(Date.valueOf("2024-02-09"), 15, Date.valueOf("2024-02-15"), true, customer);
+        Order order = new Order(Date.valueOf("2024-02-09"), Date.valueOf("2024-02-15"), true, customer);
 
         // saving the above Customer and Order instances in the cleared Address and DeliveryInformation tables 
         customer = customerRepo.save(customer);
