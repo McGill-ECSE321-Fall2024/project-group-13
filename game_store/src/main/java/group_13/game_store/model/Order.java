@@ -43,7 +43,7 @@ public class Order
   protected Order() {
   }
 
-  public Order(Date aPurchaseDate, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
+  public Order(Date aPurchaseDate, Date aReturnDate, Customer aCustomer)
   {
     purchaseDate = aPurchaseDate;
     returnDate = aReturnDate;  
