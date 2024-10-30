@@ -63,10 +63,10 @@ public class WishlistItemRepositoryTests {
         assertNotNull(readWishlistItem);
         // ensuring that the composite key actually exists in the table of the local database
         assertNotNull(readWishlistItem.getKey());
-        assertNotNull(readWishlistItem.getKey().getUserAccount());
+        assertNotNull(readWishlistItem.getKey().getCustomerAccount());
         assertNotNull(readWishlistItem.getKey().getGame());
         // verifying if all the fields of WishlistItem instance that was created before saving it into the local database matches the fields of the loaded row instance of WishlistItem from the table
-        assertEquals(savedWishlistItem.getKey().getUserAccount().getUsername(), readWishlistItem.getKey().getUserAccount().getUsername());
+        assertEquals(savedWishlistItem.getKey().getCustomerAccount().getUsername(), readWishlistItem.getKey().getCustomerAccount().getUsername());
         assertEquals(savedWishlistItem.getKey().getGame().getGameID(), readWishlistItem.getKey().getGame().getGameID());
 
     }
