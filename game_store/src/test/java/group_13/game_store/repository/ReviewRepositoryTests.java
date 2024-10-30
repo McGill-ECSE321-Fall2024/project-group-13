@@ -19,6 +19,7 @@ import group_13.game_store.model.Review;
 @SpringBootTest
 public class ReviewRepositoryTests {
     // initialize repositories
+    // loading an instance of the local tables containing rows of GameCategory, Game, Customer, and Review from the local database
     @Autowired
     private ReviewRepository reviewRepo;
     @Autowired
@@ -47,22 +48,26 @@ public class ReviewRepositoryTests {
         Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890", 1);
         Game game = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
         Review review = new Review("Very good game!", 4, 0, Date.valueOf("2024-10-11"), customer, game);
-
+        
+        // saving the above GameCategory, Game, Customer, and Review instances in the cleared GameCategory, Game, Customer, and Review tables 
         gameCategory = gameCategoryRepo.save(gameCategory);
         game = gameRepo.save(game);
         customer = customerRepo.save(customer);
         review = reviewRepo.save(review);
+
         int id = review.getReviewID();
 
         // Act
         Review reviewFromDb = reviewRepo.findByReviewID(id);
 
         // Assert
+        // ensuring the loaded Review, Game, and Customer row instances actually exist in the tables of the local database
         assertNotNull(reviewFromDb);
-        assertEquals(id, reviewFromDb.getReviewID());
-        assertNotNull(reviewFromDb.getReviewer());
-        assertEquals(review.getReviewer().getUsername(), reviewFromDb.getReviewer().getUsername());
         assertNotNull(reviewFromDb.getReviewedGame());
+        assertNotNull(reviewFromDb.getReviewer());
+        // verifying if all the fields of Review instance that was created before saving it into the local database matches the fields of the loaded row instance of Review from the table
+        assertEquals(id, reviewFromDb.getReviewID());
+        assertEquals(review.getReviewer().getUsername(), reviewFromDb.getReviewer().getUsername());
         assertEquals(review.getReviewedGame().getGameID(), reviewFromDb.getReviewedGame().getGameID());
         assertEquals(review.getDate(), reviewFromDb.getDate());
         assertEquals(review.getDescription(), reviewFromDb.getDescription());

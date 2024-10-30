@@ -18,6 +18,7 @@ import group_13.game_store.model.PaymentInformation;
 
 @SpringBootTest
 public class CustomerRepositoryTests {
+    // loading an instance of the local tables containing rows of Customer, PaymentInformation, DeliveryInformation, and Address instances from the local database
     @Autowired
     private CustomerRepository customerRepo;
 
@@ -30,6 +31,7 @@ public class CustomerRepositoryTests {
     @Autowired
     private AddressRepository addressRepo;
 
+    // clearing the Customer, PaymentInformation, and DeliveryInformation, and Address tables that were loaded in before testing
     @BeforeEach
     @AfterEach
     public void clearDatabase(){
@@ -65,9 +67,11 @@ public class CustomerRepositoryTests {
         Customer nicolasFromDb = customerRepo.findByUsername("nicolasIsAmazing");
 
         //Assert
+        // ensuring the loaded Customer row instance actually exists in the table of the local database
         assertNotNull(nicolasFromDb);
         
         //Assert that basic customer attributes are present
+        // verifying if all the fields of the Customer instance that was created before saving it into the local database matches the fields of the loaded row instance of Customer from the table
         assertEquals(nicolas.getName(), nicolasFromDb.getName());
         assertEquals(nicolas.getEmail(), nicolasFromDb.getEmail());
         assertEquals(nicolas.getPassword(), nicolasFromDb.getPassword());

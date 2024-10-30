@@ -19,6 +19,7 @@ import group_13.game_store.model.Order;
 
 @SpringBootTest
 public class GameCopyRepositoryTests {
+    // loading an instance of the local tables containing rows of GameCopy, Game, Order, GameCategory, and Customer instances from the local database
     @Autowired
 	private GameCopyRepository copyRepo;
     @Autowired
@@ -30,6 +31,7 @@ public class GameCopyRepositoryTests {
     @Autowired
     private CustomerRepository customerRepo;
 
+    // clearing the GameCopy, Game, Order, GameCategory, and Customer tables that were loaded in before testing
 	@BeforeEach
 	@AfterEach
 	public void clearDatabase() {
@@ -49,26 +51,30 @@ public class GameCopyRepositoryTests {
         Order order = new Order(Date.valueOf("2024-02-09"), 15, Date.valueOf("2024-02-15"), true, customer);
         GameCopy gameCopy = new GameCopy(order, game);
 		
+        // saving the above GameCopy, Game, Order, GameCategory, and Customer instances in the cleared Address and DeliveryInformation tables 
         gameCategory = categoryRepo.save(gameCategory);
         game = gameRepo.save(game);
         customer = customerRepo.save(customer);
         order = orderRepo.save(order);
         gameCopy = copyRepo.save(gameCopy);
-		int id = gameCopy.getCopyID();
+		
+        int id = gameCopy.getCopyID();
 
 		// Act
 		GameCopy copyFromDb = copyRepo.findByCopyID(id);
 
 		// Assert
+        // ensuring the loaded GameCopy, Game, Order, GameCategory, and Customer row instances actually exist in the tables of the local database
 		assertNotNull(copyFromDb);
-		assertEquals(id, copyFromDb.getCopyID());
         assertNotNull(copyFromDb.getGame());
-        assertEquals(gameCopy.getGame().getGameID(), copyFromDb.getGame().getGameID());
         assertNotNull(copyFromDb.getOrder());
-		assertEquals(gameCopy.getOrder().getOrderID(), copyFromDb.getOrder().getOrderID());
         assertNotNull(copyFromDb.getOrder().getCustomer());
-        assertEquals(gameCopy.getOrder().getCustomer().getUsername(), copyFromDb.getOrder().getCustomer().getUsername());
         assertNotNull(copyFromDb.getGame().getCategory());
+        // verifying if all the fields of GameCopy instance that was created before saving it into the local database matches the fields of the loaded row instance of DeliveryInformation from the table
+		assertEquals(id, copyFromDb.getCopyID());
+        assertEquals(gameCopy.getGame().getGameID(), copyFromDb.getGame().getGameID());
+		assertEquals(gameCopy.getOrder().getOrderID(), copyFromDb.getOrder().getOrderID());
+        assertEquals(gameCopy.getOrder().getCustomer().getUsername(), copyFromDb.getOrder().getCustomer().getUsername());
         assertEquals(gameCopy.getGame().getCategory().getCategoryID(), copyFromDb.getGame().getCategory().getCategoryID());
 	}
 }

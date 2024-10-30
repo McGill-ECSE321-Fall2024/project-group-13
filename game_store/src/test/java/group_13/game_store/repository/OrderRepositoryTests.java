@@ -36,6 +36,7 @@ public class OrderRepositoryTests {
         Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890", 1);
         Order order = new Order(Date.valueOf("2024-02-09"), 15, Date.valueOf("2024-02-15"), true, customer);
 
+        // saving the above Customer and Order instances in the cleared Address and DeliveryInformation tables 
         customer = customerRepo.save(customer);
         order = orderRepo.save(order);
         int id = order.getOrderID();
@@ -44,9 +45,11 @@ public class OrderRepositoryTests {
         Order orderFromDb = orderRepo.findByOrderID(id);
 
         // Assert
+        // ensuring the loaded Order and Customer row instances actually exist in the tables of the local database
         assertNotNull(orderFromDb);
-        assertEquals(id, orderFromDb.getOrderID());
         assertNotNull(orderFromDb.getCustomer());
+        assertEquals(id, orderFromDb.getOrderID());
+        // verifying if all the fields of the Order instance that was created before saving it into the local database matches the fields of the loaded row instance of Order from the table
         assertEquals(order.getCustomer().getUsername(), orderFromDb.getCustomer().getUsername());
         assertEquals(order.getPurchaseDate(), orderFromDb.getPurchaseDate());
         assertEquals(order.getTotalPrice(), orderFromDb.getTotalPrice());

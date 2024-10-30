@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 public class CartItemRepositoryTests {
 
-    // loading an instance of the local tables consisting of rows of CartItem, Games, Customer, and GameCategory instances from the local database
+    // loading an instance of the local tables containing rows of CartItem, Games, Customer, and GameCategory instances from the local database
     @Autowired
     private CartItemRepository cartItemRepository;
 
@@ -26,7 +26,7 @@ public class CartItemRepositoryTests {
 
     @Autowired
     private CustomerRepository customerRepository;
-
+    
     @Autowired
     private GameCategoryRepository gameCategoryRepository;
 
@@ -70,7 +70,7 @@ public class CartItemRepositoryTests {
         // ensuring that the composite key actually exists in the table of the local database
         assertNotNull(readCartItem.getKey());
         // verifying if all the fields of CartItem instance that was created before saving it into the local database matches the fields of the loaded row instance of CartItem from the table
-        // not loading in the IDs of the other fields, because those fields are tested elsewhere, so it is redundant to test them again to check if their fields match the fields of the instances that were created before saving it in the local database
+        // not verifying the IDs of the other fields, because those fields are tested elsewhere, so it is redundant to test them again to check if their fields match the fields of the instances that were created before saving it in the local database
         assertEquals(savedCartItem.getQuantity(), readCartItem.getQuantity());
         assertNotNull(readCartItem.getKey().getUserAccount());
         assertNotNull(readCartItem.getKey().getGame());

@@ -17,7 +17,7 @@ import group_13.game_store.model.Promotion;
 
 @SpringBootTest
 public class GameRepositoryTests {
-
+    // loading an instance of the local tables containing rows of Game, Promotion, and GameCategory from the local database
     @Autowired
     private GameRepository gameRepo;
     @Autowired
@@ -25,6 +25,7 @@ public class GameRepositoryTests {
     @Autowired
     private GameCategoryRepository gameCategoryRepo;
 
+    // clearing the Game, Promotion, and GameCategory tables that were loaded in before testing
     @BeforeEach
 	@AfterEach
 	public void clearDatabase() {
@@ -44,6 +45,7 @@ public class GameRepositoryTests {
         Game randomGame = new Game("Generic title", "Long description", "Image of game", 50, 14.99, "18+", Game.VisibilityStatus.Visible, randomCategory);
         randomGame.setPromotion(randomPromo);
         
+        // saving the above Game, Promotion, and GameCategory instances in the cleared Address and DeliveryInformation tables 
         randomCategory = gameCategoryRepo.save(randomCategory);
         randomPromo = promoRepo.save(randomPromo);
         randomGame = gameRepo.save(randomGame);
@@ -54,6 +56,7 @@ public class GameRepositoryTests {
     
 
         //assert
+        // ensuring the loaded Game, Promotion, and GameCategory row instances actually exist in the tables of the local database
         assertNotNull(randomGameFromDB);
         assertNotNull(randomGameFromDB.getPromotion());
         assertNotNull(randomGameFromDB.getCategory());
