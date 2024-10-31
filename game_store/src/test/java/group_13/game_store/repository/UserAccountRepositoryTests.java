@@ -27,7 +27,7 @@ public class UserAccountRepositoryTests {
     @Test
     public void testCreateAndReadUserAccount() {
         // Arrange
-        UserAccount willAccount = new UserAccount("William", "MajesticMrMoose", "william@gmail.com", "complex1234", "613-4453-421", 2);
+        UserAccount willAccount = new UserAccount("William", "MajesticMrMoose", "william@gmail.com", "complex1234", "613-4453-421");
 
         // saving the above UserAccount instance in the cleared UserAccount table 
         willAccount = userAccountRepository.save(willAccount);

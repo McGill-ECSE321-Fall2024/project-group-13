@@ -27,7 +27,7 @@ public class EmployeeRepositoryTests {
     @Test
     public void testCreateAndReadCustomerAccount(){
         //Arrange
-        Employee marrec = new Employee("Marrec", "marrecIsSoCool", "marrec@gmail.com", "12345", "613-241-5312", 2, true);
+        Employee marrec = new Employee("Marrec", "marrecIsSoCool", "marrec@gmail.com", "12345", "613-241-5312", true);
         // saving the above Employee instances in the cleared Employee tables 
         marrec = employeeRepo.save(marrec);
 

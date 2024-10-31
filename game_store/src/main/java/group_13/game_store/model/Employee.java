@@ -29,9 +29,9 @@ public class Employee extends UserAccount
   {
   }
 
-  public Employee(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel, boolean aIsActive)
+  public Employee(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, boolean aIsActive)
   {
-    super(aName, aUsername, aEmail, aPassword, aPhoneNumber, aPermissionLevel);
+    super(aName, aUsername, aEmail, aPassword, aPhoneNumber);
     isActive = aIsActive;
   }
 
@@ -45,6 +45,12 @@ public class Employee extends UserAccount
     isActive = aIsActive;
     wasSet = true;
     return wasSet;
+  }
+
+  //Method to get the permission level from an employee
+  public int getPermissionLevel()
+  {
+    return 2;
   }
 
   public boolean getIsActive()

@@ -58,7 +58,7 @@ public class CartItem {
   @Embeddable
   public static class Key implements Serializable {
     @ManyToOne
-    private UserAccount userAccount;
+    private Customer customerAccount;
 
     @ManyToOne
     private Game game;
@@ -67,13 +67,13 @@ public class CartItem {
       super();
     }
 
-    public Key(UserAccount userAccount, Game game) {
-      this.userAccount = userAccount;
+    public Key(Customer customerAccount, Game game) {
+      this.customerAccount = customerAccount;
       this.game = game;
     }
 
-    public UserAccount getUserAccount() {
-      return userAccount;
+    public Customer getCustomerAccount() {
+      return customerAccount;
     }
 
     public Game getGame() {
@@ -87,13 +87,13 @@ public class CartItem {
         return false;
       }
       Key that = (Key) obj;
-      return this.getUserAccount().getUsername() == that.getUserAccount().getUsername()
+      return this.getCustomerAccount().getUsername() == that.getCustomerAccount().getUsername()
           && this.getGame().getGameID() == that.getGame().getGameID();
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(this.getUserAccount().getUsername(), this.getGame().getGameID());
+      return Objects.hash(this.getCustomerAccount().getUsername(), this.getGame().getGameID());
     }
   }
 }

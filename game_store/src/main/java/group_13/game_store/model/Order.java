@@ -43,12 +43,12 @@ public class Order
   protected Order() {
   }
 
-  public Order(Date aPurchaseDate, int aTotalPrice, Date aReturnDate, boolean aIsReturned, Customer aCustomer)
+  public Order(Date aPurchaseDate, Date aReturnDate, Customer aCustomer)
   {
     purchaseDate = aPurchaseDate;
-    totalPrice = aTotalPrice;
-    returnDate = aReturnDate;
-    isReturned = aIsReturned;
+    returnDate = aReturnDate;  
+    isReturned = (returnDate != null);
+    
     if (!setCustomer(aCustomer))
     {
       throw new RuntimeException("Unable to create Order due to aCustomer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -88,14 +88,7 @@ public class Order
     boolean wasSet = false;
     returnDate = aReturnDate;
     wasSet = true;
-    return wasSet;
-  }
-
-  public boolean setIsReturned(boolean aIsReturned)
-  {
-    boolean wasSet = false;
-    isReturned = aIsReturned;
-    wasSet = true;
+    isReturned = true;
     return wasSet;
   }
 

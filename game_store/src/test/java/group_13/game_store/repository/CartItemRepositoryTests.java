@@ -46,8 +46,8 @@ public class CartItemRepositoryTests {
         GameCategory savedGameCategory = new GameCategory("This game category is a test",
                 GameCategory.VisibilityStatus.Visible, "Test Category");
 
-        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325", 1);
-
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
+        
         Game game = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, savedGameCategory);
 
         CartItem.Key key = new CartItem.Key(nicolas, game);
@@ -72,10 +72,10 @@ public class CartItemRepositoryTests {
         // verifying if all the fields of CartItem instance that was created before saving it into the local database matches the fields of the loaded row instance of CartItem from the table
         // not verifying the IDs of the other fields, because those fields are tested elsewhere, so it is redundant to test them again to check if their fields match the fields of the instances that were created before saving it in the local database
         assertEquals(savedCartItem.getQuantity(), readCartItem.getQuantity());
-        assertNotNull(readCartItem.getKey().getUserAccount());
+        assertNotNull(readCartItem.getKey().getCustomerAccount());
         assertNotNull(readCartItem.getKey().getGame());
-        assertEquals(savedCartItem.getKey().getUserAccount().getUsername(), readCartItem.getKey().getUserAccount().getUsername());
+        assertEquals(savedCartItem.getKey().getCustomerAccount().getUsername(), readCartItem.getKey().getCustomerAccount().getUsername());
         assertEquals(savedCartItem.getKey().getGame().getGameID(), readCartItem.getKey().getGame().getGameID());
     }
-
+ 
 }

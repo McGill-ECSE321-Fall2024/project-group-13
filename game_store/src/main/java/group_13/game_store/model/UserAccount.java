@@ -33,14 +33,13 @@ public class UserAccount
   {
   }
 
-  public UserAccount(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel)
+  public UserAccount(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber)
   {
     name = aName;
     username = aUsername;
     email = aEmail;
     password = aPassword;
     phoneNumber = aPhoneNumber;
-    permissionLevel = aPermissionLevel;
   }
 
   //------------------------

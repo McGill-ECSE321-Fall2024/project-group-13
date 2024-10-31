@@ -27,7 +27,7 @@ public class OwnerRepositoryTests {
     @Test
     public void testCreateAndReadCustomerAccount(){
         //Arrange
-        Owner garrett = new Owner("Garret", "garretIsCool", "garret@gmail.com", "1234", "6134211234", 3);
+        Owner garrett = new Owner("Garret", "garretIsCool", "garret@gmail.com", "1234", "6134211234");
         // saving the above Owner instance in the cleared table that contained Owner  
         garrett = ownerRepo.save(garrett);
 

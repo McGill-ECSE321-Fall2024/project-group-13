@@ -26,14 +26,20 @@ public class Owner extends UserAccount
   {
   }
 
-  public Owner(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber, int aPermissionLevel)
+  public Owner(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber)
   {
-    super(aName, aUsername, aEmail, aPassword, aPhoneNumber, aPermissionLevel);
+    super(aName, aUsername, aEmail, aPassword, aPhoneNumber);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
+
+  //Method to get the permission level from the owner
+  public int getPermissionLevel()
+  {
+    return 3;
+  }
 
   public void delete()
   {
