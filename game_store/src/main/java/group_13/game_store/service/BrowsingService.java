@@ -75,7 +75,7 @@ public class BrowsingService {
 
     // Gets all the games in the database that are available
     @Transactional
-    public List<Game> getAvailableGames() {
+    public List<Game> getAllAvailableGames() {
         List<Game.VisibilityStatus> visibleStatuses = List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive);
         List<Game> games = gameRepository.findByStockGreaterThanAndStatusIn(0, visibleStatuses);
 
@@ -158,6 +158,51 @@ public class BrowsingService {
         
         return true; // come back to this
      }
+
+     // Returns the cart of a given customer
+     public List<CartItem> getCustomerCartByUsername(String username){
+        List<CartItem> customerCart = cartItemRepository.findByKey_CustomerAccount_Username(username);
+        return customerCart;
+     }
+
+     // Remove Game from cart
+     public boolean removeGameFromCart(String username, int gameID){
+        // Check if game is in cart
+        CartItem.Key cartItemKey = new CartItem.Key(customerRepository.findByUsername(username), gameRepository.findByGameID(gameID));
+        CartItem cartItem = cartItemRepository.findByKey(cartItemKey);
+
+        if (cartItem == null) {
+            // Indicate that the game is not in the cart
+            return false;
+        }
+
+        // Remove the game from the cart
+        cartItemRepository.delete(cartItem);
+        return true;
+
+     }
+
+    // Update the quantity of a game in the cart
+    public boolean updateGameQuantityInCart(String username, int gameID, int newQuantity){
+        // Check if game is in cart
+        CartItem.Key cartItemKey = new CartItem.Key(customerRepository.findByUsername(username), gameRepository.findByGameID(gameID));
+        CartItem cartItem = cartItemRepository.findByKey(cartItemKey);
+
+        if (cartItem == null) {
+            // Indicate that the game is not in the cart
+            return false;
+        }
+
+        if (newQuantity < 1) {
+            // Indicate invalid quantity
+            return false;
+        }
+
+        // Update the quantity of the game in the cart
+        cartItem.setQuantity(newQuantity);
+        cartItemRepository.save(cartItem);
+        return true;
+    }
 
 
     
