@@ -95,4 +95,25 @@ public class ReviewService {
          */
         return "I disagree with your review";
     }
+
+    //Function to let the owner reply a review
+    @Transactional
+    public List<Review> getUnansweredReviews(int gameID) {
+        /*
+         * Implement logic to find all the unsanwered reviews for a game
+         */
+        return null;
+    }
+
+
+    //Function to get the average rating of a game based on reviews
+    @Transactional
+    public int getGameRating(int gameID) {
+        /*
+         * Implement logic to find the average rating of a game
+         */
+        return 1;
+    }
+
+
 }
