@@ -167,12 +167,14 @@ public class BrowsingService {
      }
 
      // Returns the cart of a given customer
+     @Transactional
      public List<CartItem> getCustomerCartByUsername(String username){
         List<CartItem> customerCart = cartItemRepository.findByKey_CustomerAccount_Username(username);
         return customerCart;
      }
 
      // Remove Game from cart
+     @Transactional
      public boolean removeGameFromCart(String username, int gameID){
         // Check if game is in cart
         CartItem.Key cartItemKey = new CartItem.Key(customerRepository.findByUsername(username), gameRepository.findByGameID(gameID));
@@ -190,6 +192,7 @@ public class BrowsingService {
      }
 
     // Update the quantity of a game in the cart
+    @Transactional
     public boolean updateGameQuantityInCart(String username, int gameID, int newQuantity){
         // Check if game is in cart
         CartItem.Key cartItemKey = new CartItem.Key(customerRepository.findByUsername(username), gameRepository.findByGameID(gameID));
@@ -212,6 +215,7 @@ public class BrowsingService {
     }
 
     // Get the total price of the cart
+    @Transactional
     public double getCartSubtotalPrice(String username){
         List<CartItem> customerCart = getCustomerCartByUsername(username);
         double subtotalPrice = 0;
@@ -224,6 +228,7 @@ public class BrowsingService {
     }
 
     // Clear the cart
+    @Transactional
     public void clearCart(String username){
         List<CartItem> customerCart = getCustomerCartByUsername(username);
 
