@@ -1,7 +1,6 @@
 package group_13.game_store.service;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -50,17 +49,42 @@ public class PaymentService {
 
             DeliveryInformation deliveryInformation = customer.getDeliveryInformation();
 
-            if (deliveryInformation == null || deliveryInformation.getDeliveryAddress() == null)
+            if (deliveryInformation == null)
             {
-                System.out.print("Customer does not have valid delivery information");
+                System.out.print("Customer does not have delivery information set up");
                 return false;
+            }
+
+            String postalCode = deliveryInformation.getDeliveryAddress().getPostalCode();
+            if (!postalCode.matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$"))
+            {
+                System.out.print("Customer postal code information is not valid");
             }
 
             PaymentInformation paymentInformation = customer.getPaymentInformation();
             
-            if (paymentInformation == null || paymentInformation.getBillingAddress() == null)
+            if (paymentInformation == null)
             {
                 System.out.print("Customer does not have valid payment information ");
+                return false;
+            }
+
+            if (Long.toString(paymentInformation.getCardNumber()).length() != 16)
+            {
+                System.out.print("Customer does not have valid credit card number");
+                return false;
+            }
+
+            if (Integer.toString(paymentInformation.getCvvCode()).length() != 3)
+            {
+                System.out.print("Customer does not have valid CVV code");
+                return false;
+            }
+
+            Date currentDate = new Date(System.currentTimeMillis());
+            if (paymentInformation.getExpiryDate().before(currentDate))
+            {
+                System.out.print("Customer credit card is expired");
                 return false;
             }
 
@@ -71,9 +95,6 @@ public class PaymentService {
                 System.out.print("Customer cart is empty");
                 return false;
             }
-
-            LocalDate date = LocalDate.now();
-            Order order = new Order(Date.valueOf(date), null, customer);
 
             GameCopy gameCopy;
             Game game;
@@ -88,6 +109,8 @@ public class PaymentService {
                     }
             }
 
+            Order order = new Order(currentDate, null, customer);
+
             for(int i = 0; i < cartItems.length; i++)
             {
                 game = cartItems[i].getKey().getGame();
@@ -95,7 +118,7 @@ public class PaymentService {
                 game = gameRepo.save(game);
                 for(int j = 0; j < cartItems[i].getQuantity(); j++)
                 {   
-                    gameCopy = new GameCopy(order, cartItems[i].getKey().getGame());
+                    gameCopy = new GameCopy(order, game);
                     gameCopy = gameCopyRepo.save(gameCopy);
                 }
             }
@@ -117,7 +140,7 @@ public class PaymentService {
     {
         try
         {
-            CartItem[] cartItems = cartItemRepo.findByUsername(customer.getUsername()).toArray(new CartItem[0]);
+            CartItem[] cartItems = cartItemRepo.findByKeyCustomerAccountUsername(customer.getUsername()).toArray(new CartItem[0]);
             return cartItems;
         }
         catch(Exception e)
@@ -134,7 +157,7 @@ public class PaymentService {
     {
         try
         {
-            cartItemRepo.deleteByUsername(customer.getUsername());
+            cartItemRepo.deleteByKeyCustomerAccountUsername(customer.getUsername());
         }
         catch(Exception e)
         {
