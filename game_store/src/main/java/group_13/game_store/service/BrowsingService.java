@@ -2,9 +2,12 @@ package group_13.game_store.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameRepository;
 import jakarta.transaction.Transactional;
+import group_13.game_store.model.CartItem;
+import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import java.util.List;
 
@@ -15,6 +18,9 @@ public class BrowsingService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     // ************************** EMPLOYEE AND OWNER BROWSING **************************
 
@@ -122,6 +128,37 @@ public class BrowsingService {
 
         return games;
     }
+
+     // ************************** CUSTOMER CART AND WISHLIST **************************
+
+     // Allows a customer to add a game to their cart using the gameID
+     @Transactional 
+     public boolean addGameToCart(int gameID, String username, int quantity){
+        // This method through throw an exeception if the game is not found / will come back to error handling
+        Game addedGame = getAvailableGameById(gameID);
+
+        // Check if the user exists and is a customer
+        Customer loggedInCustomer = customerRepository.findByUsername(username);
+
+        if (loggedInCustomer == null) {
+            // indicate that there is an issue with the loggedIn customer (might not be needed)
+            return false; // come back to this
+        }
+
+        if (quantity < 1) {
+            // indicate invalid quantity
+            return false; // come back to this
+        }
+
+        // Add the game to the customer's cart by creating a cartItem
+        CartItem.Key cartItemKey = new CartItem.Key(loggedInCustomer, addedGame);
+        CartItem addedCartItem = new CartItem(cartItemKey, quantity);
+
+        cartItemRepository.save(addedCartItem);
+        
+        return true; // come back to this
+     }
+
 
     
 
