@@ -87,4 +87,12 @@ public class ReviewService {
         return reviewRepository.save(review).getLikes();
     }
 
+    //Function to let the owner reply a review
+    @Transactional
+    public String replyToReview(int reviewerID, String replyerId) {
+        /*
+         * Implement logic to only let owner reply and to not let ownere reply more than once 
+         */
+        return "I disagree with your review";
+    }
 }
