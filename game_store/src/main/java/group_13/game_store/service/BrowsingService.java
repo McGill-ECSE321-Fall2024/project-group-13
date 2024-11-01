@@ -163,8 +163,22 @@ public class BrowsingService {
             return false; // come back to this
         }
 
-        // Add the game to the customer's cart by creating a cartItem
+        // Check if the game is already in the cart
         CartItem.Key cartItemKey = new CartItem.Key(loggedInCustomer, addedGame);
+        CartItem cartItem = cartItemRepository.findByKey(cartItemKey);
+
+        if (cartItem != null) {
+            // Indicate that the game is already in the cart
+            return false;
+        }
+
+        // Check if there is enough stock of the game
+        if (addedGame.getStock() < quantity) {
+            // Indicate that there is not enough stock
+            return false;
+        }
+
+        // Add the game to the customer's cart by creating a cartItem
         CartItem addedCartItem = new CartItem(cartItemKey, quantity);
 
         cartItemRepository.save(addedCartItem);
@@ -265,8 +279,16 @@ public class BrowsingService {
             return false; // come back to this
         }
 
-        // Add the game to the customer's wishlist by creating a wishlistItem
+        // Check if the game is already in the wishlist
         WishlistItem.Key wishlistItemKey = new WishlistItem.Key(loggedInCustomer, addedGame);
+        WishlistItem wishlistItem = wishlistItemRepository.findByKey(wishlistItemKey);
+
+        if (wishlistItem != null) {
+            // Indicate that the game is already in the wishlist
+            return false;
+        }
+
+        // Add the game to the customer's wishlist by creating a wishlistItem
         WishlistItem addedWishlistItem = new WishlistItem(wishlistItemKey);
 
         wishlistItemRepository.save(addedWishlistItem);
