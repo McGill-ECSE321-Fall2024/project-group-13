@@ -11,6 +11,13 @@ import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import java.util.List;
 
+/* Description:
+This service class is responsible for handling the browsing functionality of the application. 
+It allows customers, employees, and owners to view games in the database, games in a specific category, 
+and games with a title starting with a given string. It also allows customers to add games to their cart, 
+view their cart, remove games from their cart, and update the quantity of a game in their cart.
+ */
+
 @Service
 public class BrowsingService {
     @Autowired
@@ -204,7 +211,25 @@ public class BrowsingService {
         return true;
     }
 
+    // Get the total price of the cart
+    public double getCartSubtotalPrice(String username){
+        List<CartItem> customerCart = getCustomerCartByUsername(username);
+        double subtotalPrice = 0;
 
-    
+        for (CartItem cartItem : customerCart) {
+            subtotalPrice += cartItem.getQuantity() * cartItem.getKey().getGame().getPrice();
+        }
+
+        return subtotalPrice;
+    }
+
+    // Clear the cart
+    public void clearCart(String username){
+        List<CartItem> customerCart = getCustomerCartByUsername(username);
+
+        for (CartItem cartItem : customerCart) {
+            cartItemRepository.delete(cartItem);
+        }
+    }
 
 }
