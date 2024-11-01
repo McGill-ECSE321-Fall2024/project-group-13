@@ -5,17 +5,20 @@ import org.springframework.stereotype.Service;
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameRepository;
+import group_13.game_store.repository.WishlistItemRepository;
 import jakarta.transaction.Transactional;
 import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
+import group_13.game_store.model.WishlistItem;
+
 import java.util.List;
 
 /* Description:
 This service class is responsible for handling the browsing functionality of the application. 
 It allows customers, employees, and owners to view games in the database, games in a specific category, 
 and games with a title starting with a given string. It also allows customers to add games to their cart, 
-view their cart, remove games from their cart, and update the quantity of a game in their cart.
+view their cart, remove games from their cart/wishlist, and update the quantity of a game in their cart.
  */
 
 @Service
@@ -28,6 +31,9 @@ public class BrowsingService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private WishlistItemRepository wishlistItemRepository;
 
     // ************************** EMPLOYEE AND OWNER BROWSING **************************
 
@@ -136,7 +142,7 @@ public class BrowsingService {
         return games;
     }
 
-     // ************************** CUSTOMER CART AND WISHLIST **************************
+     // ************************** CUSTOMER CART **************************
 
      // Allows a customer to add a game to their cart using the gameID
      @Transactional 
@@ -237,4 +243,62 @@ public class BrowsingService {
         }
     }
 
+     // ************************** CUSTOMER WISHLIST **************************
+    
+     // Gets a customer's wishlist by their username
+     @Transactional
+     public List<WishlistItem> getCustomerWishlistByUsername(String username) {
+        List<WishlistItem> customerWishlist = wishlistItemRepository.findByKey_CustomerAccount_Username(username);
+        return customerWishlist;
+     }
+
+     // Adds a game to their wishlist
+     @Transactional
+     public boolean addGameToWishlist(int gameID, String username){
+        Game addedGame = getAvailableGameById(gameID);
+
+        // Check if the user exists and is a customer
+        Customer loggedInCustomer = customerRepository.findByUsername(username);
+
+        if (loggedInCustomer == null) {
+            // indicate that there is an issue with the loggedIn customer (might not be needed)
+            return false; // come back to this
+        }
+
+        // Add the game to the customer's wishlist by creating a wishlistItem
+        WishlistItem.Key wishlistItemKey = new WishlistItem.Key(loggedInCustomer, addedGame);
+        WishlistItem addedWishlistItem = new WishlistItem(wishlistItemKey);
+
+        wishlistItemRepository.save(addedWishlistItem);
+
+        return true; // come back to this
+     }
+
+        // Remove Game from wishlist
+        @Transactional
+        public boolean removeGameFromWishlist(String username, int gameID){
+            // Check if game is in wishlist
+            WishlistItem.Key wishlistItemKey = new WishlistItem.Key(customerRepository.findByUsername(username), gameRepository.findByGameID(gameID));
+            WishlistItem wishlistItem = wishlistItemRepository.findByKey(wishlistItemKey);
+    
+            if (wishlistItem == null) {
+                // Indicate that the game is not in the wishlist
+                return false;
+            }
+    
+            // Remove the game from the wishlist
+            wishlistItemRepository.delete(wishlistItem);
+            return true;
+    
+         }
+
+    // Clear the wishlist
+    @Transactional
+    public void clearWishlist(String username){
+        List<WishlistItem> customerWishlist = getCustomerWishlistByUsername(username);
+
+        for (WishlistItem wishlistItem : customerWishlist) {
+            wishlistItemRepository.delete(wishlistItem);
+        }
+    }
 }
