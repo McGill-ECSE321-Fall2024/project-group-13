@@ -106,14 +106,25 @@ public class ReviewService {
     }
 
 
-    //Function to get the average rating of a game based on reviews
+    //Function to get the average rating of a game based on reviews it will return -1 if it failed
     @Transactional
     public int getGameRating(int gameID) {
-        /*
-         * Implement logic to find the average rating of a game
-         */
-        return 1;
-    }
+        //Get the list of scores associated to our game via our reviewRepo
+        List<Integer> scores = reviewRepository.findScoresByGameId(gameID);
 
+        //If scores could not be found return -1 to indicate an error
+        if(scores == null) {
+            return -1;
+        }
+
+        //Calculate the total sum of scores by iterating through the scores list
+        Integer sum = 0;
+        for(Integer score : scores){
+            sum += score;
+        } 
+
+        //Return the average score
+        return sum/scores.size();
+    }
 
 }
