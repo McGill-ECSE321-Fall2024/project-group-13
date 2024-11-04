@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
 import group_13.game_store.model.Game;
+//import group_13.game_store.model.GameCopy;
 
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.GameRepository;
+//import group_13.game_store.repository.GameCopyRepository;
 
 @Service
 public class OrderManagementService {
@@ -30,24 +32,38 @@ public class OrderManagementService {
     private GameRepository gameRepo;
 
     @Transactional
-    public boolean returnOrder(int orderID, int copyID, int gameID, Date aReturnDate)  {
-        Date dateOfPurchase = Date.valueOf(LocalDate.now());
+    public boolean returnOrder(int orderID, int gameID)  {
         // validation
-            // check if order exists
-            
-            // check if copy exists
-
-            // check if game exists
-
-            // check if it purchase was made within previous 7 days
-
-
-        // increment stock count of the Game
-        // modify isReturned status of the GameCopy
-        // add returnDate of GameCopy
-
+        // check if order exists
+        Order orderToReturn = orderRepo.findByOrderID(orderID);
+        if (orderToReturn == null) {
+            throw new IllegalArgumentException("No order with order ID " + orderID + ".");
+        }
         
-        // default response
+        // check if game exists
+        Game gameToReturn = gameRepo.findByGameID(gameID);
+        if (gameToReturn == null) {
+            throw new IllegalArgumentException("No game with game ID " + gameID + ".");
+        }
+
+        // check if 7 days passed after the purchas within a set amount of milliseconds
+        Date dateToPotentiallyReturn = Date.valueOf(LocalDate.now());
+        Date dateOfPurchase = orderToReturn.getPurchaseDate();
+        long millisecondsElapsedSincePurchase = dateToPotentiallyReturn.getTime() - dateOfPurchase.getTime();
+        long millisecondsInDay = 1000 * 60 * 60 * 24;
+        long daysPassedSincePurchase = millisecondsElapsedSincePurchase/millisecondsInDay;
+        if (daysPassedSincePurchase <= 7) {
+             // increment stock count of the Game
+            int currentStockOfGame = gameToReturn.getStock();
+            gameToReturn.setStock(currentStockOfGame + 1);
+            // modify isReturned status of the Oredr
+            orderToReturn.setIsReturned(true);
+            // add returnDate of Order
+            orderToReturn.setReturnDate(dateToPotentiallyReturn);
+            return true;
+        } 
+        
+        // default response if purchase was not made within 7 days
         return false;
     }
 

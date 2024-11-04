@@ -138,6 +138,13 @@ public class Order
     return wasSet;
   }
 
+  public boolean setIsReturned(boolean newReturnStatus) { 
+    boolean wasSet = false;
+    isReturned = newReturnStatus;
+    wasSet = true;
+    return wasSet;
+  }
+
   public void delete()
   {
     customer = null;
