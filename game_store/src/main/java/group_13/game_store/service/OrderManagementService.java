@@ -60,6 +60,12 @@ public class OrderManagementService {
             orderToReturn.setIsReturned(true);
             // add returnDate of Order
             orderToReturn.setReturnDate(dateToPotentiallyReturn);
+
+            // save these changes in the database
+            gameToReturn = gameRepo.save(gameToReturn);
+            orderToReturn = orderRepo.save(orderToReturn);
+
+
             return true;
         } 
         
@@ -80,13 +86,11 @@ public class OrderManagementService {
 
         
         // get list of all orders associated with customer
-
-            
-            
-        return null;
+        List<Order> listOfCustomerOrder = orderRepo.findByUsername(aCustomer);
+        return listOfCustomerOrder;
     }
 
     // might need another service method ...
-    // findbyOrderID
+    
 
 }
