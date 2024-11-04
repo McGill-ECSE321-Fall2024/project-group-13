@@ -55,10 +55,10 @@ public class PaymentService {
                 return false;
             }
 
-            String postalCode = deliveryInformation.getDeliveryAddress().getPostalCode();
-            if (!postalCode.matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$"))
+            if (!deliveryInformation.getDeliveryAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$"))
             {
-                System.out.print("Customer postal code information is not valid");
+                System.out.print("Customer delivery address postal code information is not valid");
+                return false;
             }
 
             PaymentInformation paymentInformation = customer.getPaymentInformation();
@@ -78,6 +78,12 @@ public class PaymentService {
             if (Integer.toString(paymentInformation.getCvvCode()).length() != 3)
             {
                 System.out.print("Customer does not have valid CVV code");
+                return false;
+            }
+
+            if (!paymentInformation.getBillingAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$"))
+            {
+                System.out.print("Customer billing address postal code information is not valid");
                 return false;
             }
 
