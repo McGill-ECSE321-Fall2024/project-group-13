@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +30,8 @@ public class OrderManagementService {
     private GameRepository gameRepo;
 
     @Transactional
-    public Order createOrder(Date aPurchaseDate, Date aReturnDate, Customer aCustomer) {
-        // validation
-            // check if customer exists
-
-        // create order
-
-        // save it to repo
-        return null;
-    }
-
-    @Transactional
     public boolean returnOrder(int orderID, int copyID, int gameID, Date aReturnDate)  {
+        Date dateOfPurchase = Date.valueOf(LocalDate.now());
         // validation
             // check if order exists
             
@@ -61,13 +52,25 @@ public class OrderManagementService {
     }
 
     @Transactional
-    public List<Order> getAllOrdersOfCustomer(String aCustomer) {
+    public List<Order> getOrderHistoryOfCustomer(String aCustomer) {
         // validation
-            // check if customer exists
-            // check if user is a customer
+        // check if customer exists
+        // also checks if user is not an Owner or Employee
+        Customer customerToLookup = customerRepo.findByUsername(aCustomer);
+        if (customerToLookup == null) {
+            // placeholder exception
+            throw new IllegalArgumentException("No customer with username ID " + aCustomer + ".");
+        }
+
+        
+        // get list of all orders associated with customer
+
+            
+            
         return null;
     }
 
     // might need another service method ...
+    // findbyOrderID
 
 }
