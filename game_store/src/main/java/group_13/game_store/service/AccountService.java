@@ -1,5 +1,7 @@
 package group_13.game_store.service;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,19 +153,46 @@ public class AccountService {
             return false;
         }
 
-        // Check that the password matches with the encrypted account password somehow...
+        // Check that the password matches with the encrypted account password
+        String hashedPassword = hashPassword(password);
+        if (hashedPassword != user.getPassword()) {
+            System.out.println("Password does not match the account with the given username.");
+            return false;
+        }
 
         // Make the 'currently logged in' account this one somehow...
-        
+        // TODO AFTER DISCUSSION
+
         return true;
     }
 
 
     // Method to encrypt a password
     @Transactional
-    public String encryptPassword(String password) {
-        // Google the encryption methods to try and figure something out for the encryption
-        return "";
+    public static String hashPassword(String password) {
+        // Create a MessageDigest instance to use SHA-256 hashing
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+            // Hash the password
+            byte[] hashedBytes = messageDigest.digest(password.getBytes());
+
+            // Convert into hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashedBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+
+            return hexString.toString(); // Return the hashed password
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error: SHA-256 algorithm not found.", e);
+        }
+
     }
 
     // Method to create/update payment info

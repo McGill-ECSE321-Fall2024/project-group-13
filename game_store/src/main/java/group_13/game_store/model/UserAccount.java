@@ -1,5 +1,6 @@
 package group_13.game_store.model;
 
+import group_13.game_store.service.AccountService;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
@@ -41,7 +42,7 @@ public class UserAccount
     name = aName;
     username = aUsername;
     email = aEmail;
-    password = aPassword;
+    password = AccountService.hashPassword(aPassword);
     phoneNumber = aPhoneNumber;
   }
 
