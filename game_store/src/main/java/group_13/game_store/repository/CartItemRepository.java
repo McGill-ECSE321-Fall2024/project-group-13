@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import jakarta.transaction.Transactional;
 import group_13.game_store.model.CartItem;
+import java.util.List;
 
 public interface CartItemRepository extends CrudRepository<CartItem, CartItem.Key> {
 
@@ -17,6 +18,8 @@ public interface CartItemRepository extends CrudRepository<CartItem, CartItem.Ke
      */
     public CartItem findByKey(CartItem.Key key);
 
+    public List<CartItem> findByKey_CustomerAccount_Username(String username);
+}
     /**
      * Retrieves all CartItem instances associated with a specific customer username.
      * 
