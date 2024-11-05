@@ -1,10 +1,14 @@
 package group_13.game_store.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 
 // line 12 "model.ump"
@@ -23,6 +27,10 @@ public class Customer extends UserAccount
 
   @OneToOne(optional=true)
   private DeliveryInformation deliveryInformation;
+
+  //Link the customer to the reviews that they liked
+  @ManyToMany(mappedBy = "likedByCustomers")
+  private List<Review> likedReviews = new ArrayList<>();
 
   //------------------------
   // CONSTRUCTOR
@@ -45,6 +53,11 @@ public class Customer extends UserAccount
   public PaymentInformation getPaymentInformation()
   {
     return paymentInformation;
+  }
+
+  // Lets you know what reviews the customer has liked
+  public List<Review> getLikedReviews() {
+    return likedReviews;
   }
 
   //Method to get the permission level from a customer
