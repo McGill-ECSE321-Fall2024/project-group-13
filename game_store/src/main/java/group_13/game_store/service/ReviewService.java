@@ -43,7 +43,7 @@ public class ReviewService {
     private GameRepository gameRepository;
     
     @Transactional
-    public Review createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, Game aReviewedGame){
+    public boolean createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, Game aReviewedGame){
         try {
             //Find the reviewer based on the reviewerId provided. If its not a customer it wont find it and because it retunrs null no review will be left
             Customer aReviewer = customerRepo.findByUsername(reviewerID);
@@ -51,7 +51,7 @@ public class ReviewService {
             //If no reviewer were found return null and do nothing
             if(aReviewer == null) {
                 System.out.println("No customer found with the provided ID for the create Review function");
-                return null;
+                return false;
             }
     
             //Get the list of games associated to the customer
@@ -68,26 +68,27 @@ public class ReviewService {
             //If the customer does not have the game you cannot write a review and return null
             if (!customerHasGame) {
                 System.out.println("Customer does not have the game so it can't review it");
-                return null;
+                return false;
             }
     
             //Create the reviews with the inputed parameters 
             Review review = new Review(aDescription, aScore, aLikes, aDate, aReviewer, aReviewedGame);
     
             //Save the created review
-            return reviewRepository.save(review);
+            reviewRepository.save(review);
+            return true;
         
         } catch (Exception e) {
             //If an error occurs return null and print the error
             System.out.println("Error in createReview: " + e);
-            return null;
+            return false;
         }
     }
         
 
     //Function to add a like to a review based on the reviewID and the customerID we return -1 if it failed to add the like and the new amount of likes if it succeeded
     @Transactional
-    public int addLike(int reviewID, String customerUsername){
+    public boolean addLike(int reviewID, String customerUsername){
         try {
             //Unfortunately no real way to know if this works or not unless we test the repo itself
             List<Review> likedReviews = reviewRepository.findReviewsLikedByCustomer(customerUsername);
@@ -103,7 +104,7 @@ public class ReviewService {
             //If the customer has already liked the review we cannot like it again and return -1 to indicate an error
             if(customerHasLiked) {
                 System.out.println("Customer has already liked the review so it can't like it again");
-                return -1;
+                return false;
             }
 
             //Find the review based on the reviewID and add a like to it
@@ -117,18 +118,19 @@ public class ReviewService {
             
             //Save the review with the new like added to it
             review.setLikes(review.getLikes() + 1);
-            return reviewRepository.save(review).getLikes();
+            reviewRepository.save(review);
+            return true;
 
         } catch (Exception e) {
             //If an error occurs return -1 and print the error
             System.out.println("Error in addLike: " + e);
-            return -1;
+            return false;
         }
     }
 
     //Function to remove a like from a review based on the reviewID and the customerID we return -1 if it failed to remove the like and the new amount of likes if it succeeded
     @Transactional
-    public int removeLike(int reviewID, String customerUsername){
+    public boolean removeLike(int reviewID, String customerUsername){
         try {
             //Unfortunately no real way to know if this works or not unless we test the repo itself
             List<Review> likedReviews = reviewRepository.findReviewsLikedByCustomer(customerUsername);
@@ -144,7 +146,7 @@ public class ReviewService {
             //If the customer has not liked the review we cannot remove a like and return -1 to indicate an error
             if(!customerHasLiked) {
                 System.out.println("Customer has not liked the review so it can't unlike it");
-                return -1;
+                return false;
             }
             
             //Find the review based on the reviewID
@@ -158,52 +160,60 @@ public class ReviewService {
 
             //Remove the like from the review
             review.setLikes(review.getLikes() - 1);
-            return reviewRepository.save(review).getLikes();
+            reviewRepository.save(review);
+            return true;
 
         } catch (Exception e) {
             //If an error occurs return -1 and print the error
             System.out.println("Error in removeLike: " + e);
-            return -1;
+            return false;
         }
     }
 
     //Function to let the owner reply a review
     @Transactional
-    public String replyToReview(int reviewID, String replyerId, String reply) {
-
-        //Look for the user based on the replyerId
-        Owner replyerOwner = ownerRepo.findByUsername(replyerId);
-        Customer replyerCustomer = customerRepo.findByUsername(replyerId);
-        Employee replyerEmployee = employeeRepo.findByUsername(replyerId);
-
-        //If no owner were found but another type of account was then the user given is not a owner and cannot reply to reviews
-        if(replyerOwner == null && (replyerCustomer != null || replyerEmployee != null)) {
-            System.out.println("User does not have permission to reply to reviews");
-            return "User does not have permission to reply to reviews";
-
-        //If no owner were found and no other type of account was found then the user does not exist
-        } else if (replyerOwner == null && replyerCustomer == null && replyerEmployee == null) {
-                System.out.println("User not found");
-                return "User not found";
+    public boolean replyToReview(int reviewID, String replyerId, String reply) {
+        try {
+            //Look for the user based on the replyerId
+            Owner replyerOwner = ownerRepo.findByUsername(replyerId);
+            Customer replyerCustomer = customerRepo.findByUsername(replyerId);
+            Employee replyerEmployee = employeeRepo.findByUsername(replyerId);
+    
+            //If no owner were found but another type of account was then the user given is not a owner and cannot reply to reviews
+            if(replyerOwner == null && (replyerCustomer != null || replyerEmployee != null)) {
+                System.out.println("User does not have permission to reply to reviews");
+                return false;
+    
+            //If no owner were found and no other type of account was found then the user does not exist
+            } else if (replyerOwner == null && replyerCustomer == null && replyerEmployee == null) {
+                    System.out.println("User not found");
+                    return false;
+            }
+    
+            //Create a reply with the inputed parameters and the current date
+            Date today = Date.valueOf(LocalDate.now());
+            Reply replyToReview = new Reply(reply, today);
+            replyRepo.save(replyToReview);
+    
+            //Find the review based on the reviewID
+            Review review = reviewRepository.findByReviewID(reviewID);
+    
+            //If the review is not found return an error message
+            if (review == null) {
+                System.out.println("Review not found");
+                return false;
+            }
+    
+            //Set the reply to the review and save it
+            review.setReply(replyToReview);
+            reviewRepository.save(review);
+            return true;
+        } catch (Exception e) {
+            //If an error occurs return false and print the error
+            System.out.println("Error in replyToReview: " + e);
+            return false;
         }
 
-        //Create a reply with the inputed parameters and the current date
-        Date today = Date.valueOf(LocalDate.now());
-        Reply replyToReview = new Reply(reply, today);
-        replyRepo.save(replyToReview);
-
-        //Find the review based on the reviewID
-        Review review = reviewRepository.findByReviewID(reviewID);
-
-        //If the review is not found return an error message
-        if (review == null) {
-            System.out.println("Review not found");
-            return "Review not found";
-        }
-
-        //Set the reply to the review and save it
-        review.setReply(replyToReview);
-        return reviewRepository.save(review).getReply().getText();
     }
 
     //Function to let the owner reply a review
@@ -243,5 +253,4 @@ public class ReviewService {
             return -1;
         }
     }
-
 }
