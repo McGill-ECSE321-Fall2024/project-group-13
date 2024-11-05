@@ -210,6 +210,7 @@ public class AccountService {
         }
         // Ensures that the given user is a customer
         if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer");
             return false;
         }
 
@@ -221,6 +222,7 @@ public class AccountService {
         // Validates input payment information
         boolean valid = validatePaymentInfo(cardNumber, expiryDate, cvvCode, billingAddress, billingName);
         if (!valid) {
+            // Calling the validate method will print something if there is a problem
             return false;
         }
 
@@ -252,6 +254,7 @@ public class AccountService {
          }
          // Ensures that the given user is a customer
          if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer");
              return false;
          }
  
@@ -263,6 +266,7 @@ public class AccountService {
          // Validates input delivery information
          boolean valid = validateDeliveryInfo(deliveryName, deliveryAddress);
          if (!valid) {
+            // Calling the validate method will print something if there is a problem
              return false;
          }
  
