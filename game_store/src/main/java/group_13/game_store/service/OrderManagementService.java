@@ -39,32 +39,32 @@ public class OrderManagementService {
         if (orderToReturn == null) {
             throw new IllegalArgumentException("No order with order ID " + orderID + ".");
         }
-        
         // check if game exists
         Game gameToReturn = gameRepo.findByGameID(gameID);
         if (gameToReturn == null) {
             throw new IllegalArgumentException("No game with game ID " + gameID + ".");
         }
+        // check if order was already returned
+        if (orderToReturn.getIsReturned() == true) {
+            throw new IllegalArgumentException("Order " + orderID + " was already returned.");
+        }
 
         // check if 7 days passed after the purchas within a set amount of milliseconds
-        Date dateToPotentiallyReturn = Date.valueOf(LocalDate.now());
+        Date dateToReturn = Date.valueOf(LocalDate.now());
         Date dateOfPurchase = orderToReturn.getPurchaseDate();
-        long millisecondsElapsedSincePurchase = dateToPotentiallyReturn.getTime() - dateOfPurchase.getTime();
+        long millisecondsElapsedSincePurchase = dateToReturn.getTime() - dateOfPurchase.getTime();
         long millisecondsInDay = 1000 * 60 * 60 * 24;
         long daysPassedSincePurchase = millisecondsElapsedSincePurchase/millisecondsInDay;
         if (daysPassedSincePurchase <= 7) {
              // increment stock count of the Game
             int currentStockOfGame = gameToReturn.getStock();
             gameToReturn.setStock(currentStockOfGame + 1);
-            // modify isReturned status of the Oredr
-            orderToReturn.setIsReturned(true);
-            // add returnDate of Order
-            orderToReturn.setReturnDate(dateToPotentiallyReturn);
+            // add returnDate of Order and modifying the isReturned status of the Order
+            orderToReturn.setReturnDate(dateToReturn);
 
             // save these changes in the database
             gameToReturn = gameRepo.save(gameToReturn);
             orderToReturn = orderRepo.save(orderToReturn);
-
 
             return true;
         } 
@@ -89,8 +89,4 @@ public class OrderManagementService {
         List<Order> listOfCustomerOrder = orderRepo.findByUsername(aCustomer);
         return listOfCustomerOrder;
     }
-
-    // might need another service method ...
-    
-
 }
