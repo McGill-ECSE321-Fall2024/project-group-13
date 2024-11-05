@@ -76,6 +76,8 @@ public class ReviewRepositoryTests {
         assertEquals(review.getScore(), reviewFromDb.getScore());
     }
 
+
+    //Test to find all reviews associated to a gameID
     @Test
     public void testFindReviewScoresWithGameId() {
         // Arrange
@@ -102,10 +104,13 @@ public class ReviewRepositoryTests {
         review3 = reviewRepo.save(review3);
 
         // Act
-        List<Integer> scores = reviewRepo.findScoresByGameId(game.getGameID());
+        List<Review> reviews = reviewRepo.findByReviewedGame_GameID(game.getGameID());
 
         // Assert
-        assertNotNull(scores);
-        assertEquals(3, scores.size());
+        assertNotNull(reviews);
+        assertEquals(3, reviews.size());
+        assertEquals(review1.getScore(), reviews.get(0).getScore());
+        assertEquals(review2.getScore(), reviews.get(1).getScore());
+        assertEquals(review3.getScore(), reviews.get(2).getScore());
     }
 }

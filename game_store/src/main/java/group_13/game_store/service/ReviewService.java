@@ -110,21 +110,21 @@ public class ReviewService {
     @Transactional
     public int getGameRating(int gameID) {
         //Get the list of scores associated to our game via our reviewRepo
-        List<Integer> scores = reviewRepository.findScoresByGameId(gameID);
+        List<Review> reviews = reviewRepository.findByReviewedGame_GameID(gameID);
 
         //If scores could not be found return -1 to indicate an error
-        if(scores == null) {
+        if(reviews == null) {
             return -1;
         }
 
         //Calculate the total sum of scores by iterating through the scores list
         Integer sum = 0;
-        for(Integer score : scores){
-            sum += score;
+        for(Review review : reviews){
+            sum += review.getScore();
         } 
 
         //Return the average score
-        return sum/scores.size();
+        return sum/reviews.size();
     }
 
 }

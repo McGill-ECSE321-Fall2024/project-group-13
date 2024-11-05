@@ -13,9 +13,9 @@ public interface GameRepository extends CrudRepository<Game, Integer> {
     // allows instantiation of an Game instance that is stored in the local database by its unique ID
     public Game findByGameID(int gameID);
 
-    @Query("SELECT DISTINCT g FROM Game g " +
-           "JOIN g.gameCopies gc " +
-           "JOIN gc.order o " +
-           "WHERE o.customer = :customer")
+    
+    //Method to find all games associated to a customer
+    @Query("SELECT DISTINCT gc.game FROM GameCopy gc JOIN gc.order o WHERE o.customer = :customer")
     List<Game> findGamesByCustomer(@Param("customer") Customer customer);
+
 }
