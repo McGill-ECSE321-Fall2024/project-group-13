@@ -1,8 +1,6 @@
 package group_13.game_store.model;
 
 import group_13.game_store.service.AccountService;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
@@ -17,7 +15,6 @@ import jakarta.persistence.InheritanceType;
 // line 150 "model.ump"
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 public class UserAccount
 {
   @Id

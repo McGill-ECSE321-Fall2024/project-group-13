@@ -1,7 +1,5 @@
 package group_13.game_store.model;
 
-import jakarta.persistence.DiscriminatorValue;
-
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
@@ -12,7 +10,6 @@ import jakarta.persistence.OneToOne;
 // line 12 "model.ump"
 // line 155 "model.ump"
 @Entity
-@DiscriminatorValue("Customer")
 public class Customer extends UserAccount
 {
 

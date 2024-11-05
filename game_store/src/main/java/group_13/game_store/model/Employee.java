@@ -1,6 +1,5 @@
 package group_13.game_store.model;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 /*PLEASE DO NOT EDIT THIS CODE*/
@@ -11,7 +10,6 @@ import jakarta.persistence.Entity;
 // line 37 "model.ump"
 // line 231 "model.ump"
 @Entity
-@DiscriminatorValue("Employee")
 public class Employee extends UserAccount
 {
 
