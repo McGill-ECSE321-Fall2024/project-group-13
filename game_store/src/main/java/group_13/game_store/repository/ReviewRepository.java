@@ -19,4 +19,7 @@ public interface ReviewRepository extends CrudRepository<Review, Integer> {
     @Query("SELECT r FROM Review r JOIN r.likedByCustomers c WHERE c.username = :username")
     List<Review> findReviewsLikedByCustomer(@Param("username") String username);
 
+    //Method to find the reviews not replied to by the owner
+    List<Review> findByReplyIsNull();
+
 }

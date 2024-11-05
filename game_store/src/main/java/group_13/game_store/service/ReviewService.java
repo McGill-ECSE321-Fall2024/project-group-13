@@ -218,11 +218,17 @@ public class ReviewService {
 
     //Function to let the owner reply a review
     @Transactional
-    public List<Review> getUnansweredReviews(int gameID) {
-        /*
-         * Implement logic to find all the unsanwered reviews for a game
-         */
-        return null;
+    public List<Review> getUnansweredReviews() {
+        try{
+            //Get the list of reviews that have no reply
+            List<Review> reviews = reviewRepository.findByReplyIsNull();
+            return reviews;
+
+        } catch (Exception e) {
+            //If an error occurs return null and print the error
+            System.out.println("Error in getUnansweredReviews: " + e);
+            return null;
+        }
     }
 
 
