@@ -189,7 +189,7 @@ public class BrowsingService {
      // Returns the cart of a given customer
      @Transactional
      public List<CartItem> getCustomerCartByUsername(String username){
-        List<CartItem> customerCart = cartItemRepository.findByKey_CustomerAccount_Username(username);
+        List<CartItem> customerCart = cartItemRepository.findByKeyCustomerAccountUsername(username);
         return customerCart;
      }
 
