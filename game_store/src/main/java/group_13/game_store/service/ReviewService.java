@@ -1,16 +1,24 @@
 package group_13.game_store.service;
 
 import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import group_13.game_store.model.Customer;
+import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
+import group_13.game_store.model.Owner;
+import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
 import group_13.game_store.repository.CustomerRepository;
+import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameRepository;
+import group_13.game_store.repository.OwnerRepository;
+import group_13.game_store.repository.ReplyRepository;
 import group_13.game_store.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 
@@ -20,7 +28,16 @@ public class ReviewService {
     private ReviewRepository reviewRepository;
 
     @Autowired
+    private ReplyRepository replyRepo;
+
+    @Autowired
+    private OwnerRepository ownerRepo;
+
+    @Autowired
     private CustomerRepository customerRepo;
+
+    @Autowired
+    private EmployeeRepository employeeRepo;
 
     @Autowired
     private GameRepository gameRepository;
@@ -152,11 +169,41 @@ public class ReviewService {
 
     //Function to let the owner reply a review
     @Transactional
-    public String replyToReview(int reviewerID, String replyerId) {
-        /*
-         * Implement logic to only let owner reply and to not let ownere reply more than once 
-         */
-        return "I disagree with your review";
+    public String replyToReview(int reviewID, String replyerId, String reply) {
+
+        //Look for the user based on the replyerId
+        Owner replyerOwner = ownerRepo.findByUsername(replyerId);
+        Customer replyerCustomer = customerRepo.findByUsername(replyerId);
+        Employee replyerEmployee = employeeRepo.findByUsername(replyerId);
+
+        //If no owner were found but another type of account was then the user given is not a owner and cannot reply to reviews
+        if(replyerOwner == null && (replyerCustomer != null || replyerEmployee != null)) {
+            System.out.println("User does not have permission to reply to reviews");
+            return "User does not have permission to reply to reviews";
+
+        //If no owner were found and no other type of account was found then the user does not exist
+        } else if (replyerOwner == null && replyerCustomer == null && replyerEmployee == null) {
+                System.out.println("User not found");
+                return "User not found";
+        }
+
+        //Create a reply with the inputed parameters and the current date
+        Date today = Date.valueOf(LocalDate.now());
+        Reply replyToReview = new Reply(reply, today);
+        replyRepo.save(replyToReview);
+
+        //Find the review based on the reviewID
+        Review review = reviewRepository.findByReviewID(reviewID);
+
+        //If the review is not found return an error message
+        if (review == null) {
+            System.out.println("Review not found");
+            return "Review not found";
+        }
+
+        //Set the reply to the review and save it
+        review.setReply(replyToReview);
+        return reviewRepository.save(review).getReply().getText();
     }
 
     //Function to let the owner reply a review
