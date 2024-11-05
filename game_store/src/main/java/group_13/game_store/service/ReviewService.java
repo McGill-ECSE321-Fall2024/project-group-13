@@ -42,6 +42,7 @@ public class ReviewService {
     @Autowired
     private GameRepository gameRepository;
     
+    //Method to create a new review based on the inputed parameters, it will return false if it failed to create the review and true if it succeeded
     @Transactional
     public boolean createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, Game aReviewedGame){
         try {
@@ -86,7 +87,7 @@ public class ReviewService {
     }
         
 
-    //Function to add a like to a review based on the reviewID and the customerID we return -1 if it failed to add the like and the new amount of likes if it succeeded
+    //Method to add a like to a review based on the reviewID and the customerID we return false if it failed to add the like and true if it succeeded
     @Transactional
     public boolean addLike(int reviewID, String customerUsername){
         try {
@@ -128,7 +129,7 @@ public class ReviewService {
         }
     }
 
-    //Function to remove a like from a review based on the reviewID and the customerID we return -1 if it failed to remove the like and the new amount of likes if it succeeded
+    //Method to remove a like from a review based on the reviewID and the customerID we return false if it failed to remove the like and true if it succeeded
     @Transactional
     public boolean removeLike(int reviewID, String customerUsername){
         try {
@@ -170,7 +171,7 @@ public class ReviewService {
         }
     }
 
-    //Function to let the owner reply a review
+    //Method to let the owner reply to a review if there are no current replies to it
     @Transactional
     public boolean replyToReview(int reviewID, String replyerId, String reply) {
         try {
@@ -203,6 +204,12 @@ public class ReviewService {
                 System.out.println("Review not found");
                 return false;
             }
+
+            //If the review already has a reply return an error message
+            if (review.hasReply()) {
+                System.out.println("Review already has a reply");
+                return false;
+            }
     
             //Set the reply to the review and save it
             review.setReply(replyToReview);
@@ -216,7 +223,7 @@ public class ReviewService {
 
     }
 
-    //Function to let the owner reply a review
+    //Method to show all unanswered reviews
     @Transactional
     public List<Review> getUnansweredReviews() {
         try{
@@ -232,7 +239,7 @@ public class ReviewService {
     }
 
 
-    //Function to get the average rating of a game based on reviews it will return -1 if it failed
+    //Method to get the average rating of a game based on reviews it will return -1 if it failed
     @Transactional
     public int getGameRating(int gameID) {
         try {
