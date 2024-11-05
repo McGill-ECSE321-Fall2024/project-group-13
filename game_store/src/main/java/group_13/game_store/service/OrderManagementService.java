@@ -45,7 +45,7 @@ public class OrderManagementService {
             throw new IllegalArgumentException("No game with game ID " + gameID + ".");
         }
         // check if order was already returned
-        if (orderToReturn.getIsReturned() == true) {
+        if (orderToReturn.isIsReturned() == true) {
             throw new IllegalArgumentException("Order " + orderID + " was already returned.");
         }
 
