@@ -1,6 +1,5 @@
 package group_13.game_store.model;
 
-import group_13.game_store.service.AccountService;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
@@ -39,7 +38,7 @@ public class UserAccount
     name = aName;
     username = aUsername;
     email = aEmail;
-    password = AccountService.hashPassword(aPassword);
+    password = aPassword;
     phoneNumber = aPhoneNumber;
   }
 

@@ -135,8 +135,11 @@ public class AccountService {
             return false;
         }
         
+        // Hash the password before we save it
+        String hashedPassword = hashPassword(password);
+
         // Create the customer account
-        Customer newCustomerAccount = new Customer(name, username, email, password, phoneNumber);
+        Customer newCustomerAccount = new Customer(name, username, email, hashedPassword, phoneNumber);
         newCustomerAccount.setPermissionLevel(1);
         repo.save(newCustomerAccount);
         return true;
