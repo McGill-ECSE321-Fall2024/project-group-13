@@ -5,11 +5,14 @@ package group_13.game_store.model;
 
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 // line 99 "model.ump"
@@ -34,10 +37,16 @@ public class Review
   //Review Associations
   @ManyToOne
   private Customer reviewer;
+
   @ManyToOne
   private Game reviewedGame;
+
   @OneToOne(optional = true)
   private Reply reply;
+
+  //Link the review to the customers that liked it
+  @OneToMany
+  private List<Customer> likedByCustomers = new ArrayList<>();
 
   //------------------------
   // CONSTRUCTOR
@@ -74,6 +83,17 @@ public class Review
     wasSet = true;
     return wasSet;
   }
+
+  // Get the list of customers that liked the review
+  public List<Customer> getLikedByCustomers() {
+    return likedByCustomers;
+  }
+
+  // Lets you set the list of customers that liked the review
+  public void setLikedByCustomers(List<Customer> likedByCustomers) {
+    this.likedByCustomers = likedByCustomers;
+  }
+
 
   public boolean setDescription(String aDescription)
   {
