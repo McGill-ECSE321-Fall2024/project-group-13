@@ -28,10 +28,6 @@ public class Customer extends UserAccount
   @OneToOne(optional=true)
   private DeliveryInformation deliveryInformation;
 
-  //Link the customer to the reviews that they liked
-  @ManyToMany(mappedBy = "likedByCustomers")
-  private List<Review> likedReviews = new ArrayList<>();
-
   //------------------------
   // CONSTRUCTOR
   //------------------------
@@ -53,11 +49,6 @@ public class Customer extends UserAccount
   public PaymentInformation getPaymentInformation()
   {
     return paymentInformation;
-  }
-
-  // Lets you know what reviews the customer has liked
-  public List<Review> getLikedReviews() {
-    return likedReviews;
   }
 
   //Method to get the permission level from a customer
