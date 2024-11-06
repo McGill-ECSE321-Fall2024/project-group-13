@@ -9,5 +9,5 @@ public interface OrderRepository extends CrudRepository<Order, Integer> {
     public Order findByOrderID(int orderID);
 
     // returns all orders associated with customer username
-    public List<Order> findByUsername(String customer);
+    public List<Order> findByCustomer_Username(String customer);
 }
