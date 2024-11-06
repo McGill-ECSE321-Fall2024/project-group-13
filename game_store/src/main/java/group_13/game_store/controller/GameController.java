@@ -3,6 +3,7 @@ package group_13.game_store.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import group_13.game_store.service.AccountService;
 import group_13.game_store.service.BrowsingService;
 import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.service.ReviewService;
@@ -18,5 +19,7 @@ public class GameController {
     @Autowired
     ReviewService reviewService;
 
-    
+    @Autowired
+    AccountService accountService;
+
 }
