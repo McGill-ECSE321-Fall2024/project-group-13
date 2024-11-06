@@ -191,7 +191,8 @@ public class GameStoreManagementService {
     
     // Retrieve game archive requests
     List<Game> getGameArchiveRequests(){
-        return (List<Game>) gameRepository.findByStatusIn(Game.VisibilityStatus.PendingArchive);
+        List<Game.VisibilityStatus> pendingArchive = List.of(Game.VisibilityStatus.PendingArchive);
+        return (List<Game>) gameRepository.findByStatusIn(pendingArchive);
     }
 
     // ************************** GAME ARCHIVING **************************

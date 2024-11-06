@@ -25,7 +25,7 @@ public interface GameRepository extends CrudRepository<Game, Integer> {
 
     Game findByGameIDAndStockGreaterThanAndStatusIn(int gameID, int stock, List<Game.VisibilityStatus> statuses);
 
-    List<Game> findByStatusIn(Game.VisibilityStatus status);
+    List<Game> findByStatusIn(List<Game.VisibilityStatus> statuses);
     
     //Method to find all games associated to a customer
     @Query("SELECT DISTINCT gc.game FROM GameCopy gc JOIN gc.order o WHERE o.customer = :customer")
