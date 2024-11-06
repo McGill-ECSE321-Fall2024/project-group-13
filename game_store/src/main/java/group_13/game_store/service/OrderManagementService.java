@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+//import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -86,7 +87,9 @@ public class OrderManagementService {
 
         
         // get list of all orders associated with customer
-        List<Order> listOfCustomerOrder = orderRepo.findByUsername(aCustomer);
+
+        //will need to get all customers
+        List<Order> listOfCustomerOrder = orderRepo.findByCustomer_Username(aCustomer);
         return listOfCustomerOrder;
     }
 }
