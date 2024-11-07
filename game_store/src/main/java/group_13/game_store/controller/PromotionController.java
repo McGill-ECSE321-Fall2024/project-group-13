@@ -117,7 +117,7 @@ public class PromotionController {
         return new PromotionResponseDto(promotion);
     }
 
-    @PutMapping("/games/promotions/{promotionID}?loggedInUser={loggedInUsername}")
+    @PutMapping("/games/promotions/{promotionID}")
     public PromotionResponseDto updatePromotion(@PathVariable int promotionID, @RequestParam String loggedInUsername,
             @RequestBody PromotionRequestDto request
     ) {
@@ -140,7 +140,7 @@ public class PromotionController {
         return new PromotionResponseDto(promotion);
     }
 
-    @DeleteMapping("/games/promotions/{promotionID}?loggedInUser={loggedInUsername}")
+    @DeleteMapping("/games/promotions/{promotionID}")
     public void deletePromotion(@PathVariable int promotionID, 
         @RequestParam String loggedInUsername
     ){

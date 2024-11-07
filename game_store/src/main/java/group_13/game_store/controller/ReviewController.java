@@ -40,10 +40,22 @@ public class ReviewController {
      * /games/reviews [GET]
      */
     @GetMapping("/games/reviews")
-    public ReviewListResponseDto getReviews() {
-        // Return a list of all reviews via the ReviewListResponseDto
-        return new ReviewListResponseDto(reviewService.getAllReviews());
-    }
+    public ReviewListResponseDto getReviews(@RequestParam boolean isPendingReply,
+    @RequestParam String loggedInUsername) {
+        if(!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new IllegalArgumentException("User does not have permission to see all reviews.");
+        }
+
+        if (!isPendingReply) {
+
+            // Return a list of all reviews via the ReviewListResponseDto
+            return new ReviewListResponseDto(reviewService.getAllReviews());
+        } else {
+
+            // Return a list of all reviews that have not been replied to via the ReviewListResponseDto
+            return new ReviewListResponseDto(reviewService.getUnansweredReviews());
+        }
+    }  
 
     /*
      * /games/{gameID}/reviews [GET, POST]
@@ -54,7 +66,7 @@ public class ReviewController {
         return new ReviewListResponseDto(reviewService.getAllReviewsForGame(gameID));
     }
 
-    @PostMapping("/games/{gameID}/reviews?loggedInUser={loggedInUsername}")
+    @PostMapping("/games/{gameID}/reviews")
     public ReviewResponseDto createReview(@PathVariable int gameID,
             @RequestParam String loggedInUsername,
             @RequestBody ReviewRequestDto request) {
@@ -88,7 +100,7 @@ public class ReviewController {
         return new ReviewResponseDto(reviewService.getReview(reviewID));
     }
 
-    @PutMapping("/games/{gameID}/reviews/{reviewID}?loggedInUser={loggedInUsername}")
+    @PutMapping("/games/{gameID}/reviews/{reviewID}")
     public ReviewResponseDto updateReview(@PathVariable int reviewID,
             @RequestParam String loggedInUsername,
             @RequestBody ReviewRequestDto request) {
@@ -115,7 +127,7 @@ public class ReviewController {
         return new ReplyResponseDto(reply);
     }
 
-    @PostMapping("/games/{gameID}/reviews/{reviewID}/reply?loggedInUser={loggedInUsername}")
+    @PostMapping("/games/{gameID}/reviews/{reviewID}/reply")
     public ReplyResponseDto replyToReview(@PathVariable int reviewID, @RequestParam String loggedInUsername,
             @RequestBody ReplyRequestDto request) {
 
@@ -131,4 +143,8 @@ public class ReviewController {
 
         return new ReplyResponseDto(reply);
     }
+
+    /*
+     * /games/{id}/reviews/{reviewID}/reply [PUT]
+     */
 }
