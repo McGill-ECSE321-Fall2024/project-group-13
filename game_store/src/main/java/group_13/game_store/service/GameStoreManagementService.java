@@ -221,6 +221,20 @@ public class GameStoreManagementService {
         return updatedPromotion;
     }
 
+    // Update an existing promotion
+    @Transactional
+    public void deletePromotion(int promotionId){
+        //Look for the promotion in the promotion repo
+        Promotion promotion = promotionRepository.findByPromotionID(promotionId);
+
+        //Make sure a promotion was found. Throw an error otherwise
+        if(promotion == null) { 
+            throw new IllegalArgumentException("Promotion with ID " + promotionId + " not found.");
+        }
+        
+        promotionRepository.delete(promotion);
+    }
+
     // Retrieve all promotions
     public List<Promotion> getAllPromotions() {
         return (List<Promotion>) promotionRepository.findAll();

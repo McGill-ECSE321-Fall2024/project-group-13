@@ -231,12 +231,17 @@ public class GameController {
         return new PromotionResponseDto(promotion);
     }
 
-    // Not implemented in the service layer yet
-    // @DeleteMapping("/games/promotions/{promotionID}?loggedInUser={loggedInUsername}")
-    // public void deletePromotion(@PathVariable int promotionID, @RequestParam
-    // String loggedInUsername){
-    // //Delete a promotion by its unique ID
-    // gameStoreManagementService.deletePromotion(loggedInUsername, promotionID);
-    // }
+    @DeleteMapping("/games/promotions/{promotionID}?loggedInUser={loggedInUsername}")
+    public void deletePromotion(@PathVariable int promotionID, 
+        @RequestParam String loggedInUsername
+    ){
+        // Check if the user has permission to delete promotions 
+        if (!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new IllegalArgumentException("User does not have permission to delete promotions.");
+        }
+
+        //Delete a promotion by its unique ID
+        gameStoreManagementService.deletePromotion(promotionID);
+    }
 
 }
