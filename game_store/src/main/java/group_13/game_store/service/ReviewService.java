@@ -54,6 +54,11 @@ public class ReviewService {
         return (List<Review>) reviewRepository.findByReviewedGame_GameID(gameID);
     }
 
+    // Method retrieve a specific review
+    public Review getReview(int reviewID){
+        return reviewRepository.findByReviewID(reviewID);
+    }
+
     //Method to create a new review based on the inputed parameters, it will return false if it failed to create the review and true if it succeeded
     @Transactional
     public Review createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, int gameID){
