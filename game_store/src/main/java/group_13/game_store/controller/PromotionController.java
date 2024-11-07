@@ -36,7 +36,7 @@ public class PromotionController {
     /*
      * /games/promotions [GET, POST]
      */
-    @GetMapping("/games/promotions?loggedInUser={loggedInUsername}")
+    @GetMapping("/games/promotions")
     public PromotionListResponseDto getPromotions(@RequestParam String loggedInUsername) {
         // Check if the user has permission to see all promotions
         if (!accountService.hasPermission(loggedInUsername, 3)) {
@@ -47,7 +47,7 @@ public class PromotionController {
         return new PromotionListResponseDto(gameStoreManagementService.getAllPromotions());
     }
 
-    @PostMapping("/games/promotions?loggedInUser={loggedInUsername}")
+    @PostMapping("/games/promotions")
     public PromotionResponseDto createPromotion(@RequestParam String loggedInUsername,
             @RequestBody PromotionRequestDto request) {
 
@@ -71,7 +71,7 @@ public class PromotionController {
     /*
      * /games/{gameID}/promotions [GET, POST]
      */
-    @GetMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")
+    @GetMapping("/games/{gameID}/promotions")
     public PromotionListResponseDto getPromotionsByGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
         // Check if the user has permission to add a promotion to a game
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
@@ -86,7 +86,7 @@ public class PromotionController {
         }
     }
 
-    @PostMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")
+    @PostMapping("/games/{gameID}/promotions")
     public PromotionResponseDto addPromotionToGame(@PathVariable int gameID, @RequestParam String loggedInUsername,
             @RequestBody PromotionRequestDto request) {
         // Check if the user has permission to add a promotion to a game
