@@ -41,7 +41,7 @@ public class Review
   @ManyToOne
   private Game reviewedGame;
 
-  @OneToOne(optional = true)
+  @OneToOne(optional = true, mappedBy = "review")
   private Reply reply;
 
   //Link the review to the customers that liked it
