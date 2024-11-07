@@ -1,14 +1,11 @@
 package group_13.game_store.model;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
 
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 
 // line 12 "model.ump"
