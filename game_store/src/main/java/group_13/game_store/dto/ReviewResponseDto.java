@@ -1,6 +1,5 @@
 package group_13.game_store.dto;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 import group_13.game_store.model.Review;
@@ -11,6 +10,7 @@ public class ReviewResponseDto {
     private String description;
     private int score;
     private int likes;
+    private String reviewerUsername;
 
     //Set the date to a LocalDate instead of a Date to make it easier to work with
     private LocalDate date;
@@ -25,49 +25,34 @@ public class ReviewResponseDto {
         this.description = review.getDescription();
         this.score = review.getScore();
         this.likes = review.getLikes();
+        this.reviewerUsername = review.getReviewer().getUsername();
 
         //Convert the Date to a LocalDate
         this.date = review.getDate().toLocalDate();
     }
 
-    //Setter and Getter methods for the ReviewResponseDto
+    //Only Getter methods for the ReviewResponseDto as response objects should not be modified
     public int getReviewID() {
         return reviewID;
-    }
-
-    public void setReviewID(int reviewID) {
-        this.reviewID = reviewID;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public int getScore() {
         return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
     }
 
     public int getLikes() {
         return likes;
     }
 
-    public void setLikes(int likes) {
-        this.likes = likes;
+    public String getReviewerUsername() {
+        return reviewerUsername;
     }
 
     public LocalDate getDate() {
         return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date.toLocalDate();
     }
 }
