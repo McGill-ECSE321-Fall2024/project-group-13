@@ -5,13 +5,18 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import group_13.game_store.dto.PromotionListResponseDto;
+import group_13.game_store.dto.PromotionRequestDto;
+import group_13.game_store.dto.PromotionResponseDto;
 import group_13.game_store.dto.ReplyRequestDto;
 import group_13.game_store.dto.ReplyResponseDto;
 import group_13.game_store.dto.ReviewListResponseDto;
@@ -93,5 +98,75 @@ public class GameController {
 
         return new ReplyResponseDto(reply);
     }
+
+    @GetMapping("/games/promotions")
+    public PromotionListResponseDto getPromotions(){
+        //Return a list of all promotions via the PromotionListResponseDto
+        return new PromotionListResponseDto(gameStoreManagementService.getAllPromotions());
+    }
+
+    @PostMapping("/games/promotions?loggedInUser={loggedInUsername}")
+    public PromotionResponseDto createPromotion(@RequestParam String loggedInUsername, @RequestBody PromotionRequestDto request){
+        //Create a promotion with the information from the request
+        //It already checks for permission based on the logged in user's username
+        gameStoreManagementService.addPromotion(loggedInUsername, 
+            request.getPercentage(),
+            request.getStartDate(),
+            request.getEndDate(),
+            request.getTitle(),
+            request.getDescription()
+        );
+
+        //Return the promotion as a response object
+        return new PromotionResponseDto(request.getPercentage(), request.getTitle(),request.getDescription(), request.getStartDate(), request.getEndDate());
+    }
+
+    // @GetMapping("/games/{gameID}/promotions")
+    // Nothing in the service layer to currently do this
+
+    @PostMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")
+    public PromotionResponseDto addPromotionToGame(@PathVariable int gameID,@RequestParam String loggedInUsername, @RequestBody PromotionRequestDto request){
+        //Add a promotion to a game by its unique ID
+        gameStoreManagementService.addPromotion(loggedInUsername, 
+            request.getPercentage(),
+            request.getStartDate(),
+            request.getEndDate(),
+            request.getTitle(),
+            request.getDescription()
+        );
+
+        //Return the promotion as a response object
+        return new PromotionResponseDto(request.getPercentage(), request.getTitle(),request.getDescription(), request.getStartDate(), request.getEndDate());
+    }
+
+    //@GetMapping("/games/{gameID}/promotions/{promotionID}")
+    //Not implemented in the service layer yet
+
+    // Not implemented in the service layer yet
+    // @PutMapping("/games/promotions/{promotionID}?loggedInUser={loggedInUsername}")
+    // public PromotionResponseDto updatePromotion(@PathVariable int promotionID, @RequestParam String loggedInUsername, @RequestBody PromotionRequestDto request){
+    //     //Update a promotion by its unique ID
+    //    //Add a promotion to a game by its unique ID
+
+    //    gameStoreManagementService.addPromotion(loggedInUsername, 
+    //         request.getPercentage(),
+    //         request.getStartDate(),
+    //         request.getEndDate(),
+    //         request.getTitle(),
+    //         request.getDescription()
+    //     );
+
+    //     //Return the promotion as a response object
+    //     return new PromotionResponseDto(request.getPercentage(), request.getTitle(),request.getDescription(), request.getStartDate(), request.getEndDate());
+    // }
+
+
+    // Not implemented in the service layer yet
+    // @DeleteMapping("/games/promotions/{promotionID}?loggedInUser={loggedInUsername}")
+    // public void deletePromotion(@PathVariable int promotionID, @RequestParam String loggedInUsername){
+    //     //Delete a promotion by its unique ID
+    //     gameStoreManagementService.deletePromotion(loggedInUsername, promotionID);
+    // }
+    
 
 }

@@ -1,17 +1,23 @@
 package group_13.game_store.dto;
 
+import java.sql.Date;
+
+import group_13.game_store.model.GameCategory;
+
 public class PromotionRequestDto {
     private int percentage;
-    private String name;
     private String description;
-    private String code;
+    private Date startDate;
+    private Date endDate;
+    private String title;
     private double discount;
 
-    public PromotionRequestDto(int percentage, String name, String description, String code, double discount) {
+    public PromotionRequestDto(int percentage, String description, Date startDate, Date endDate, String title, double discount) {
         this.percentage = percentage;
-        this.name = name;
         this.description = description;
-        this.code = code;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.title = title;
         this.discount = discount;
     }
 
@@ -19,36 +25,44 @@ public class PromotionRequestDto {
         return percentage;
     }
 
-    public void setPercentage(int percentage) {
-        this.percentage = percentage;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getDescription() {
         return description;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setPercentage(int percentage) {
+        this.percentage = percentage;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getCode() {
-        return code;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
-    public double getDiscount() {
-        return discount;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setDiscount(double discount) {

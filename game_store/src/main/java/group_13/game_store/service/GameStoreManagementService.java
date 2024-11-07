@@ -178,7 +178,7 @@ public class GameStoreManagementService {
     }
 
     // Retrieve all promotions
-    List<Promotion> getAllPromotions(){
+    public List<Promotion> getAllPromotions(){
         return (List<Promotion>) promotionRepository.findAll();
     }
 
