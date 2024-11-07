@@ -15,10 +15,6 @@ public class ReviewResponseDto {
     //Set the date to a LocalDate instead of a Date to make it easier to work with
     private LocalDate date;
 
-    @SuppressWarnings("unused")
-    private ReviewResponseDto() {
-    }
-
     //Constructor for the ReviewResponseDto
     public ReviewResponseDto(Review review) {
         this.reviewID = review.getReviewID();
