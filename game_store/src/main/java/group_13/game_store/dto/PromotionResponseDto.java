@@ -1,7 +1,8 @@
 package group_13.game_store.dto;
 
-import java.sql.Date;
 import java.time.LocalDate;
+
+import group_13.game_store.model.Promotion;
 
 public class PromotionResponseDto {
     private int percentage;
@@ -12,13 +13,13 @@ public class PromotionResponseDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public PromotionResponseDto(int percentage, String title, String description, Date startDate, Date endDate) {
-        this.percentage = percentage;
-        this.title = title;
-        this.description = description;
+    public PromotionResponseDto(Promotion promotion) {
+        this.percentage = promotion.getPercentage();
+        this.title = promotion.getTitle();
+        this.description = promotion.getDescription();
 
-        this.startDate = startDate.toLocalDate();
-        this.endDate = endDate.toLocalDate();
+        this.startDate = promotion.getStartDate().toLocalDate();
+        this.endDate = promotion.getEndDate().toLocalDate();
     }
 
     public int getPercentage() {
