@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
+import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Owner;
 import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
@@ -42,9 +43,20 @@ public class ReviewService {
     @Autowired
     private GameRepository gameRepository;
     
+
+    // Retrieve all reviews
+    List<Review> getAllReviews(){
+        return (List<Review>) reviewRepository.findAll();
+    }
+
+    // Retrieve all reviews for a specific game
+    List<Review> getAllReviewsForGame(int gameID){
+        return (List<Review>) reviewRepository.findByReviewedGame_GameID(gameID);
+    }
+
     //Method to create a new review based on the inputed parameters, it will return false if it failed to create the review and true if it succeeded
     @Transactional
-    public boolean createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, Game aReviewedGame){
+    public Review createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, int gameID){
         try {
             //Find the reviewer based on the reviewerId provided. If its not a customer it wont find it and because it retunrs null no review will be left
             Customer aReviewer = customerRepo.findByUsername(reviewerID);
@@ -52,12 +64,20 @@ public class ReviewService {
             //If no reviewer were found return null and do nothing
             if(aReviewer == null) {
                 System.out.println("No customer found with the provided ID for the create Review function");
-                return false;
+                return null;
             }
     
             //Get the list of games associated to the customer
             List<Game> games = gameRepository.findGamesByCustomer(aReviewer);
             
+            Game aReviewedGame = gameRepository.findByGameID(gameID);
+
+            //If no game were found return null and do nothing
+            if(aReviewedGame == null) {
+                System.out.println("No game found with the provided ID for the create Review function");
+                return null;
+            }
+
             //Go through the list of games associated to the customer and check if the reviewed game is there
             boolean customerHasGame = false;
             for(Game game : games) {
@@ -69,20 +89,19 @@ public class ReviewService {
             //If the customer does not have the game you cannot write a review and return null
             if (!customerHasGame) {
                 System.out.println("Customer does not have the game so it can't review it");
-                return false;
+                return null;
             }
     
             //Create the reviews with the inputed parameters 
             Review review = new Review(aDescription, aScore, aLikes, aDate, aReviewer, aReviewedGame);
     
-            //Save the created review
-            reviewRepository.save(review);
-            return true;
+            //Save the created review;
+            return reviewRepository.save(review);
         
         } catch (Exception e) {
             //If an error occurs return null and print the error
             System.out.println("Error in createReview: " + e);
-            return false;
+            return null;
         }
     }
         
