@@ -202,7 +202,7 @@ public class ReviewService {
 
     //Method to let the owner reply to a review if there are no current replies to it
     @Transactional
-    public boolean replyToReview(int reviewID, String replyerId, String reply) {
+    public Reply replyToReview(int reviewID, String replyerId, String reply) {
         try {
             //Look for the user based on the replyerId
             Owner replyerOwner = ownerRepo.findByUsername(replyerId);
@@ -212,12 +212,12 @@ public class ReviewService {
             //If no owner were found but another type of account was then the user given is not a owner and cannot reply to reviews
             if(replyerOwner == null && (replyerCustomer != null || replyerEmployee != null)) {
                 System.out.println("User does not have permission to reply to reviews");
-                return false;
+                return null;
     
             //If no owner were found and no other type of account was found then the user does not exist
             } else if (replyerOwner == null && replyerCustomer == null && replyerEmployee == null) {
                     System.out.println("User not found");
-                    return false;
+                    return null;
             }
     
             //Create a reply with the inputed parameters and the current date
@@ -231,23 +231,22 @@ public class ReviewService {
             //If the review is not found return an error message
             if (review == null) {
                 System.out.println("Review not found");
-                return false;
+                return null;
             }
 
             //If the review already has a reply return an error message
             if (review.hasReply()) {
                 System.out.println("Review already has a reply");
-                return false;
+                return null;
             }
     
             //Set the reply to the review and save it
             review.setReply(replyToReview);
-            reviewRepository.save(review);
-            return true;
+            return reviewRepository.save(review).getReply();
         } catch (Exception e) {
             //If an error occurs return false and print the error
             System.out.println("Error in replyToReview: " + e);
-            return false;
+            return null;
         }
 
     }

@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import group_13.game_store.dto.ReplyRequestDto;
+import group_13.game_store.dto.ReplyResponseDto;
 import group_13.game_store.dto.ReviewListResponseDto;
 import group_13.game_store.dto.ReviewRequestDto;
 import group_13.game_store.dto.ReviewResponseDto;
+import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.BrowsingService;
@@ -71,6 +74,24 @@ public class GameController {
     public ReviewResponseDto getReview(@PathVariable int reviewID){
         //Return a review by its unique ID via the ReviewResponseDto
         return new ReviewResponseDto(reviewService.getReview(reviewID));
+    }
+
+    @GetMapping("/games/gameID/reviews/{reviewID}/reply")
+    public ReplyResponseDto getReplyToReview(@PathVariable int reviewID){
+        //Reply to a review by its unique ID and return the review as a response object
+
+        Reply reply = reviewService.getReplyByReview(reviewID);
+        
+        return  new ReplyResponseDto(reply);
+    }
+
+    @PostMapping("/games/{gameID}/reviews/{reviewID}/reply?loggedInUser={loggedInUsername}")
+    public ReplyResponseDto replyToReview(@PathVariable int reviewID, @RequestParam String loggedInUsername, @RequestBody ReplyRequestDto request){
+        //Reply to a review by its unique ID and return the review as a response object, date gets automatically set to the current date when reply to review is called
+        //Reply to review makes sure that the user is the owner of the game before allowing them to reply
+        Reply reply = reviewService.replyToReview(reviewID, loggedInUsername, request.getText());
+
+        return new ReplyResponseDto(reply);
     }
 
 }
