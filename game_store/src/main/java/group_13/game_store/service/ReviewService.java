@@ -42,6 +42,9 @@ public class ReviewService {
 
     @Autowired
     private GameRepository gameRepository;
+
+    @Autowired
+    private AccountService accountService;
     
 
     // Retrieve all reviews
@@ -66,7 +69,7 @@ public class ReviewService {
 
     //Method to create a new review based on the inputed parameters, it will return false if it failed to create the review and true if it succeeded
     @Transactional
-    public Review createReview(String aDescription, int aScore, int aLikes, Date aDate, String reviewerID, int gameID){
+    public Review createReview(String aDescription, int aScore, List<Customer> likedByCustomers, Date aDate, String reviewerID, int gameID){
         try {
             //Find the reviewer based on the reviewerId provided. If its not a customer it wont find it and because it retunrs null no review will be left
             Customer aReviewer = customerRepo.findByUsername(reviewerID);
@@ -103,7 +106,7 @@ public class ReviewService {
             }
     
             //Create the reviews with the inputed parameters 
-            Review review = new Review(aDescription, aScore, aLikes, aDate, aReviewer, aReviewedGame);
+            Review review = new Review(aDescription, aScore, aDate, aReviewer, aReviewedGame, likedByCustomers);
     
             //Save the created review;
             return reviewRepository.save(review);
@@ -114,6 +117,42 @@ public class ReviewService {
             return null;
         }
     }
+
+     // Update an existing review
+     @Transactional
+     public Review updateReview(int reviewID, String aDescription, int aScore, List<Customer> likedByCustomers, Date aDate, String reviewerID) {
+         // Check if the user has permission to update a game
+         if (!accountService.hasPermission(reviewerID, 1)) {
+             throw new IllegalArgumentException("User does not have permission to update a game.");
+         }
+ 
+         // Validate fields
+         if (aDescription == null || aDescription.isEmpty()) {
+             throw new IllegalArgumentException("Descirption cannot be null or empty.");
+         }
+         if (aScore == 0) {
+             throw new IllegalArgumentException("Score cannot be null or empty.");
+         }
+         if (likedByCustomers == null) {
+             throw new IllegalArgumentException("Liked by customers cannot be null.");
+         }
+         if (reviewID <= 0 || aScore <= 0) {
+             throw new IllegalArgumentException("Review ID must be greater than zero.");
+         }
+ 
+         Review review = reviewRepository.findByReviewID(reviewID);
+         if (review != null) {
+            review.setDescription(aDescription);
+            review.setScore(aScore);
+            review.setLikedByCustomers(likedByCustomers);
+            review.setDate(aDate);
+            reviewRepository.save(review);
+         } else {
+             throw new IllegalArgumentException("Review with ID " + reviewID + " not found.");
+         }
+ 
+         return review; 
+     }
         
 
     //Method to add a like to a review based on the reviewID and the customerID we return false if it failed to add the like and true if it succeeded
@@ -144,10 +183,10 @@ public class ReviewService {
             List<Customer> customerThatLiked = review.getLikedByCustomers();
             Customer customer = customerRepo.findByUsername(customerUsername);
             customerThatLiked.add(customer);
+
+            //Add the like to the review this also increments likes
             review.setLikedByCustomers(customerThatLiked);
             
-            //Save the review with the new like added to it
-            review.setLikes(review.getLikes() + 1);
             reviewRepository.save(review);
             return true;
 
@@ -186,10 +225,10 @@ public class ReviewService {
             List<Customer> customerThatLiked = review.getLikedByCustomers();
             Customer customer = customerRepo.findByUsername(customerUsername);
             customerThatLiked.remove(customer);
+
+            //Remove the like from the review this also decrements likes    
             review.setLikedByCustomers(customerThatLiked);
 
-            //Remove the like from the review
-            review.setLikes(review.getLikes() - 1);
             reviewRepository.save(review);
             return true;
 
