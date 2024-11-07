@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 
 @RestController
 public class GameController {
+
     @Autowired
     BrowsingService browsingService;
 
@@ -41,226 +42,104 @@ public class GameController {
     @Autowired
     AccountService accountService;
 
-    // Get method for all games depending on usertype
-    @GetMapping("/games?loggedInUser={loggedInUsername}")
-    public GameListResponseDto getAllGames(@RequestParam String loggedInUsername) {
-
-        // Check if the user is at least an employee
-        boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
-
-        // If the user is at least an employee, return all games with no filter
-        if (isAtLeastEmployee) {
-            Iterable<Game> games = browsingService.getAllGames();
-
-            List<GameResponseDto> gameResponseDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gameResponseDtos.add(gameResponseDto);
-            }
-
-            return new GameListResponseDto(gameResponseDtos);
-        }
-
-        // If the user is not at least an employee, query only available games
-        else {
-            List<Game> games = browsingService.getAllAvailableGames();
-
-            List<GameResponseDto> gameResponseDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gameResponseDtos.add(gameResponseDto);
-            }
-
-            return new GameListResponseDto(gameResponseDtos);
-        }
-
-    }
-
-    // Search bar functionality get all games that start with the given title
-    @GetMapping("/games?startingWith={startingWith}&loggedInUser={loggedInUsername}")
-    public GameListResponseDto getGamesStartingWith(@RequestParam String startingWith,
-            @RequestParam String loggedInUsername) {
-
-        // Check if the user is at least an employee
-        boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
-
-        // If the user is at least an employee, return all games that start with the
-        // given title unfiltered
-        if (isAtLeastEmployee) {
-            Iterable<Game> games = browsingService.getGamesByTitleStartingWith(startingWith);
-
-            List<GameResponseDto> gameResponseDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gameResponseDtos.add(gameResponseDto);
-            }
-
-            return new GameListResponseDto(gameResponseDtos);
-        }
-
-        // If the user is not at least an employee, query only available games
-        else {
-            // Get all available games that start with the given title
-            List<Game> games = browsingService.getAvailableGamesByTitleStartingWith(startingWith);
-
-            List<GameResponseDto> gameResponseDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gameResponseDtos.add(gameResponseDto);
-            }
-
-            return new GameListResponseDto(gameResponseDtos);
-        }
-
-    }
-
-    // Get all games by category name
-    @GetMapping("/games?category={categoryName}&loggedInUser={loggedInUsername}")
-    public GameListResponseDto getGamesByCategory(@RequestParam String categoryName,
+    // Get all games with optional filters
+    @GetMapping("/games")
+    public GameListResponseDto getGames(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category,
             @RequestParam String loggedInUsername) {
 
         boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
 
-        // If the user is at least an employee, return all games by category name
-        // unfiltered
-        if (isAtLeastEmployee) {
-            Iterable<Game> games = browsingService.getGamesByCategoryName(categoryName);
+        List<Game> games;
 
-            List<GameResponseDto> gameResponseDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gameResponseDtos.add(gameResponseDto);
+        if (title != null) {
+            // Search games by title starting with
+            if (isAtLeastEmployee) {
+                games = browsingService.getGamesByTitleStartingWith(title);
+            } else {
+                games = browsingService.getAvailableGamesByTitleStartingWith(title);
             }
-
-            return new GameListResponseDto(gameResponseDtos);
+        } else if (category != null) {
+            // Get games by category
+            if (isAtLeastEmployee) {
+                games = browsingService.getGamesByCategoryName(category);
+            } else {
+                games = browsingService.getAvailableGamesByCategoryName(category);
+            }
+        } else {
+            // Get all games
+            if (isAtLeastEmployee) {
+                games = (List<Game>) browsingService.getAllGames();
+            } else {
+                games = browsingService.getAllAvailableGames();
+            }
         }
 
-        // If the user is not at least an employee, query only available games
-        else {
-            List<Game> games = browsingService.getAvailableGamesByCategoryName(categoryName);
+        List<GameResponseDto> gameResponseDtos = new ArrayList<>();
 
-            List<GameResponseDto> gameResponseDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gameResponseDtos.add(gameResponseDto);
-            }
-
-            return new GameListResponseDto(gameResponseDtos);
+        for (Game game : games) {
+            GameResponseDto gameResponseDto = new GameResponseDto(
+                    game.getGameID(),
+                    game.getTitle(),
+                    game.getDescription(),
+                    game.getImg(),
+                    game.getStock(),
+                    game.getPrice(),
+                    game.getParentalRating(),
+                    game.getStatus(),
+                    game.getCategory().getName(),
+                    game.getPromotion() != null ? game.getPromotion().getTitle() : null);
+            gameResponseDtos.add(gameResponseDto);
         }
 
+        return new GameListResponseDto(gameResponseDtos);
     }
 
     // Get a game by its ID
-    @GetMapping("/games/{gameID}?loggedInUser={loggedInUsername}")
+    @GetMapping("/games/{gameID}")
     public GameResponseDto getGameById(@PathVariable int gameID, @RequestParam String loggedInUsername) {
 
-        // Check if the logged in user is at least an employee
         boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
 
-        // If the user is at least an employee, let them query unfiltered all games
+        Game foundGame;
+
         if (isAtLeastEmployee) {
-            Game foundGame = browsingService.getGameById(gameID);
-
-            // Convert the found game into a DTO
-            GameResponseDto gameResponseDto = new GameResponseDto(foundGame.getGameID(), foundGame.getTitle(),
-                    foundGame.getDescription(),
-                    foundGame.getImg(), foundGame.getStock(), foundGame.getPrice(), foundGame.getParentalRating(),
-                    foundGame.getStatus(),
-                    foundGame.getCategory().getName(), foundGame.getPromotion().getTitle());
-
-            return gameResponseDto;
-
-        }
-
-        // If the user is a customer or Guest, only allow them to browse available games
-        else {
-            Game foundGame = browsingService.getAvailableGameById(gameID);
-
-            // Convert the found game into a DTO
-            GameResponseDto gameResponseDto = new GameResponseDto(foundGame.getGameID(), foundGame.getTitle(),
-                    foundGame.getDescription(),
-                    foundGame.getImg(), foundGame.getStock(), foundGame.getPrice(), foundGame.getParentalRating(),
-                    foundGame.getStatus(),
-                    foundGame.getCategory().getName(), foundGame.getPromotion().getTitle());
-
-            return gameResponseDto;
-        }
-    }
-
-    // Get games which are pending archived / requested to be archived by employees
-    // (Owner)
-    @GetMapping("/games?isPendingArchive={isPendingArchive}?loggedInUser={loggedInUsername}")
-    public GameListResponseDto getGameArchiveRequests(@RequestParam boolean isPendingArchive,
-            @RequestParam String loggedInUsername) {
-        // Check if the user is the owner
-        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
-
-        // If the user is not the owner, throw permission denied exception -- come back
-        // to handling this
-        if (!isOwner) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to view pending archive requests.");
-        }
-
-        if (!isPendingArchive) {
-            // throw an exception and status code
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // come back to this
+            foundGame = browsingService.getGameById(gameID);
         } else {
-            // Retreive the games which are marked to be reviewed by the owner, which
-            // requested to be archived by employees
-            List<Game> games = gameStoreManagementService.getGameArchiveRequests();
-            ArrayList<GameResponseDto> gamesDtos = new ArrayList<GameResponseDto>();
-
-            for (Game game : games) {
-                GameResponseDto gameDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                        game.getDescription(),
-                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                        game.getCategory().getName(), game.getPromotion().getTitle());
-                gamesDtos.add(gameDto);
-            }
-            return new GameListResponseDto(gamesDtos);
+            foundGame = browsingService.getAvailableGameById(gameID);
         }
+
+        if (foundGame == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
+
+        GameResponseDto gameResponseDto = new GameResponseDto(
+                foundGame.getGameID(),
+                foundGame.getTitle(),
+                foundGame.getDescription(),
+                foundGame.getImg(),
+                foundGame.getStock(),
+                foundGame.getPrice(),
+                foundGame.getParentalRating(),
+                foundGame.getStatus(),
+                foundGame.getCategory().getName(),
+                foundGame.getPromotion() != null ? foundGame.getPromotion().getTitle() : null);
+
+        return gameResponseDto;
     }
 
-    // will probably also eventually need to implement same method for
-    // pendingVisible ?? if employees can suggest games to be visible
+    // Add a game to the store (Owner only)
+    @PostMapping("/games")
+    public GameResponseDto addGame(@RequestBody GameRequestDto gameRequestDto,
+                                   @RequestParam String loggedInUsername) {
 
-    // Add a game to the store
-    @PostMapping("/games?loggedInUser={loggedInUsername}")
-    public GameResponseDto addGame(@RequestBody GameRequestDto gameRequestDto, @RequestParam String loggedInUsername) {
-        // Check if the user is the owner
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
-        // If the user is not the owner, throw a permission denied exception
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to add games.");
         }
 
-        // Use the service to add the game and retrieve the created Game entity
         Game createdGame = gameStoreManagementService.addGame(
                 loggedInUsername,
                 gameRequestDto.getTitle(),
@@ -272,7 +151,6 @@ public class GameController {
                 gameRequestDto.getStatus(),
                 gameRequestDto.getCategoryId());
 
-        // Construct the response DTO from the created Game entity -- Kinda sketch need to revisit
         GameResponseDto gameResponseDto = new GameResponseDto(
                 createdGame.getGameID(),
                 createdGame.getTitle(),
@@ -285,46 +163,21 @@ public class GameController {
                 createdGame.getCategory().getName(),
                 createdGame.getPromotion() != null ? createdGame.getPromotion().getTitle() : null);
 
-        // Return the response DTO
         return gameResponseDto;
     }
 
-    // Archive a game from the store if owner or request to archive a game if employee
-    @DeleteMapping("/games/{gameID}?loggedInUser={loggedInUsername}")
-    public void archiveGame(@RequestParam int gameID, @RequestParam String loggedInUsername) {
-        // Check if the user is the owner
+    // Update a game in the store (Owner only)
+    @PutMapping("/games/{gameID}")
+    public GameResponseDto updateGame(@PathVariable int gameID,
+                                      @RequestBody GameRequestDto gameRequestDto,
+                                      @RequestParam String loggedInUsername) {
+
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
-        // if user is the owner, archive the game
-        if (isOwner) {
-            gameStoreManagementService.archiveGame(gameID, loggedInUsername);
-        }
-
-        // if user is an employee, request to archive the game
-        boolean isEmployee = accountService.hasPermission(loggedInUsername, 2);
-        if (isEmployee) {
-            gameStoreManagementService.archiveGameRequest(gameID, loggedInUsername);
-        }
-
-        // if user is not an employee or owner, throw a permission denied exception
-        if (!isOwner && !isEmployee) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive games.");
-        }
-    }
-
-    // Update a game in the store
-    @PutMapping("/games/{gameID}?loggedInUser={loggedInUsername}")
-    public GameResponseDto updateGame(@PathVariable int gameID, @RequestBody GameRequestDto gameRequestDto,
-            @RequestParam String loggedInUsername) {
-        // Check if the user is the owner
-        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
-
-        // If the user is not the owner, throw a permission denied exception
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to update games.");
         }
 
-        // Use the service to update the game and retrieve the updated Game
         Game updatedGame = gameStoreManagementService.updateGame(
                 gameID,
                 gameRequestDto.getTitle(),
@@ -336,8 +189,7 @@ public class GameController {
                 gameRequestDto.getStatus(),
                 gameRequestDto.getCategoryId(),
                 loggedInUsername);
-        
-        // Construct the response DTO from the updated Game entity 
+
         GameResponseDto gameResponseDto = new GameResponseDto(
                 updatedGame.getGameID(),
                 updatedGame.getTitle(),
@@ -349,10 +201,68 @@ public class GameController {
                 updatedGame.getStatus(),
                 updatedGame.getCategory().getName(),
                 updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null);
-        
+
         return gameResponseDto;
-
     }
-    
 
+    // Archive a game (Owner only)
+    @DeleteMapping("/games/{gameID}")
+    public void archiveGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
+
+        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
+
+        if (!isOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You do not have permission to archive games.");
+        }
+
+        gameStoreManagementService.archiveGame(gameID, loggedInUsername);
+    }
+
+    // Request to archive a game (Employee only)
+    @PostMapping("/games/{gameID}/archive-requests")
+    public void requestArchiveGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
+
+        boolean isEmployee = accountService.hasPermission(loggedInUsername, 2);
+
+        if (!isEmployee) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You do not have permission to request archiving games.");
+        }
+
+        gameStoreManagementService.archiveGameRequest(gameID, loggedInUsername);
+    }
+
+    // Get pending game archive requests (Owner only)
+    @GetMapping("/games/archive-requests")
+    public GameListResponseDto getGameArchiveRequests(@RequestParam String loggedInUsername) {
+
+        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
+
+        if (!isOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You do not have permission to view pending archive requests.");
+        }
+
+        List<Game> games = gameStoreManagementService.getGameArchiveRequests();
+
+        List<GameResponseDto> gameResponseDtos = new ArrayList<>();
+
+        for (Game game : games) {
+            GameResponseDto gameDto = new GameResponseDto(
+                    game.getGameID(),
+                    game.getTitle(),
+                    game.getDescription(),
+                    game.getImg(),
+                    game.getStock(),
+                    game.getPrice(),
+                    game.getParentalRating(),
+                    game.getStatus(),
+                    game.getCategory().getName(),
+                    game.getPromotion() != null ? game.getPromotion().getTitle() : null);
+            gameResponseDtos.add(gameDto);
+        }
+
+        return new GameListResponseDto(gameResponseDtos);
+    }
 }
