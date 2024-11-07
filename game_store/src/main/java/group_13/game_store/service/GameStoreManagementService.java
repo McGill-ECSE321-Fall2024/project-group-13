@@ -42,40 +42,45 @@ public class GameStoreManagementService {
 
     // Add a new game -- Permission req (Only Owner)
     @Transactional
-    public void addGame(String owner_username, String title, String description, String img, int stock, double price,
-            String parentalRating, GameCategory category) {
-        // Check if the user has permission to add a game
-        if (!accountService.hasPermission(owner_username, 2)) {
-            throw new IllegalArgumentException("User does not have permission to add a game.");
-        }
-
-        // Validate fields
-        if (title == null || title.isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null or empty.");
-        }
-        if (description == null || description.isEmpty()) {
-            throw new IllegalArgumentException("Description cannot be null or empty.");
-        }
-        if (img == null || img.isEmpty()) {
-            throw new IllegalArgumentException("Image URL cannot be null or empty.");
-        }
-        if (stock < 0) {
-            throw new IllegalArgumentException("Stock cannot be negative.");
-        }
-        if (price <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero.");
-        }
-        if (parentalRating == null || parentalRating.isEmpty()) {
-            throw new IllegalArgumentException("Parental rating cannot be null or empty.");
-        }
-        if (category == null) {
-            throw new IllegalArgumentException("Category cannot be null.");
-        }
-
-        Game game = new Game(title, description, img, stock, price, parentalRating, Game.VisibilityStatus.Visible,
-                category);
-        gameRepository.save(game);
+    public Game addGame(String owner_username, String title, String description, String img, int stock, double price,
+                    String parentalRating, Game.VisibilityStatus status, int categoryId) {
+    // Check if the user has permission to add a game
+    if (!accountService.hasPermission(owner_username, 2)) {
+        throw new IllegalArgumentException("User does not have permission to add a game.");
     }
+
+    // Validate fields
+    if (title == null || title.isEmpty()) {
+        throw new IllegalArgumentException("Title cannot be null or empty.");
+    }
+    if (description == null || description.isEmpty()) {
+        throw new IllegalArgumentException("Description cannot be null or empty.");
+    }
+    if (img == null || img.isEmpty()) {
+        throw new IllegalArgumentException("Image URL cannot be null or empty.");
+    }
+    if (stock < 0) {
+        throw new IllegalArgumentException("Stock cannot be negative.");
+    }
+    if (price <= 0) {
+        throw new IllegalArgumentException("Price must be greater than zero.");
+    }
+    if (parentalRating == null || parentalRating.isEmpty()) {
+        throw new IllegalArgumentException("Parental rating cannot be null or empty.");
+    }
+    if (!gameCategoryRepository.findById(categoryId).isPresent()) {
+        throw new IllegalArgumentException("Invalid category ID.");
+    }
+
+    // Create and save the game with the provided status
+    Game game = new Game(title, description, img, stock, price, parentalRating, status,
+                         gameCategoryRepository.findById(categoryId).get());
+    gameRepository.save(game);
+
+    return game; // Return the created game
+}
+
+
 
     // Archive an existing game
     @Transactional
