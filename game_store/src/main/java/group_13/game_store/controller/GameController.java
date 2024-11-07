@@ -39,12 +39,20 @@ public class GameController {
     @Autowired
     AccountService accountService;
 
+
+    /*
+     * /games/reviews [GET]
+     */
     @GetMapping("/games/reviews")
     public ReviewListResponseDto getReviews(){
         //Return a list of all reviews via the ReviewListResponseDto
         return new ReviewListResponseDto(reviewService.getAllReviews());
     }
 
+
+    /*
+     * /games/{gameID}/reviews [GET, POST]
+     */
     @GetMapping("/games/{gameID}/reviews")
     public ReviewListResponseDto getReviewsByGame(@PathVariable int gameID){
         //Return a list of reviews associated with a game via the ReviewListResponseDto
@@ -76,6 +84,9 @@ public class GameController {
 
 
 
+    /*
+     * /games/{id}/reviews/{reviewID} [GET, PUT]
+     */
     @GetMapping("/games/{gameID}/reviews/{reviewID}")
     public ReviewResponseDto getReview(@PathVariable int reviewID){
         //Return a review by its unique ID via the ReviewResponseDto
@@ -98,7 +109,9 @@ public class GameController {
     }
 
 
-
+    /*
+     * /games/{id}/reviews/{reviewID}/reply [GET, POST]
+     */
     @GetMapping("/games/gameID/reviews/{reviewID}/reply")
     public ReplyResponseDto getReplyToReview(@PathVariable int reviewID){
         //Reply to a review by its unique ID and return the review as a response object
@@ -110,13 +123,24 @@ public class GameController {
 
     @PostMapping("/games/{gameID}/reviews/{reviewID}/reply?loggedInUser={loggedInUsername}")
     public ReplyResponseDto replyToReview(@PathVariable int reviewID, @RequestParam String loggedInUsername, @RequestBody ReplyRequestDto request){
+
+        // Check if the user has permission to reply to reviews
+        if (!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new IllegalArgumentException("User does not have permission to reply to a reviews.");
+        }
+
+
         //Reply to a review by its unique ID and return the review as a response object, date gets automatically set to the current date when reply to review is called
-        //Reply to review makes sure that the user is the owner of the game before allowing them to reply
         Reply reply = reviewService.replyToReview(reviewID, loggedInUsername, request.getText());
 
         return new ReplyResponseDto(reply);
     }
 
+
+
+    /*
+     * /games/promotions [GET, POST]
+     */
     @GetMapping("/games/promotions")
     public PromotionListResponseDto getPromotions(){
         //Return a list of all promotions via the PromotionListResponseDto
@@ -125,8 +149,13 @@ public class GameController {
 
     @PostMapping("/games/promotions?loggedInUser={loggedInUsername}")
     public PromotionResponseDto createPromotion(@RequestParam String loggedInUsername, @RequestBody PromotionRequestDto request){
+
+        // Check if the user has permission to create a promotion
+        if (!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new IllegalArgumentException("User does not have permission to create promotions.");
+        }
+
         //Create a promotion with the information from the request
-        //It already checks for permission based on the logged in user's username
         gameStoreManagementService.addPromotion(loggedInUsername, 
             request.getPercentage(),
             request.getStartDate(),
@@ -139,11 +168,21 @@ public class GameController {
         return new PromotionResponseDto(request.getPercentage(), request.getTitle(),request.getDescription(), request.getStartDate(), request.getEndDate());
     }
 
+
+
+    /*
+     * /games/{gameID}/promotions [GET, POST]
+     */
     // @GetMapping("/games/{gameID}/promotions")
     // Nothing in the service layer to currently do this
 
     @PostMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")
     public PromotionResponseDto addPromotionToGame(@PathVariable int gameID,@RequestParam String loggedInUsername, @RequestBody PromotionRequestDto request){
+        // Check if the user has permission to add a promotion to a game
+        if (!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new IllegalArgumentException("User does not have permission to add promotions to a game.");
+        }
+
         //Add a promotion to a game by its unique ID
         gameStoreManagementService.addPromotion(loggedInUsername, 
             request.getPercentage(),
@@ -157,6 +196,9 @@ public class GameController {
         return new PromotionResponseDto(request.getPercentage(), request.getTitle(),request.getDescription(), request.getStartDate(), request.getEndDate());
     }
 
+    /*
+     * /games/{gameID}/promotions/{promotionID} [GET, PUT, DELETE]
+     */
     //@GetMapping("/games/{gameID}/promotions/{promotionID}")
     //Not implemented in the service layer yet
 
