@@ -13,7 +13,4 @@ public class GameListResponseDto {
         return games;
     }
 
-    public void setGames(List<GameResponseDto> games) {
-        this.games = games;
-    }
 }

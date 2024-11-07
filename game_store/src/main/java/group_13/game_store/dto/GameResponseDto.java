@@ -35,79 +35,39 @@ public class GameResponseDto {
         return gameID;
     }
 
-    public void setGameID(int gameID) {
-        this.gameID = gameID;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getImg() {
         return img;
-    }
-
-    public void setImg(String img) {
-        this.img = img;
     }
 
     public int getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
     public double getPrice() {
         return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
     }
 
     public String getParentalRating() {
         return parentalRating;
     }
 
-    public void setParentalRating(String parentalRating) {
-        this.parentalRating = parentalRating;
-    }
-
     public VisibilityStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(VisibilityStatus status) {
-        this.status = status;
     }
 
     public String getCategoryName() {
         return categoryName;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
     public String getPromotionName() {
         return promotionName;
-    }
-
-    public void setPromotionName(String promotionName) {
-        this.promotionName = promotionName;
     }
 }
