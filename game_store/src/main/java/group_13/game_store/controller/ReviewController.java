@@ -143,8 +143,4 @@ public class ReviewController {
 
         return new ReplyResponseDto(reply);
     }
-
-    /*
-     * /games/{id}/reviews/{reviewID}/reply [PUT]
-     */
 }
