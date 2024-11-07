@@ -231,7 +231,7 @@ public class GameStoreManagementService {
         if(promotion == null) { 
             throw new IllegalArgumentException("Promotion with ID " + promotionId + " not found.");
         }
-        
+
         promotionRepository.delete(promotion);
     }
 

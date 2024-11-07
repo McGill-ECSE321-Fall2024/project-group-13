@@ -1,5 +1,6 @@
 package group_13.game_store.controller;
 
+import org.apache.catalina.connector.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +36,13 @@ public class PromotionController {
     /*
      * /games/promotions [GET, POST]
      */
-    @GetMapping("/games/promotions")
-    public PromotionListResponseDto getPromotions() {
+    @GetMapping("/games/promotions?loggedInUser={loggedInUsername}")
+    public PromotionListResponseDto getPromotions(@RequestParam String loggedInUsername) {
+        // Check if the user has permission to see all promotions
+        if (!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new IllegalArgumentException("User does not have permission to see all promotions.");
+        }
+
         // Return a list of all promotions via the PromotionListResponseDto
         return new PromotionListResponseDto(gameStoreManagementService.getAllPromotions());
     }
@@ -65,12 +71,19 @@ public class PromotionController {
     /*
      * /games/{gameID}/promotions [GET, POST]
      */
-    @GetMapping("/games/{gameID}/promotions")
-    public PromotionListResponseDto getPromotionsByGame(@PathVariable int gameID) {
+    @GetMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")
+    public PromotionListResponseDto getPromotionsByGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
+        // Check if the user has permission to add a promotion to a game
+        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
+        
+        if (!isOwner) {
+            //If it is not the owner return only the valid promotions
+            return new PromotionListResponseDto(browsingService.getAllValigPromotions(gameID));
 
-        // Return a list of promotions associated with a game via the
-        // PromotionListResponseDto
-        return new PromotionListResponseDto(gameStoreManagementService.getAllGamePromotions(gameID));
+        } else {
+            //If it is the owner return all the promotions even the inactive ones
+            return new PromotionListResponseDto(gameStoreManagementService.getAllGamePromotions(gameID));
+        }
     }
 
     @PostMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")

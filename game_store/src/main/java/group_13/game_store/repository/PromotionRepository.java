@@ -1,5 +1,6 @@
 package group_13.game_store.repository;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
@@ -11,4 +12,7 @@ public interface PromotionRepository extends CrudRepository<Promotion, Integer> 
 
     //Method to find all promotions associated to a gameID
     public List<Promotion> findByGame_GameID(int gameID);
+
+    //Method to find all promotions associated to a gameID and that are active
+    List<Promotion> findByGame_GameIDAndStartDateLessThanEqualAndEndDateGreaterThanEqual(int gameId, Date now1, Date now2);
 }
