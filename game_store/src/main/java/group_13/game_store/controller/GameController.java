@@ -173,8 +173,12 @@ public class GameController {
     /*
      * /games/{gameID}/promotions [GET, POST]
      */
-    // @GetMapping("/games/{gameID}/promotions")
-    // Nothing in the service layer to currently do this
+    @GetMapping("/games/{gameID}/promotions")
+    public PromotionListResponseDto getPromotionsByGame(@PathVariable int gameID){
+
+        //Return a list of promotions associated with a game via the PromotionListResponseDto
+        return new PromotionListResponseDto(gameStoreManagementService.getAllGamePromotions(gameID));
+    }
 
     @PostMapping("/games/{gameID}/promotions?loggedInUser={loggedInUsername}")
     public PromotionResponseDto addPromotionToGame(@PathVariable int gameID,@RequestParam String loggedInUsername, @RequestBody PromotionRequestDto request){

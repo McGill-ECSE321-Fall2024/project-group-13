@@ -152,7 +152,7 @@ public class GameStoreManagementService {
     @Transactional
     public void addPromotion(String owner_username, int percentage, Date startDate, Date endDate, String title, String description) {
         // Check if the user has permission to add a promotion
-        if (!accountService.hasPermission(owner_username, 2)) {
+        if (!accountService.hasPermission(owner_username, 3)) {
             throw new IllegalArgumentException("User does not have permission to add a promotion.");
         }
     
@@ -180,6 +180,11 @@ public class GameStoreManagementService {
     // Retrieve all promotions
     public List<Promotion> getAllPromotions(){
         return (List<Promotion>) promotionRepository.findAll();
+    }
+
+    // Retrieve all promotions
+    public List<Promotion> getAllGamePromotions(int gameID){
+        return (List<Promotion>) promotionRepository.findByGame_GameID(gameID);
     }
 
     // ************************** DASHBOARD FUNCTIONALITY **************************
