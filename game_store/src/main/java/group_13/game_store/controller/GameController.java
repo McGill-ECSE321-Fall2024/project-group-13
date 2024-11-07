@@ -1,9 +1,5 @@
 package group_13.game_store.controller;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,13 +56,16 @@ public class GameController {
         @RequestParam String loggedInUsername,
         @RequestBody ReviewRequestDto request
     ) {
+        // Check if the user has permission to create a review
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("User does not have permission to create/update reviews.");
+        }
 
         //Create a base review with the information from the request. It takes in the logged in user's username as well as the current date on top of the request information
         Review review = reviewService.createReview(request.getDescription(), 
                 request.getScore(), 
-                request.getLikes(), 
-                Date.valueOf(LocalDate.now()), 
-                
+                request.getLikedByCustomers(), 
+                //Date is automatically set to today when a review is created
                 //CreateReview will not let you create a review if the user is not logged in as a customer that has bought the game
                 loggedInUsername, 
                 gameID);
@@ -75,11 +74,30 @@ public class GameController {
         return new ReviewResponseDto(review);
     }
 
+
+
     @GetMapping("/games/{gameID}/reviews/{reviewID}")
     public ReviewResponseDto getReview(@PathVariable int reviewID){
         //Return a review by its unique ID via the ReviewResponseDto
         return new ReviewResponseDto(reviewService.getReview(reviewID));
     }
+
+    @PutMapping("/games/{gameID}/reviews/{reviewID}?loggedInUser={loggedInUsername}")
+    public ReviewResponseDto updateReview(@PathVariable int reviewID, 
+        @RequestParam String loggedInUsername, 
+        @RequestBody ReviewRequestDto request
+    ){  
+        // Check if the user has permission to update a review
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("User does not have permission to create/update reviews.");
+        }
+        
+        Review updatedReview = reviewService.updateReview(reviewID, request.getDescription(), request.getScore(), request.getLikedByCustomers(), loggedInUsername);
+
+        return new ReviewResponseDto(updatedReview);
+    }
+
+
 
     @GetMapping("/games/gameID/reviews/{reviewID}/reply")
     public ReplyResponseDto getReplyToReview(@PathVariable int reviewID){

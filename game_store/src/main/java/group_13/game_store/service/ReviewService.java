@@ -1,7 +1,6 @@
 package group_13.game_store.service;
 
 import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
-import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Owner;
 import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
@@ -69,7 +67,7 @@ public class ReviewService {
 
     //Method to create a new review based on the inputed parameters, it will return false if it failed to create the review and true if it succeeded
     @Transactional
-    public Review createReview(String aDescription, int aScore, List<Customer> likedByCustomers, Date aDate, String reviewerID, int gameID){
+    public Review createReview(String aDescription, int aScore, List<Customer> likedByCustomers, String reviewerID, int gameID){
         try {
             //Find the reviewer based on the reviewerId provided. If its not a customer it wont find it and because it retunrs null no review will be left
             Customer aReviewer = customerRepo.findByUsername(reviewerID);
@@ -105,8 +103,8 @@ public class ReviewService {
                 return null;
             }
     
-            //Create the reviews with the inputed parameters 
-            Review review = new Review(aDescription, aScore, aDate, aReviewer, aReviewedGame, likedByCustomers);
+            //Create the reviews with the inputed parameters as well as the current date
+            Review review = new Review(aDescription, aScore, Date.valueOf(LocalDate.now()), aReviewer, aReviewedGame, likedByCustomers);
     
             //Save the created review;
             return reviewRepository.save(review);
@@ -120,7 +118,7 @@ public class ReviewService {
 
      // Update an existing review
      @Transactional
-     public Review updateReview(int reviewID, String aDescription, int aScore, List<Customer> likedByCustomers, Date aDate, String reviewerID) {
+     public Review updateReview(int reviewID, String aDescription, int aScore, List<Customer> likedByCustomers, String reviewerID) {
          // Check if the user has permission to update a game
          if (!accountService.hasPermission(reviewerID, 1)) {
              throw new IllegalArgumentException("User does not have permission to update a game.");
@@ -145,7 +143,9 @@ public class ReviewService {
             review.setDescription(aDescription);
             review.setScore(aScore);
             review.setLikedByCustomers(likedByCustomers);
-            review.setDate(aDate);
+            
+            //Update the date to being today
+            review.setDate(Date.valueOf(LocalDate.now()));
             reviewRepository.save(review);
          } else {
              throw new IllegalArgumentException("Review with ID " + reviewID + " not found.");

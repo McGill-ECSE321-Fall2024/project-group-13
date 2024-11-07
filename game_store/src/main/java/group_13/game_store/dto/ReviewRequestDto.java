@@ -1,10 +1,13 @@
 package group_13.game_store.dto;
 
+import java.util.List;
+
+import group_13.game_store.model.Customer;
 
 public class ReviewRequestDto {
     private String description;
     private int score;
-    private int likes;
+    private List<Customer> likedByCustomers;
 
 
     //Create both setters and getters for this as its a request
@@ -25,11 +28,11 @@ public class ReviewRequestDto {
     }
     
 
-    public int getLikes() {
-        return likes;
+    public List<Customer> getLikedByCustomers() {
+        return likedByCustomers;
     }
 
-    public void setLikes(int likes) {
-        this.likes = likes;
+    public void setLikedByCustomers(List<Customer> likedByCustomers) {
+        this.likedByCustomers = likedByCustomers;
     }
 }
