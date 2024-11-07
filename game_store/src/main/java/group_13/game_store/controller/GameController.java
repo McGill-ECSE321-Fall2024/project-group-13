@@ -18,6 +18,8 @@ import group_13.game_store.dto.GameResponseDto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @RestController
 public class GameController {
@@ -78,12 +80,14 @@ public class GameController {
 
     // Search bar functionality get all games that start with the given title
     @GetMapping("/games?startingWith={startingWith}&loggedInUser={loggedInUsername}")
-    public GameListResponseDto getGamesStartingWith(@RequestParam String startingWith, @RequestParam String loggedInUsername) {
+    public GameListResponseDto getGamesStartingWith(@RequestParam String startingWith,
+            @RequestParam String loggedInUsername) {
 
         // Check if the user is at least an employee
         boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
 
-        // If the user is at least an employee, return all games that start with the given title unfiltered
+        // If the user is at least an employee, return all games that start with the
+        // given title unfiltered
         if (isAtLeastEmployee) {
             Iterable<Game> games = browsingService.getGamesByTitleStartingWith(startingWith);
 
@@ -122,11 +126,13 @@ public class GameController {
 
     // Get all games by category name
     @GetMapping("/games?category={categoryName}&loggedInUser={loggedInUsername}")
-    public GameListResponseDto getGamesByCategory(@RequestParam String categoryName, @RequestParam String loggedInUsername) {
+    public GameListResponseDto getGamesByCategory(@RequestParam String categoryName,
+            @RequestParam String loggedInUsername) {
 
         boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
 
-        // If the user is at least an employee, return all games by category name unfiltered
+        // If the user is at least an employee, return all games by category name
+        // unfiltered
         if (isAtLeastEmployee) {
             Iterable<Game> games = browsingService.getGamesByCategoryName(categoryName);
 
@@ -164,7 +170,7 @@ public class GameController {
 
     // Get a game by its ID
     @GetMapping("/games/{gameID}?loggedInUser={loggedInUsername}")
-    public GameResponseDto getGameById(@PathVariable int gameID, @RequestParam String loggedInUsername){
+    public GameResponseDto getGameById(@PathVariable int gameID, @RequestParam String loggedInUsername) {
 
         // Check if the logged in user is at least an employee
         boolean isAtLeastEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
@@ -176,9 +182,10 @@ public class GameController {
             // Convert the found game into a DTO
             GameResponseDto gameResponseDto = new GameResponseDto(foundGame.getGameID(), foundGame.getTitle(),
                     foundGame.getDescription(),
-                    foundGame.getImg(), foundGame.getStock(), foundGame.getPrice(), foundGame.getParentalRating(), foundGame.getStatus(),
+                    foundGame.getImg(), foundGame.getStock(), foundGame.getPrice(), foundGame.getParentalRating(),
+                    foundGame.getStatus(),
                     foundGame.getCategory().getName(), foundGame.getPromotion().getTitle());
-            
+
             return gameResponseDto;
 
         }
@@ -190,15 +197,34 @@ public class GameController {
             // Convert the found game into a DTO
             GameResponseDto gameResponseDto = new GameResponseDto(foundGame.getGameID(), foundGame.getTitle(),
                     foundGame.getDescription(),
-                    foundGame.getImg(), foundGame.getStock(), foundGame.getPrice(), foundGame.getParentalRating(), foundGame.getStatus(),
+                    foundGame.getImg(), foundGame.getStock(), foundGame.getPrice(), foundGame.getParentalRating(),
+                    foundGame.getStatus(),
                     foundGame.getCategory().getName(), foundGame.getPromotion().getTitle());
-            
+
             return gameResponseDto;
         }
-
-
     }
 
+    // Get games which are pending archived / requested to be archived by employees
+    // (Owner)
+    @GetMapping("/games?isPendingArchive={isPendingArchive}")
+    public GameListResponseDto getGameArchiveRequests(@RequestParam boolean isPendingArchive) {
+        if (!isPendingArchive) {
+            // throw an exception and status code
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // come back to this
+        } else {
+            // Retreive the games which are marked to be reviewed by the owner, which requested to be archived by employees
+            List<Game> games = gameStoreManagementService.getGameArchiveRequests();
+            ArrayList<GameResponseDto> gamesDtos = new ArrayList<GameResponseDto>();
 
-
+            for (Game game : games) {
+                GameResponseDto gameDto = new GameResponseDto(game.getGameID(), game.getTitle(),
+                        game.getDescription(),
+                        game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
+                        game.getCategory().getName(), game.getPromotion().getTitle());
+                gamesDtos.add(gameDto);
+            }
+            return new GameListResponseDto(gamesDtos);
+        }
+    }
 }
