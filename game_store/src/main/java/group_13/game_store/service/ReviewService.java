@@ -45,12 +45,12 @@ public class ReviewService {
     
 
     // Retrieve all reviews
-    List<Review> getAllReviews(){
+    public List<Review> getAllReviews(){
         return (List<Review>) reviewRepository.findAll();
     }
 
     // Retrieve all reviews for a specific game
-    List<Review> getAllReviewsForGame(int gameID){
+    public List<Review> getAllReviewsForGame(int gameID){
         return (List<Review>) reviewRepository.findByReviewedGame_GameID(gameID);
     }
 
