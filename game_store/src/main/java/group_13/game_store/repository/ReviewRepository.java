@@ -21,5 +21,4 @@ public interface ReviewRepository extends CrudRepository<Review, Integer> {
 
     //Method to find the reviews not replied to by the owner
     List<Review> findByReplyIsNull();
-
 }

@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.mapping.Array;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +50,7 @@ public class ReviewRepositoryTests {
         GameCategory gameCategory = new GameCategory("Shooter game in the first person", GameCategory.VisibilityStatus.Visible, "FPS");
         Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890");
         Game game = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
-        Review review = new Review("Very good game!", 4, 0, Date.valueOf("2024-10-11"), customer, game);
+        Review review = new Review("Very good game!", 4, Date.valueOf("2024-10-11"), customer, game, new ArrayList<>());
         
         // saving the above GameCategory, Game, Customer, and Review instances in the cleared GameCategory, Game, Customer, and Review tables 
         gameCategory = gameCategoryRepo.save(gameCategory);
@@ -95,9 +97,9 @@ public class ReviewRepositoryTests {
         customer2 = customerRepo.save(customer2);
         customer3 = customerRepo.save(customer3);
 
-        Review review1 = new Review("Great game!", 5, 0, Date.valueOf("2024-10-11"), customer1, game);
-        Review review2 = new Review("Not bad", 3, 0, Date.valueOf("2024-10-12"), customer2, game);
-        Review review3 = new Review("Could be better", 2, 0, Date.valueOf("2024-10-13"), customer3, game);
+        Review review1 = new Review("Great game!", 5, Date.valueOf("2024-10-11"), customer1, game, new ArrayList<>());
+        Review review2 = new Review("Not bad", 3, Date.valueOf("2024-10-12"), customer2, game, new ArrayList<>());
+        Review review3 = new Review("Could be better", 2, Date.valueOf("2024-10-13"), customer3, game, new ArrayList<>());
 
         review1 = reviewRepo.save(review1);
         review2 = reviewRepo.save(review2);

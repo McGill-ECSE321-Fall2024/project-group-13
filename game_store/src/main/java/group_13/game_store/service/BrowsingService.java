@@ -5,13 +5,17 @@ import org.springframework.stereotype.Service;
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameRepository;
+import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.repository.WishlistItemRepository;
 import jakarta.transaction.Transactional;
 import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
+import group_13.game_store.model.Promotion;
 import group_13.game_store.model.WishlistItem;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 /* Description:
@@ -34,6 +38,9 @@ public class BrowsingService {
 
     @Autowired
     private WishlistItemRepository wishlistItemRepository;
+
+    @Autowired
+    private PromotionRepository promotionRepository;
 
     // ************************** EMPLOYEE AND OWNER BROWSING **************************
 
@@ -322,5 +329,13 @@ public class BrowsingService {
         for (WishlistItem wishlistItem : customerWishlist) {
             wishlistItemRepository.delete(wishlistItem);
         }
+    }
+
+    //Mothod to only show valid promotions linked to a game for everyone but the owner
+    public List<Promotion> getAllValigPromotions(int gameId) {
+        //Get the current date to compare
+        Date today = Date.valueOf(LocalDate.now());
+
+        return (List<Promotion>) promotionRepository.findByGame_GameIDAndStartDateLessThanEqualAndEndDateGreaterThanEqual(gameId, today, today);
     }
 }
