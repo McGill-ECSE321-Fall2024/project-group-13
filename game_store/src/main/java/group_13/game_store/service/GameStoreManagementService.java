@@ -105,6 +105,56 @@ public class GameStoreManagementService {
         return (List<Game>) gameRepository.findAll();
     }
 
+    // Update an existing game
+    @Transactional
+    public Game updateGame(int gameId, String title, String description, String img, int stock, double price,
+            String parentalRating, Game.VisibilityStatus status, int categoryId, String username) {
+        // Check if the user has permission to update a game
+        if (!accountService.hasPermission(username, 2)) {
+            throw new IllegalArgumentException("User does not have permission to update a game.");
+        }
+
+        // Validate fields
+        if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty.");
+        }
+        if (description == null || description.isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty.");
+        }
+        if (img == null || img.isEmpty()) {
+            throw new IllegalArgumentException("Image URL cannot be null or empty.");
+        }
+        if (stock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative.");
+        }
+        if (price <= 0) {
+            throw new IllegalArgumentException("Price must be greater than zero.");
+        }
+        if (parentalRating == null || parentalRating.isEmpty()) {
+            throw new IllegalArgumentException("Parental rating cannot be null or empty.");
+        }
+        if (!gameCategoryRepository.findById(categoryId).isPresent()) {
+            throw new IllegalArgumentException("Invalid category ID.");
+        }
+
+        Game game = gameRepository.findByGameID(gameId);
+        if (game != null) {
+            game.setTitle(title);
+            game.setDescription(description);
+            game.setImg(img);
+            game.setStock(stock);
+            game.setPrice(price);
+            game.setParentalRating(parentalRating);
+            game.setStatus(status);
+            game.setCategory(gameCategoryRepository.findById(categoryId).get());
+            gameRepository.save(game);
+        } else {
+            throw new IllegalArgumentException("Game with ID " + gameId + " not found.");
+        }
+
+        return game; 
+    }
+
     // ************************** CATEGORY MANAGEMENT **************************
 
     // Add a new category -- Permission req (Only Owner)

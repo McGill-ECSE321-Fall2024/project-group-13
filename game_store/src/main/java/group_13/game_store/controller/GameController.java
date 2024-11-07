@@ -17,6 +17,7 @@ import group_13.game_store.model.Game;
 import group_13.game_store.dto.GameResponseDto;
 import group_13.game_store.dto.GameRequestDto;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -310,5 +311,48 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive games.");
         }
     }
+
+    // Update a game in the store
+    @PutMapping("/games/{gameID}?loggedInUser={loggedInUsername}")
+    public GameResponseDto updateGame(@PathVariable int gameID, @RequestBody GameRequestDto gameRequestDto,
+            @RequestParam String loggedInUsername) {
+        // Check if the user is the owner
+        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
+
+        // If the user is not the owner, throw a permission denied exception
+        if (!isOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to update games.");
+        }
+
+        // Use the service to update the game and retrieve the updated Game
+        Game updatedGame = gameStoreManagementService.updateGame(
+                gameID,
+                gameRequestDto.getTitle(),
+                gameRequestDto.getDescription(),
+                gameRequestDto.getImg(),
+                gameRequestDto.getStock(),
+                gameRequestDto.getPrice(),
+                gameRequestDto.getParentalRating(),
+                gameRequestDto.getStatus(),
+                gameRequestDto.getCategoryId(),
+                loggedInUsername);
+        
+        // Construct the response DTO from the updated Game entity 
+        GameResponseDto gameResponseDto = new GameResponseDto(
+                updatedGame.getGameID(),
+                updatedGame.getTitle(),
+                updatedGame.getDescription(),
+                updatedGame.getImg(),
+                updatedGame.getStock(),
+                updatedGame.getPrice(),
+                updatedGame.getParentalRating(),
+                updatedGame.getStatus(),
+                updatedGame.getCategory().getName(),
+                updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null);
+        
+        return gameResponseDto;
+
+    }
+    
 
 }
