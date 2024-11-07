@@ -15,8 +15,9 @@ public class CustomerResponseDto extends UserAccountResponseDto {
         this.deliveryInformation = aCustomerAccount.getDeliveryInformation();
     }
 
-    public PaymentInformation getPaymentInformation() {
-        return paymentInformation;
+    // do not wanna reveal sensitive information*
+    public int getPaymentInformationID() {
+        return paymentInformation.getPaymentInfoID();
     }
 
     public DeliveryInformation getDeliveryInformation() {

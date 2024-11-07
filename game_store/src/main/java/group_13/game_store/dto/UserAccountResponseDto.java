@@ -12,8 +12,6 @@ public class UserAccountResponseDto {
     // including password compromises security
     private String phoneNumber;
     private int permissionLevel;
-    // includinng date of account creation is useful
-    // private LocalDate creationDate;
 
     public UserAccountResponseDto(UserAccount aUserAccount) {
 		this.username = aUserAccount.getUsername();
@@ -26,9 +24,9 @@ public class UserAccountResponseDto {
     
     public static UserAccountResponseDto create(UserAccount aUserAccount) {
 
-        if (aUserAccount instanceof Customer) {
+        if (aUserAccount instanceof Customer && aUserAccount.getPermissionLevel() == 1) {
             return new CustomerResponseDto((Customer) aUserAccount);
-        } else if (aUserAccount instanceof Employee) {
+        } else if (aUserAccount instanceof Employee && aUserAccount.getPermissionLevel() == 2) {
             return new EmployeeResponseDto((Employee) aUserAccount);
         } else {
             throw new IllegalArgumentException("Unknown account type.");

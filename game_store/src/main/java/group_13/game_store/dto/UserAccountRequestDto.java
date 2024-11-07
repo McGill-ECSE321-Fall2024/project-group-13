@@ -17,6 +17,14 @@ public class UserAccountRequestDto {
     private PaymentInformation paymentInformation;
     private DeliveryInformation deliveryInformation;
 
+    public UserAccountRequestDto(String username, String name, String email, String phoneNumber, int permissionLevel) {
+        this.username = username;
+		this.name = name;
+		this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.permissionLevel = permissionLevel;
+    }
+
     public String getUsername() {
         return username;
     }
