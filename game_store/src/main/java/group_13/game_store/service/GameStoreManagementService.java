@@ -11,11 +11,13 @@ import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.Employee;
+import group_13.game_store.model.Customer;
 
 import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.PromotionRepository;
+import group_13.game_store.repository.CustomerRepository;
 
 
 @Service
@@ -32,6 +34,9 @@ public class GameStoreManagementService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
     private AccountService accountService;
@@ -187,6 +192,11 @@ public class GameStoreManagementService {
     // Retrieve all employees
     List<Employee> getAllEmployees(){
         return (List<Employee>) employeeRepository.findAll();
+    }
+
+    // Retrieve all customers
+    public List<Customer> getAllCustomers() {
+        return (List<Customer>) customerRepository.findAll();
     }
     
     // Retrieve game archive requests
