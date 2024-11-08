@@ -2,7 +2,6 @@ package group_13.game_store.service;
 
 import java.util.List;
 import java.sql.Date;
-import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,9 +10,6 @@ import jakarta.transaction.Transactional;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
-import group_13.game_store.model.Game.VisibilityStatus;
-import group_13.game_store.model.Review;
-import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 
 import group_13.game_store.repository.EmployeeRepository;
