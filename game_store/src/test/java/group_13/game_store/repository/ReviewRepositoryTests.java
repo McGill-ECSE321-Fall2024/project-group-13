@@ -2,9 +2,10 @@ package group_13.game_store.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.sql.Date;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.hibernate.mapping.Array;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
+import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
 
 @SpringBootTest
@@ -31,6 +33,8 @@ public class ReviewRepositoryTests {
     private GameRepository gameRepo;
     @Autowired
     private GameCategoryRepository gameCategoryRepo;
+    @Autowired
+    private ReplyRepository replyRepo;
 
     
     // clear tables before/after each test
@@ -41,6 +45,7 @@ public class ReviewRepositoryTests {
         customerRepo.deleteAll();
         gameRepo.deleteAll();
         gameCategoryRepo.deleteAll();
+        replyRepo.deleteAll();
     }
 
 
