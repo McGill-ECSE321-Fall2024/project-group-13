@@ -45,40 +45,43 @@ public class GameStoreManagementService {
 
     // Add a new game -- Permission req (Only Owner)
     @Transactional
-    public void addGame(String owner_username, String title, String description, String img, int stock, double price,
-            String parentalRating, GameCategory category) {
-        // Check if the user has permission to add a game
-        if (!accountService.hasPermission(owner_username, 2)) {
-            throw new IllegalArgumentException("User does not have permission to add a game.");
-        }
-
-        // Validate fields
-        if (title == null || title.isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null or empty.");
-        }
-        if (description == null || description.isEmpty()) {
-            throw new IllegalArgumentException("Description cannot be null or empty.");
-        }
-        if (img == null || img.isEmpty()) {
-            throw new IllegalArgumentException("Image URL cannot be null or empty.");
-        }
-        if (stock < 0) {
-            throw new IllegalArgumentException("Stock cannot be negative.");
-        }
-        if (price <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero.");
-        }
-        if (parentalRating == null || parentalRating.isEmpty()) {
-            throw new IllegalArgumentException("Parental rating cannot be null or empty.");
-        }
-        if (category == null) {
-            throw new IllegalArgumentException("Category cannot be null.");
-        }
-
-        Game game = new Game(title, description, img, stock, price, parentalRating, Game.VisibilityStatus.Visible,
-                category);
-        gameRepository.save(game);
+    public Game addGame(String owner_username, String title, String description, String img, int stock, double price,
+                    String parentalRating, Game.VisibilityStatus status, int categoryId) {
+    // Check if the user has permission to add a game
+    if (!accountService.hasPermission(owner_username, 2)) {
+        throw new IllegalArgumentException("User does not have permission to add a game.");
     }
+
+    // Validate fields
+    if (title == null || title.isEmpty()) {
+        throw new IllegalArgumentException("Title cannot be null or empty.");
+    }
+    if (description == null || description.isEmpty()) {
+        throw new IllegalArgumentException("Description cannot be null or empty.");
+    }
+    if (img == null || img.isEmpty()) {
+        throw new IllegalArgumentException("Image URL cannot be null or empty.");
+    }
+    if (stock < 0) {
+        throw new IllegalArgumentException("Stock cannot be negative.");
+    }
+    if (price <= 0) {
+        throw new IllegalArgumentException("Price must be greater than zero.");
+    }
+    if (parentalRating == null || parentalRating.isEmpty()) {
+        throw new IllegalArgumentException("Parental rating cannot be null or empty.");
+    }
+    if (!gameCategoryRepository.findById(categoryId).isPresent()) {
+        throw new IllegalArgumentException("Invalid category ID.");
+    }
+
+    // Create and save the game with the provided status
+    Game game = new Game(title, description, img, stock, price, parentalRating, status,
+                         gameCategoryRepository.findById(categoryId).get());
+    gameRepository.save(game);
+
+    return game; // Return the created game
+}
 
     // Archive an existing game
     @Transactional
@@ -101,6 +104,56 @@ public class GameStoreManagementService {
     // Retrieve all games
     public List<Game> getAllGames() {
         return (List<Game>) gameRepository.findAll();
+    }
+
+    // Update an existing game
+    @Transactional
+    public Game updateGame(int gameId, String title, String description, String img, int stock, double price,
+            String parentalRating, Game.VisibilityStatus status, int categoryId, String username) {
+        // Check if the user has permission to update a game
+        if (!accountService.hasPermission(username, 2)) {
+            throw new IllegalArgumentException("User does not have permission to update a game.");
+        }
+
+        // Validate fields
+        if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty.");
+        }
+        if (description == null || description.isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty.");
+        }
+        if (img == null || img.isEmpty()) {
+            throw new IllegalArgumentException("Image URL cannot be null or empty.");
+        }
+        if (stock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative.");
+        }
+        if (price <= 0) {
+            throw new IllegalArgumentException("Price must be greater than zero.");
+        }
+        if (parentalRating == null || parentalRating.isEmpty()) {
+            throw new IllegalArgumentException("Parental rating cannot be null or empty.");
+        }
+        if (!gameCategoryRepository.findById(categoryId).isPresent()) {
+            throw new IllegalArgumentException("Invalid category ID.");
+        }
+
+        Game game = gameRepository.findByGameID(gameId);
+        if (game != null) {
+            game.setTitle(title);
+            game.setDescription(description);
+            game.setImg(img);
+            game.setStock(stock);
+            game.setPrice(price);
+            game.setParentalRating(parentalRating);
+            game.setStatus(status);
+            game.setCategory(gameCategoryRepository.findById(categoryId).get());
+            gameRepository.save(game);
+        } else {
+            throw new IllegalArgumentException("Game with ID " + gameId + " not found.");
+        }
+
+        return game; 
     }
 
     // ************************** CATEGORY MANAGEMENT **************************
@@ -127,7 +180,7 @@ public class GameStoreManagementService {
 
     // Archive an existing category -- Permission req (Only Owner)
     @Transactional
-    void archiveCategory(int categoryId, String username) {
+    public void archiveCategory(int categoryId, String username) {
         if (accountService.hasPermission(username, 2)) {
             GameCategory category = gameCategoryRepository.findByCategoryID(categoryId);
             if (category != null) {
@@ -142,7 +195,7 @@ public class GameStoreManagementService {
     }
 
     // Retrieve all categories
-    List<GameCategory> getAllCategories() {
+    public List<GameCategory> getAllCategories() {
         return (List<GameCategory>) gameCategoryRepository.findAll();
     }
 
@@ -253,12 +306,12 @@ public class GameStoreManagementService {
     // ************************** DASHBOARD FUNCTIONALITY **************************
 
     // Retrieve all employees
-    List<Employee> getAllEmployees() {
+    public List<Employee> getAllEmployees() {
         return (List<Employee>) employeeRepository.findAll();
     }
 
     // Retrieve game archive requests
-    List<Game> getGameArchiveRequests() {
+    public List<Game> getGameArchiveRequests() {
         List<Game.VisibilityStatus> pendingArchive = List.of(Game.VisibilityStatus.PendingArchive);
         return (List<Game>) gameRepository.findByStatusIn(pendingArchive);
     }
@@ -267,7 +320,7 @@ public class GameStoreManagementService {
 
     // Request a game to be archived (for employees) -- Permission req
     @Transactional
-    void archiveGameRequest(int gameId, String username) {
+    public void archiveGameRequest(int gameId, String username) {
         if (accountService.hasPermission(username, 1)) {
             Game game = gameRepository.findByGameID(gameId);
             if (game != null) {
@@ -283,7 +336,7 @@ public class GameStoreManagementService {
 
     // Approve an archive request-- Permission req (Only Owner)
     @Transactional
-    void approveArchiveRequest(int requestId, String username) {
+    public void approveArchiveRequest(int requestId, String username) {
         if (accountService.hasPermission(username, 2)) {
             Game game = gameRepository.findByGameID(requestId);
             if (game != null) {
@@ -336,7 +389,7 @@ public class GameStoreManagementService {
 
     // Archive an employee account -- Permission req (Only Owner)
     @Transactional
-    void archiveEmployeeAccount(String employee_username, String username) {
+    public void archiveEmployeeAccount(String employee_username, String username) {
         if (accountService.hasPermission(username, 2)) {
             Employee employee = employeeRepository.findByUsername(employee_username);
             if (employee != null) {
