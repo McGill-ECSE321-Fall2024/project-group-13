@@ -84,12 +84,11 @@ public class GameCategoryController
         return new GameCategoryResponseDto(category);
     }
 
-    @DeleteMapping("/categories/{categoryID}?loggedInUser={loggedInUsername}")
+    @DeleteMapping("/categories/{categoryID}")
     public void deleteGameCategoryById(@PathVariable int gameCategoryID, @RequestParam String loggedInUsername)
     {
         // Check if the user is atleast employee
         boolean isEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
-
 
         // If the user is not the owner, throw a permission denied exception
         if (!isEmployee) {
