@@ -9,12 +9,10 @@ import org.springframework.stereotype.Service;
 
 import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
-import group_13.game_store.model.DeliveryInformation;
 import group_13.game_store.model.PaymentInformation;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.repository.AddressRepository;
 import group_13.game_store.repository.CustomerRepository;
-import group_13.game_store.repository.DeliveryInformationRepository;
 import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
 import jakarta.transaction.Transactional;
@@ -30,9 +28,6 @@ public class AccountService {
 
     @Autowired
     private PaymentInformationRepository paymentInfoRepo;
-
-    @Autowired
-    private DeliveryInformationRepository deliveryInfoRepo;
 
     @Autowired
     private AddressRepository addressRepo;
@@ -250,47 +245,6 @@ public class AccountService {
         return true;
     }
 
-    // Method to create/update delivery info
-    @Transactional
-    public boolean changeDeliveryInfo(String username, String deliveryName, Address deliveryAddress) {
-         // Create a new PaymentInfo object if they don't have one yet
-         UserAccount user = userAccountRepo.findByUsername(username);
-        
-         if (user == null) {
-             System.out.println("No such user with the given username exists");
-             return false;
-         }
-         // Ensures that the given user is a customer
-         if (!(user instanceof Customer)) {
-            System.out.println("The given user is not a Customer");
-             return false;
-         }
- 
-         // Typecasts to a customer and checks if they have a DeliveryInformation or not.
-         // If they don't then create one with the given information
-         Customer customer = (Customer) user;
-         DeliveryInformation deliveryInfo = customer.getDeliveryInformation();
- 
-         // Validates input delivery information
-         boolean valid = validateDeliveryInfo(deliveryName, deliveryAddress);
-         if (!valid) {
-            // Calling the validate method will print something if there is a problem
-             return false;
-         }
- 
-         if (deliveryInfo == null) {
-             DeliveryInformation newDeliveryInfo = new DeliveryInformation(deliveryName, deliveryAddress);
-             deliveryInfoRepo.save(newDeliveryInfo); // save the new DeliveryInformation into the database
-             customer.setDeliveryInformation(newDeliveryInfo);
-             return true;
-         }
- 
-         // Update the DeliveryInformation object if they already have one using setters
-         deliveryInfo.setDeliveryAddress(deliveryAddress);
-         deliveryInfo.setDeliveryName(deliveryName);
-         return true;
-    }
-
     // Method to get payment info from a certain customer
     @Transactional
     public PaymentInformation getPaymentInformationByCustomerUsername(String username) {
@@ -307,24 +261,6 @@ public class AccountService {
         }
 
         return paymentInfo;
-    }
-
-    // Method to get delivery info from a certain customer
-    @Transactional
-    public DeliveryInformation getDeliveryInformationByCustomerUsername(String username) {
-        Customer customer = customerRepo.findByUsername(username);
-
-        if (customer == null) {
-            System.out.println("This customer does not exist lol");
-        }
-
-        DeliveryInformation deliveryInfo = deliveryInfoRepo.findByDeliveryInfoID(customer.getDeliveryInformation().getDeliveryInfoID());
-
-        if (deliveryInfo == null) {
-            System.out.println("Delivery info is null for this customer");
-        }
-
-        return deliveryInfo;
     }
 
 
@@ -346,24 +282,6 @@ public class AccountService {
         return paymentInfo.getPaymentInfoID();
     }
 
-    // Method to get the deliveryinfo id from customer username
-    @Transactional
-    public int getDeliveryInfoIdByUsername(String username) {
-        Customer customer = customerRepo.findByUsername(username);
-
-        if (customer == null) {
-            System.out.println("This customer is null");
-        }
-
-        DeliveryInformation deliveryInfo = deliveryInfoRepo.findByDeliveryInfoID(customer.getDeliveryInformation().getDeliveryInfoID());
-
-        if (deliveryInfo == null) {
-            System.out.println("Delivery info is null for this customer");
-        }
-
-        return deliveryInfo.getDeliveryInfoID();
-    }
-
     // Method to get an address given an address id
     @Transactional
     public Address getAddressById(int addressId) {
@@ -377,7 +295,6 @@ public class AccountService {
     }
 
 
-    // Method to validate payment info
     public boolean validatePaymentInfo(long cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
         // Validate given information
         // Check the card number length
@@ -411,13 +328,4 @@ public class AccountService {
         return true;
     }
 
-    // Method to validate delivery info
-    public boolean validateDeliveryInfo(String deliveryName, Address deliveryAddress) {
-        // Ensure that they enter a delivery name
-        if (deliveryName == null) {
-            System.out.println("Please enter a name for this delivery information");
-            return false;
-        }
-        return true;
-    }
 }

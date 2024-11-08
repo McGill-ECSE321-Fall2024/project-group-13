@@ -22,9 +22,6 @@ public class Customer extends UserAccount
   @OneToOne(optional=true)
   private PaymentInformation paymentInformation;
 
-  @OneToOne(optional=true)
-  private DeliveryInformation deliveryInformation;
-
   //------------------------
   // CONSTRUCTOR
   //------------------------
@@ -59,17 +56,7 @@ public class Customer extends UserAccount
     boolean has = paymentInformation != null;
     return has;
   }
-  /* Code from template association_GetOne */
-  public DeliveryInformation getDeliveryInformation()
-  {
-    return deliveryInformation;
-  }
 
-  public boolean hasDeliveryInformation()
-  {
-    boolean has = deliveryInformation != null;
-    return has;
-  }
   /* Code from template association_SetUnidirectionalOptionalOne */
   public boolean setPaymentInformation(PaymentInformation aNewPaymentInformation)
   {
@@ -78,19 +65,10 @@ public class Customer extends UserAccount
     wasSet = true;
     return wasSet;
   }
-  /* Code from template association_SetUnidirectionalOptionalOne */
-  public boolean setDeliveryInformation(DeliveryInformation aNewDeliveryInformation)
-  {
-    boolean wasSet = false;
-    deliveryInformation = aNewDeliveryInformation;
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
   {
     paymentInformation = null;
-    deliveryInformation = null;
     super.delete();
   }
 
