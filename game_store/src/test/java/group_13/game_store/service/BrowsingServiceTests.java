@@ -58,7 +58,7 @@ public class BrowsingServiceTests {
     private Game game2 = new Game("Game2", "Description2", "img2", 20, 20.0, "PG", VisibilityStatus.PendingArchive,
             category1);
 
-    private Game game3 = new Game("Game3", "Description3", "img3", 30, 30.0, "PG", VisibilityStatus.Archived,
+    private Game game3 = new Game("ThirdGame", "Description3", "img3", 30, 30.0, "PG", VisibilityStatus.Archived,
             category1);
 
     // Setup mock data
@@ -71,6 +71,8 @@ public class BrowsingServiceTests {
 
         category1.setCategoryID(1);
     }
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     // ************************** getAllGames Tests **************************
     @Test
@@ -161,6 +163,69 @@ public class BrowsingServiceTests {
     }
 
     // ************************** getGamesByTitleStartingWith Tests **************************
+    @Test 
+    public void testGetGamesByTitleStartingWithWhenSingleGame() {
+        // Arange
+        String validSingleGameStartTitle = "Third";
+        when(gameRepository.findByTitleStartingWith(validSingleGameStartTitle)).thenReturn(List.of(game3));
+
+        // Act
+        List<Game> serviceResult = browsingService.getGamesByTitleStartingWith(validSingleGameStartTitle);
+
+        // Assert
+        assertNotNull(serviceResult);
+        assertEquals(1, serviceResult.size());
+
+        // Assert that the list contains the expected games
+        assertTrue(serviceResult.contains(game3), "Game3 should be in the list");
+        assertTrue(!serviceResult.contains(game1), "Game1 should not be in the list");
+        assertTrue(!serviceResult.contains(game2), "Game2 should not be in the list");
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByTitleStartingWith(validSingleGameStartTitle);
+
+    }  
+
+    @Test
+    public void testGetGamesByTitleStartingWithWhenMultipleGames() {
+        // Arrange
+        String validMultipleGameStartTitle = "Game";
+        when(gameRepository.findByTitleStartingWith(validMultipleGameStartTitle)).thenReturn(List.of(game1, game2));
+
+        // Act
+        List<Game> serviceResult = browsingService.getGamesByTitleStartingWith(validMultipleGameStartTitle);
+
+        // Assert
+        assertNotNull(serviceResult);
+        assertEquals(2, serviceResult.size());
+
+        // Assert that the list contains the expected games
+        assertTrue(serviceResult.contains(game1), "Game1 should be in the list");
+        assertTrue(serviceResult.contains(game2), "Game2 should be in the list");
+        assertTrue(!serviceResult.contains(game3), "Game3 should not be in the list");
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByTitleStartingWith(validMultipleGameStartTitle);
+    }
+
+
+    @Test
+    public void testGetGamesByTitleStartingWithWhenNoGames() {
+        // Arrange
+        String invalidGameStartTitle = "Invalid";
+        when(gameRepository.findByTitleStartingWith(invalidGameStartTitle)).thenReturn(List.of());
+
+        // Act and Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> browsingService.getGamesByTitleStartingWith(invalidGameStartTitle));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No games found with this title", exception.getReason());
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByTitleStartingWith(invalidGameStartTitle);
+    }
+
 
     // ************************** getGamesByCategoryName Tests **************************
 
