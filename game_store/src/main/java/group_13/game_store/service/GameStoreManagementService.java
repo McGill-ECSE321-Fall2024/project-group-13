@@ -406,6 +406,16 @@ public class GameStoreManagementService {
         employeeRepository.save(employee);
     }
 
+    // Retrieve employee by username
+    public Employee getEmployeeByUsername(String username){
+        Employee employee = employeeRepository.findByUsername(username);
+        if (employee == null)
+        {
+            //idicate no employee was found
+        }
+        return employee;
+    }
+
     // Evaluate an employee account - DO WE DO THIS ????
     // @Transactional
     // void evaluateEmployee(Long employeeId);
