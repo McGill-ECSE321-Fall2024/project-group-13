@@ -1,6 +1,7 @@
 package group_13.game_store.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
@@ -13,6 +14,7 @@ import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.WishlistItem;
+import org.springframework.http.HttpStatus;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -51,6 +53,7 @@ public class BrowsingService {
         
         if (!allGames.iterator().hasNext()) {
             // Indicate that there are no games
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found");
         }
         return allGames;
     }
@@ -62,6 +65,7 @@ public class BrowsingService {
 
         if (game == null) {
             // Indicate that the game does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
 
         return game;
@@ -74,6 +78,7 @@ public class BrowsingService {
 
         if (games.isEmpty()) {
             // Indicate that there are no games in the category
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found in this category");
         }
 
         return games;
@@ -86,6 +91,7 @@ public class BrowsingService {
 
         if (games.isEmpty()) {
             // Indicate that there are no games with the given name
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found with this title");
         }
 
         return games;
@@ -101,6 +107,7 @@ public class BrowsingService {
 
         if (games.isEmpty()) {
             // Indicate that there are no games available
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games available");
         }
 
         return games;
@@ -115,6 +122,7 @@ public class BrowsingService {
 
         if (game == null) {
             // Indicate that the game does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
 
         return game;
@@ -129,6 +137,7 @@ public class BrowsingService {
 
         if (games.isEmpty()){
             // Indicate that there are no available games in this category
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found in this category");
         }
 
         return games;
@@ -143,7 +152,8 @@ public class BrowsingService {
         List<Game> games = gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(title, 0, visibleStatuses);
 
         if (games.isEmpty()) {
-            // Indicate that there are no available games in starting with this title
+            // Indicate that there are no available games with the given name
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found with this title");
         }
 
         return games;
@@ -162,12 +172,12 @@ public class BrowsingService {
 
         if (loggedInCustomer == null) {
             // indicate that there is an issue with the loggedIn customer (might not be needed)
-            return false; // come back to this
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
         }
 
         if (quantity < 1) {
             // indicate invalid quantity
-            return false; // come back to this
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid quantity");
         }
 
         // Check if the game is already in the cart
@@ -176,13 +186,13 @@ public class BrowsingService {
 
         if (cartItem != null) {
             // Indicate that the game is already in the cart
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Game already in cart");
         }
 
         // Check if there is enough stock of the game
         if (addedGame.getStock() < quantity) {
             // Indicate that there is not enough stock
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough stock");
         }
 
         // Add the game to the customer's cart by creating a cartItem
@@ -209,7 +219,7 @@ public class BrowsingService {
 
         if (cartItem == null) {
             // Indicate that the game is not in the cart
-            return false;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found in cart");
         }
 
         // Remove the game from the cart
@@ -227,12 +237,12 @@ public class BrowsingService {
 
         if (cartItem == null) {
             // Indicate that the game is not in the cart
-            return false;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found in cart");
         }
 
         if (newQuantity < 1) {
             // Indicate invalid quantity
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid quantity");
         }
 
         // Update the quantity of the game in the cart
@@ -283,7 +293,7 @@ public class BrowsingService {
 
         if (loggedInCustomer == null) {
             // indicate that there is an issue with the loggedIn customer (might not be needed)
-            return false; // come back to this
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
         }
 
         // Check if the game is already in the wishlist
@@ -312,7 +322,7 @@ public class BrowsingService {
     
             if (wishlistItem == null) {
                 // Indicate that the game is not in the wishlist
-                return false;
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found in wishlist");
             }
     
             // Remove the game from the wishlist
