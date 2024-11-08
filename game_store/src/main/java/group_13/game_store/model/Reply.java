@@ -9,6 +9,8 @@ import java.sql.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 // line 108 "model.ump"
 // line 215 "model.ump"
@@ -26,6 +28,9 @@ public class Reply
   private int replyID;
   private String text;
   private Date date;
+
+  @OneToOne  
+  private Review review;
 
   //------------------------
   // CONSTRUCTOR

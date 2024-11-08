@@ -41,7 +41,7 @@ public class Review
   @ManyToOne
   private Game reviewedGame;
 
-  @OneToOne(optional = true)
+  @OneToOne(optional = true, mappedBy = "review")
   private Reply reply;
 
   //Link the review to the customers that liked it
@@ -56,11 +56,20 @@ public class Review
   protected Review() {
   }
 
-  public Review(String aDescription, int aScore, int aLikes, Date aDate, Customer aReviewer, Game aReviewedGame)
+  public Review(String aDescription, int aScore, Date aDate, Customer aReviewer, Game aReviewedGame, List<Customer> likedByCustomers)
   {
     description = aDescription;
     score = aScore;
-    likes = aLikes;
+
+    if (likedByCustomers != null && !likedByCustomers.isEmpty()) {
+      likes = likedByCustomers.size();
+      this.likedByCustomers = likedByCustomers;
+
+    } else {
+      likes = 0;
+      this.likedByCustomers = new ArrayList<>();
+    }
+    
     date = aDate;
     if (!setReviewer(aReviewer))
     {
@@ -92,6 +101,7 @@ public class Review
   // Lets you set the list of customers that liked the review
   public void setLikedByCustomers(List<Customer> likedByCustomers) {
     this.likedByCustomers = likedByCustomers;
+    this.likes = likedByCustomers.size();
   }
 
 
@@ -107,14 +117,6 @@ public class Review
   {
     boolean wasSet = false;
     score = aScore;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public boolean setLikes(int aLikes)
-  {
-    boolean wasSet = false;
-    likes = aLikes;
     wasSet = true;
     return wasSet;
   }
