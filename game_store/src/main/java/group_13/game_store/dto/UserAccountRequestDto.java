@@ -1,6 +1,5 @@
 package group_13.game_store.dto;
 
-import group_13.game_store.model.DeliveryInformation;
 import group_13.game_store.model.PaymentInformation;
 
 public class UserAccountRequestDto {
@@ -15,7 +14,6 @@ public class UserAccountRequestDto {
     private boolean isActive;
     // for customer account
     private PaymentInformation paymentInformation;
-    private DeliveryInformation deliveryInformation;
 
     public UserAccountRequestDto(String username, String name, String email, String phoneNumber, String password) {
         this.username = username;
@@ -87,14 +85,6 @@ public class UserAccountRequestDto {
 
     public void setPaymentInformation(PaymentInformation paymentInformation) {
         this.paymentInformation = paymentInformation;
-    }
-
-    public DeliveryInformation getDeliveryInformation() {
-        return deliveryInformation;
-    }
-
-    public void setDeliveryInformation(DeliveryInformation deliveryInformation) {
-        this.deliveryInformation = deliveryInformation;
     }
 
 }
