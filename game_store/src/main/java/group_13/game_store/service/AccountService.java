@@ -97,51 +97,51 @@ public class AccountService {
 
     // Method to allow guests to create an account
     @Transactional
-    public boolean createCustomerAccount(String name, String username, String email, String password, String phoneNumber) {
+    public Customer createCustomerAccount(String name, String username, String email, String password, String phoneNumber) {
         // Validate that the username is unique
         UserAccount usernameCheck = repo.findByUsername(username);
         if (usernameCheck != null) {
             System.out.println("An account already exists with this username, please select a different username");
-            return false;
+            return null;
         }
         
         // Validate that the email is unique
         UserAccount emailCheck = repo.findByEmail(email);
         if (emailCheck != null) {
             System.out.println("An account already exists with this email address, please select a different email");
-            return false;
+            return null;
         }
 
         // Validate the phone number
         String regex = "^\\d{3}-\\d{3}-\\d{4}$";
         if (phoneNumber == null || !phoneNumber.matches(regex)) {
             System.out.println("Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
-            return false;
+            return null;
         }
 
         // Validate the password (MANY STEPS)
         // Check if the password is at least 8 characters long
         if (password.length() < 8) {
             System.out.println("Password must be at least 8 characters long.");
-            return false;
+            return null;
         }
         
         // Check if the password contains at least one uppercase letter
         if (!password.matches(".*[A-Z].*")) {
             System.out.println("Password must contain at least one uppercase letter.");
-            return false;
+            return null;
         }
         
         // Check if the password contains at least one lowercase letter
         if (!password.matches(".*[a-z].*")) {
             System.out.println("Password must contain at least one lowercase letter.");
-            return false;
+            return null;
         }
         
         // Check if the password contains at least one number
         if (!password.matches(".*[0-9].*")) {
             System.out.println("Password must contain at least one number.");
-            return false;
+            return null;
         }
         
         // Hash the password before we save it
@@ -151,7 +151,7 @@ public class AccountService {
         Customer newCustomerAccount = new Customer(name, username, email, hashedPassword, phoneNumber);
         newCustomerAccount.setPermissionLevel(1);
         repo.save(newCustomerAccount);
-        return true;
+        return newCustomerAccount;
     }
 
 
