@@ -146,7 +146,7 @@ public class ReviewService {
     // Method to add a like to a review based on the reviewID and the customerID we
     // return false if it failed to add the like and true if it succeeded
     @Transactional
-    public boolean addLike(int reviewID, String customerUsername) {
+    public int addLike(int reviewID, String customerUsername) {
         /// Retrieve the customer mad review
         Customer customer = customerRepo.findByUsername(customerUsername);
         Review review = reviewRepository.findByReviewID(reviewID);
@@ -170,16 +170,15 @@ public class ReviewService {
         reviewLikeRepository.save(reviewLike);
 
         review.addReviewLike(reviewLike);
-        reviewRepository.save(review);
 
-        return true;
+        return reviewRepository.save(review).getLikes();
     }
 
     // Method to remove a like from a review based on the reviewID and the
     // customerID we return false if it failed to remove the like and true if it
     // succeeded
     @Transactional
-    public boolean removeLike(int reviewID, String customerUsername) {
+    public int removeLike(int reviewID, String customerUsername) {
         /// Retrieve the customer mad review
         Customer customer = customerRepo.findByUsername(customerUsername);
         Review review = reviewRepository.findByReviewID(reviewID);
@@ -201,12 +200,10 @@ public class ReviewService {
         ReviewLike reviewLike = reviewLikeRepository.findByReviewAndCustomer(review, customer);
 
         review.removeReviewLike(reviewLike);
-        reviewRepository.save(review);
 
         reviewLikeRepository.delete(reviewLike);
-        ;
 
-        return true;
+        return reviewRepository.save(review).getLikes();
     }
 
     // Method to let the owner reply to a review if there are no current replies to

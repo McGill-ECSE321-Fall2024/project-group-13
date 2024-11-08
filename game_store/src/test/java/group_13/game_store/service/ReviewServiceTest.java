@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.ArgumentCaptor;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -88,6 +91,9 @@ public class ReviewServiceTest {
 
     }
 
+    /* 
+        ************************** createReview Tests **************************
+    */ 
     // Test case for when the review is successfully created
     @Test
     public void testCreateReview_Success() {
@@ -122,6 +128,9 @@ public class ReviewServiceTest {
         assertEquals(score, review.getScore());
         assertEquals(customer1, review.getReviewer());
         assertEquals(game1, review.getReviewedGame());
+
+        // Verify that save was called once with any Review object
+        verify(reviewRepository, times(1)).save(any(Review.class));
     }
 
     // Test case for when the customer is not found
@@ -195,4 +204,127 @@ public class ReviewServiceTest {
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
         assertEquals("Customer does not have the game.", exception.getReason());
     }
+
+    /* 
+        ************************** updateReview Tests **************************
+    */ 
+
+    @Test
+    public void testUpdateReview_Success() {
+        // Arrange
+        int reviewID = 1;
+        String newDescription = "Updated review description.";
+        int newScore = 4;
+        String reviewerID = "jane_doe";
+
+        // Existing review
+        Review existingReview = new Review("Original description", 5, Date.valueOf(LocalDate.now()), customer3, game1);
+        existingReview.setReviewID(reviewID);
+
+        // Mocking the review repository
+        when(reviewRepository.findByReviewID(reviewID)).thenReturn(existingReview);
+        when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Review updatedReview = reviewService.updateReview(reviewID, newDescription, newScore, reviewerID);
+
+        // Assert
+        assertNotNull(updatedReview);
+        assertEquals(reviewID, updatedReview.getReviewID());
+        assertEquals(newDescription, updatedReview.getDescription());
+        assertEquals(newScore, updatedReview.getScore());
+        assertEquals(Date.valueOf(LocalDate.now()), updatedReview.getDate());
+
+        verify(reviewRepository, times(1)).save(existingReview);
+    }
+
+
+    @Test
+    public void testUpdateReview_ReviewNotFound() {
+        // Arrange
+        int reviewID = 99; // Non-existent review ID
+        String newDescription = "Updated review description.";
+        int newScore = 4;
+        String reviewerID = "tim_roma";
+
+        // Mocking the review repository to return null
+        when(reviewRepository.findByReviewID(reviewID)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.updateReview(reviewID, newDescription, newScore, reviewerID);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Review not found.", exception.getReason());
+    }
+
+    @Test
+    public void testUpdateReview_InvalidDescription() {
+        // Arrange
+        int reviewID = 1;
+        String newDescription = ""; // Empty description
+        int newScore = 4;
+        String reviewerID = "tim_roma";
+
+        // Existing review
+        Review existingReview = new Review("Original description", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        existingReview.setReviewID(reviewID);
+
+        // Mocking the review repository
+        when(reviewRepository.findByReviewID(reviewID)).thenReturn(existingReview);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.updateReview(reviewID, newDescription, newScore, reviewerID);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
+    }
+
+    @Test
+    public void testUpdateReview_ZeroScore() {
+        // Arrange
+        int reviewID = 1;
+        String newDescription = "Updated review description.";
+        int newScore = 0; // Invalid score
+        String reviewerID = "tim_roma";
+
+        // Existing review
+        Review existingReview = new Review("Original description", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        existingReview.setReviewID(reviewID);
+
+        // Mocking the review repository
+        when(reviewRepository.findByReviewID(reviewID)).thenReturn(existingReview);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.updateReview(reviewID, newDescription, newScore, reviewerID);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Score cannot be zero.", exception.getReason());
+    }
+
+    @Test
+    public void testUpdateReview_NegativeScore() {
+        // Arrange
+        int reviewID = 1;
+        String newDescription = "Updated review description.";
+        int newScore = -5; // Invalid score
+        String reviewerID = "tim_roma";
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.updateReview(reviewID, newDescription, newScore, reviewerID);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Review ID and score must be greater than 0.", exception.getReason());
+    }
+
+
+
+
 }
