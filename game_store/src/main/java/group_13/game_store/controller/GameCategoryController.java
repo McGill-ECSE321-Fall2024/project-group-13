@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class GameCategoryController
     @Autowired
     private AccountService accountService;
 
-    @PostMapping("/categories?loggedInUser={loggedInUsername}")
+    @PostMapping("/categories")
     public GameCategoryResponseDto createGameCategory(@RequestBody GameCategoryRequestDto categoryToCreate, @RequestParam String loggedInUsername)
     {
         // Check if the user is at least an owner
@@ -51,7 +52,7 @@ public class GameCategoryController
         return response;
     }
 
-    @GetMapping("/categories?loggedInUser={loggedInUsername}")
+    @GetMapping("/categories")
     public GameCategoryListResponseDto getAllGameCategory(@RequestParam String loggedInUsername)
     {
         // Check if the user is at least an owner
@@ -83,7 +84,7 @@ public class GameCategoryController
         return new GameCategoryResponseDto(category);
     }
 
-    @GetMapping("/categories/{categoryID}?loggedInUser={loggedInUsername}")
+    @DeleteMapping("/categories/{categoryID}?loggedInUser={loggedInUsername}")
     public void deleteGameCategoryById(@PathVariable int gameCategoryID, @RequestParam String loggedInUsername)
     {
         // Check if the user is atleast employee
@@ -99,9 +100,8 @@ public class GameCategoryController
         gameStoreService.archiveCategory(gameCategoryID, loggedInUsername);
     }
 
-    @GetMapping("/categories?isPendingArchive={isPendingArchive}?loggedInUser={loggedInUsername}")
-    public GameCategoryListResponseDto getGameCategoryArchiveRequests(@RequestParam boolean isPendingArchive,
-            @RequestParam String loggedInUsername) {
+    @GetMapping("/categories/archive-requests")
+    public GameCategoryListResponseDto getGameCategoryArchiveRequests(@RequestParam String loggedInUsername) {
         // Check if the user is the owner
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
@@ -112,20 +112,16 @@ public class GameCategoryController
                     "You do not have permission to view pending archive requests.");
         }
 
-        if (!isPendingArchive) {
-            // throw an exception and status code
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // come back to this
-        } else {
-            // Retreive the game categories which are marked to be reviewed by the owner, which
-            // requested to be archived by employees
-            List<GameCategory> gameCategories = gameStoreService.getAllPendingArchiveCategories();
-            ArrayList<GameCategoryResponseDto> gameCategoriesDtos = new ArrayList<GameCategoryResponseDto>();
+        // Retreive the game categories which are marked to be reviewed by the owner, which
+        // requested to be archived by employees
+        List<GameCategory> gameCategories = gameStoreService.getAllPendingArchiveCategories();
+        ArrayList<GameCategoryResponseDto> gameCategoriesDtos = new ArrayList<GameCategoryResponseDto>();
 
-            for (GameCategory gameCategory : gameCategories) {
-                GameCategoryResponseDto gameCategoryDto = new GameCategoryResponseDto(gameCategory);
-                gameCategoriesDtos.add(gameCategoryDto);
-            }
-            return new GameCategoryListResponseDto(gameCategoriesDtos);
+        for (GameCategory gameCategory : gameCategories) {
+            GameCategoryResponseDto gameCategoryDto = new GameCategoryResponseDto(gameCategory);
+            gameCategoriesDtos.add(gameCategoryDto);
         }
+        return new GameCategoryListResponseDto(gameCategoriesDtos);
+        
     }
 }
