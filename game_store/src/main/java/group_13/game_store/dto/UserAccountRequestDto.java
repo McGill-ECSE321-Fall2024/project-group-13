@@ -17,12 +17,12 @@ public class UserAccountRequestDto {
     private PaymentInformation paymentInformation;
     private DeliveryInformation deliveryInformation;
 
-    public UserAccountRequestDto(String username, String name, String email, String phoneNumber, int permissionLevel) {
+    public UserAccountRequestDto(String username, String name, String email, String phoneNumber, String password) {
         this.username = username;
 		this.name = name;
 		this.email = email;
         this.phoneNumber = phoneNumber;
-        this.permissionLevel = permissionLevel;
+        this.password = password;
     }
 
     public String getUsername() {

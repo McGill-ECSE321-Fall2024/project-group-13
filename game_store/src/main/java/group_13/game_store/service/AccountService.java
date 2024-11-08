@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import group_13.game_store.model.Address;
@@ -31,6 +32,14 @@ public class AccountService {
 
 
     
+    public UserAccount findCustomerByUsername(String username) {
+		UserAccount anAccount = repo.findByUsername(username);
+		if (anAccount == null) {
+			throw new IllegalArgumentException("No customer username with " + username + " exists.");
+		}
+		return anAccount;
+	}
+
     // Method to get the permission level of a user based on their username
     public int findPermissionLevelByUsername(String username) {
         return repo.findByUsername(username).getPermissionLevel();
