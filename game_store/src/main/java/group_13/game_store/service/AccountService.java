@@ -7,7 +7,9 @@ import java.sql.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 
+import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.DeliveryInformation;
@@ -99,7 +101,9 @@ public class AccountService {
         }
 
         // Now we can change their password
-        person.setPassword(newPassword);
+        String newHashedPassword = hashPassword(newPassword);
+        person.setPassword(newHashedPassword);
+        person = userAccountRepo.save(person);
         return true;
     }
 
