@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import group_13.game_store.service.OrderManagementService;
 import group_13.game_store.dto.CustomerResponseDto;
+import group_13.game_store.dto.OrderListDto;
+import group_13.game_store.dto.OrderRequestDto;
+import group_13.game_store.dto.OrderResponseDto;
 import group_13.game_store.dto.ReviewListResponseDto;
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
@@ -22,6 +25,7 @@ import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
+import group_13.game_store.model.Order;
 import group_13.game_store.model.Review;
 
 @RestController
@@ -80,11 +84,16 @@ public class UserAccountController {
     // updating a user's phone number 
     @PutMapping("/users/{username}")
     public UserAccountResponseDto updateUserPhoneNumber(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
+        // validatin that a logged in account is updating the password
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("Must be registered user to change phone number");
+        }
+        
         // every user has permission to change their own password
         UserAccount aUser = accountService.findUserByUsername(request.getUsername());
 
         // changing phone number of user whether it is owner, employee, or customer
-        accountService.changePhoneNumber(request.getPhoneNumber(), aUser.getUsername());
+        accountService.changePhoneNumber(request.getPhoneNumber(), request.getUsername());
 
         return new UserAccountResponseDto(aUser);
         
@@ -93,13 +102,33 @@ public class UserAccountController {
     // updating a user's password
     @PutMapping("/users/{username}")
     public UserAccountResponseDto updateUserPassword(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
-        // every user has permission to change their own password
-        UserAccount aUser = accountService.findUserByUsername(request.getUsername());
+        // only registerd user has permission to change their own password
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("Must be registered user to change phone number");
+        }
+        
+        UserAccount aUser = accountService.findUserByUsername(username);
 
         // changing password of user whether it is owner, employee, or customer
-        accountService.changePhoneNumber(request.getPassword(), aUser.getUsername());
+        accountService.changePassword(request.getPassword(), request.getUsername());
 
         return new UserAccountResponseDto(aUser);
         
     }
+
+    @GetMapping("/customers/{username}/orders")
+    public OrderListDto findAllOrdersOfCustomer(@RequestParam String loggedInUsername, @PathVariable String username) {
+        // only customer should be able to see their order history
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("User must be a customer to view their own orders");
+        }
+
+        List<OrderResponseDto> allOrdersOfCustomers = new ArrayList<OrderResponseDto>();
+        for (Order order : orderManagementService.getOrderHistoryOfCustomer(username)) {
+            allOrdersOfCustomers.add(new OrderResponseDto(order));
+        }
+
+        return new OrderListDto(allOrdersOfCustomers);
+    }
+
 }
