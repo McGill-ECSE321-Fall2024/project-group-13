@@ -43,7 +43,7 @@ public class GameCategoryController
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to add game categories.");
         }
 
-        GameCategory createdCategory = gameStoreService.addCategory(loggedInUsername, 
+        GameCategory createdCategory = gameStoreService.addCategory( 
                                         categoryToCreate.getName(),
                                         categoryToCreate.getDescription());
 

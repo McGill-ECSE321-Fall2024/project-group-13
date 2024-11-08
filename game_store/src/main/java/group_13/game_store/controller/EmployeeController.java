@@ -64,7 +64,7 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view employees.");
         }
 
-        gameStoreService.addEmployee(loggedInUsername, userAccountRequestDto.getName(), userAccountRequestDto.getUsername(), 
+        gameStoreService.addEmployee(userAccountRequestDto.getName(), userAccountRequestDto.getUsername(), 
                                     userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(), 
                                     userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
         
@@ -104,7 +104,7 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete employees.");
         }
         
-        gameStoreService.archiveEmployeeAccount(loggedInUsername, loggedInUsername);
+        gameStoreService.archiveEmployeeAccount(loggedInUsername);
 
         Employee employee = gameStoreService.getEmployeeByUsername(username);
 

@@ -141,7 +141,6 @@ public class GameController {
         }
 
         Game createdGame = gameStoreManagementService.addGame(
-                loggedInUsername,
                 gameRequestDto.getTitle(),
                 gameRequestDto.getDescription(),
                 gameRequestDto.getImg(),
@@ -187,8 +186,7 @@ public class GameController {
                 gameRequestDto.getPrice(),
                 gameRequestDto.getParentalRating(),
                 gameRequestDto.getStatus(),
-                gameRequestDto.getCategoryId(),
-                loggedInUsername);
+                gameRequestDto.getCategoryId());
 
         GameResponseDto gameResponseDto = new GameResponseDto(
                 updatedGame.getGameID(),
@@ -216,7 +214,7 @@ public class GameController {
                     "You do not have permission to archive games.");
         }
 
-        gameStoreManagementService.archiveGame(gameID, loggedInUsername);
+        gameStoreManagementService.archiveGame(gameID);
     }
 
     // Request to archive a game (Employee only)
@@ -230,7 +228,7 @@ public class GameController {
                     "You do not have permission to request archiving games.");
         }
 
-        gameStoreManagementService.archiveGameRequest(gameID, loggedInUsername);
+        gameStoreManagementService.archiveGameRequest(gameID);
     }
 
     // Get pending game archive requests (Owner only)
