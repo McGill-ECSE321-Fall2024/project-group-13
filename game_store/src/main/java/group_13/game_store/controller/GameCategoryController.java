@@ -12,16 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
-import group_13.game_store.repository.GameRepository;
 import group_13.game_store.dto.GameCategoryRequestDto;
 import group_13.game_store.dto.GameCategoryResponseDto;
 import group_13.game_store.dto.GameCategoryListResponseDto;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
