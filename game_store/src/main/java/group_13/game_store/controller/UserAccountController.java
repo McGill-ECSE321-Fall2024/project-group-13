@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import group_13.game_store.service.OrderManagementService;
 import group_13.game_store.dto.CustomerResponseDto;
+import group_13.game_store.dto.ReviewListResponseDto;
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.service.AccountService;
@@ -59,6 +60,18 @@ public class UserAccountController {
 
         // retrieve all customers
         return new CustomerListDto(allCustomers);
+    }
+
+    // get a specific customer
+    @GetMapping("/customers/{username}")
+    public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
+        // validate that it is an employee or owner who is searching for customer
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
+            throw new IllegalArgumentException("User must be an owner or employee");
+        }
+
+        Customer customerToFind = accountService.findCustomerByUsername(username);
+        return new CustomerResponseDto(customerToFind);
     }
 
 }

@@ -40,8 +40,8 @@ public class AccountService {
 
 
     
-    public UserAccount findCustomerByUsername(String username) {
-		UserAccount anAccount = repo.findByUsername(username);
+    public Customer findCustomerByUsername(String username) {
+		Customer anAccount = customerRepo.findByUsername(username);
 		if (anAccount == null) {
 			throw new IllegalArgumentException("No customer username with " + username + " exists.");
 		}
