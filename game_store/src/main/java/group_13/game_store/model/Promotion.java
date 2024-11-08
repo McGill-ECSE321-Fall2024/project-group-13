@@ -9,6 +9,7 @@ import java.sql.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 // line 135 "model.ump"
 // line 226 "model.ump"
@@ -29,6 +30,9 @@ public class Promotion
   private Date endDate;
   private String title;
   private String description;
+
+  @ManyToOne(optional = true)
+  private Game game;
 
   //------------------------
   // CONSTRUCTOR

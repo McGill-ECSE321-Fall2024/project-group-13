@@ -13,6 +13,8 @@ import group_13.game_store.model.Customer;
 import group_13.game_store.model.DeliveryInformation;
 import group_13.game_store.model.PaymentInformation;
 import group_13.game_store.model.UserAccount;
+import group_13.game_store.repository.AddressRepository;
+import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.DeliveryInformationRepository;
 import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
@@ -22,13 +24,19 @@ import jakarta.transaction.Transactional;
 @Service
 public class AccountService {
     @Autowired
-    private UserAccountRepository repo;
+    private UserAccountRepository userAccountRepo;
+
+    @Autowired
+    private CustomerRepository customerRepo;
 
     @Autowired
     private PaymentInformationRepository paymentInfoRepo;
 
     @Autowired
     private DeliveryInformationRepository deliveryInfoRepo;
+
+    @Autowired
+    private AddressRepository addressRepo;
 
 
     
@@ -42,7 +50,7 @@ public class AccountService {
 
     // Method to get the permission level of a user based on their username
     public int findPermissionLevelByUsername(String username) {
-        return repo.findByUsername(username).getPermissionLevel();
+        return userAccountRepo.findByUsername(username).getPermissionLevel();
     }
 
     // Method to check if a user has permission to perform a certain action
@@ -84,7 +92,7 @@ public class AccountService {
         
         // If all checks pass, then the password is valid
         // Now check that the user with the given username exists
-        UserAccount person = repo.findByUsername(username);
+        UserAccount person = userAccountRepo.findByUsername(username);
         if (person == null) {
             System.out.println("No user exists with the given username.");
             return false;
@@ -99,14 +107,14 @@ public class AccountService {
     @Transactional
     public Customer createCustomerAccount(String name, String username, String email, String password, String phoneNumber) {
         // Validate that the username is unique
-        UserAccount usernameCheck = repo.findByUsername(username);
+        UserAccount usernameCheck = userAccountRepo.findByUsername(username);
         if (usernameCheck != null) {
             System.out.println("An account already exists with this username, please select a different username");
             return null;
         }
         
         // Validate that the email is unique
-        UserAccount emailCheck = repo.findByEmail(email);
+        UserAccount emailCheck = userAccountRepo.findByEmail(email);
         if (emailCheck != null) {
             System.out.println("An account already exists with this email address, please select a different email");
             return null;
@@ -150,7 +158,7 @@ public class AccountService {
         // Create the customer account
         Customer newCustomerAccount = new Customer(name, username, email, hashedPassword, phoneNumber);
         newCustomerAccount.setPermissionLevel(1);
-        repo.save(newCustomerAccount);
+        userAccountRepo.save(newCustomerAccount);
         return newCustomerAccount;
     }
 
@@ -159,7 +167,7 @@ public class AccountService {
     @Transactional
     public boolean loginToAccount(String username, String password) {
         // Check that account with input username exists
-        UserAccount user = repo.findByUsername(username);
+        UserAccount user = userAccountRepo.findByUsername(username);
         if (user == null) {
             System.out.println("There are no users with the given username.");
             return false;
@@ -211,7 +219,7 @@ public class AccountService {
     @Transactional
     public boolean changePaymentInfo(String username, long cardNumber, String billingName, Date expiryDate, int cvvCode, Address billingAddress) {
         // Create a new PaymentInfo object if they don't have one yet
-        UserAccount user = repo.findByUsername(username);
+        UserAccount user = userAccountRepo.findByUsername(username);
         
         if (user == null) {
             System.out.println("No such user with the given username exists");
@@ -255,7 +263,7 @@ public class AccountService {
     @Transactional
     public boolean changeDeliveryInfo(String username, String deliveryName, Address deliveryAddress) {
          // Create a new PaymentInfo object if they don't have one yet
-         UserAccount user = repo.findByUsername(username);
+         UserAccount user = userAccountRepo.findByUsername(username);
         
          if (user == null) {
              System.out.println("No such user with the given username exists");
@@ -291,6 +299,92 @@ public class AccountService {
          deliveryInfo.setDeliveryName(deliveryName);
          return true;
     }
+
+    // Method to get payment info from a certain customer
+    @Transactional
+    public PaymentInformation getPaymentInformationByCustomerUsername(String username) {
+        Customer customer = customerRepo.findByUsername(username);
+        
+        if (customer == null) {
+            System.out.println("Ur mom hehehe! Also the customer is null");
+        }
+
+        PaymentInformation paymentInfo = paymentInfoRepo.findByPaymentInfoID(customer.getPaymentInformation().getPaymentInfoID());
+
+        if (paymentInfo == null) {
+            System.out.println("Payment info is null btw for this customer");
+        }
+
+        return paymentInfo;
+    }
+
+    // Method to get delivery info from a certain customer
+    @Transactional
+    public DeliveryInformation getDeliveryInformationByCustomerUsername(String username) {
+        Customer customer = customerRepo.findByUsername(username);
+
+        if (customer == null) {
+            System.out.println("This customer does not exist lol");
+        }
+
+        DeliveryInformation deliveryInfo = deliveryInfoRepo.findByDeliveryInfoID(customer.getDeliveryInformation().getDeliveryInfoID());
+
+        if (deliveryInfo == null) {
+            System.out.println("Delivery info is null for this customer");
+        }
+
+        return deliveryInfo;
+    }
+
+
+    // Method to get paymentinfo id from customer username
+    @Transactional
+    public int getPaymentInfoIdByUsername(String username) {
+        Customer customer = customerRepo.findByUsername(username);
+
+        if (customer == null) {
+            System.out.println("This customer is null");
+        }
+
+        PaymentInformation paymentInfo = paymentInfoRepo.findByPaymentInfoID(customer.getPaymentInformation().getPaymentInfoID());
+
+        if (paymentInfo == null) {
+            System.out.println("Payment info is null for this customer");
+        }
+
+        return paymentInfo.getPaymentInfoID();
+    }
+
+    // Method to get the deliveryinfo id from customer username
+    @Transactional
+    public int getDeliveryInfoIdByUsername(String username) {
+        Customer customer = customerRepo.findByUsername(username);
+
+        if (customer == null) {
+            System.out.println("This customer is null");
+        }
+
+        DeliveryInformation deliveryInfo = deliveryInfoRepo.findByDeliveryInfoID(customer.getDeliveryInformation().getDeliveryInfoID());
+
+        if (deliveryInfo == null) {
+            System.out.println("Delivery info is null for this customer");
+        }
+
+        return deliveryInfo.getDeliveryInfoID();
+    }
+
+    // Method to get an address given an address id
+    @Transactional
+    public Address getAddressById(int addressId) {
+        Address address = addressRepo.findByAddressID(addressId);
+
+        if (address == null) {
+            System.out.println("The address is null");
+        }
+
+        return address;
+    }
+
 
     // Method to validate payment info
     public boolean validatePaymentInfo(long cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
