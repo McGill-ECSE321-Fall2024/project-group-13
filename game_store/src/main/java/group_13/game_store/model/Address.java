@@ -3,7 +3,6 @@ package group_13.game_store.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.34.0.7242.6b8819789 modeling language!*/
@@ -32,9 +31,7 @@ public class Address
   private String country;
   private int apartmentNo;
 
-   //Address Associations
-  @OneToOne(optional=true)
-  private Customer customer;
+
 
   //------------------------
   // CONSTRUCTOR
@@ -163,27 +160,8 @@ public class Address
     return apartmentNo;
   }
 
-  /* Code from template association_GetOne */
-  public Customer getCustomer()
-  {
-    return customer;
-  }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setCustomer(Customer aNewCustomer)
-  {
-    boolean wasSet = false;
-    if (aNewCustomer != null)
-    {
-      customer = aNewCustomer;
-      wasSet = true;
-    }
-    return wasSet;
-  }
-
   public void delete()
-  {
-    customer = null;
-  }
+  {}
 
 
   public String toString()

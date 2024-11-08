@@ -21,6 +21,8 @@ public class Customer extends UserAccount
   //Customer Associations
   @OneToOne(optional=true)
   private PaymentInformation paymentInformation;
+  @OneToOne(optional=true)
+  private Address address;
 
   //------------------------
   // CONSTRUCTOR
@@ -66,9 +68,27 @@ public class Customer extends UserAccount
     return wasSet;
   }
 
+  /* Code from template association_GetOne */
+  public Address getAddress()
+  {
+    return address;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setAddress(Address aNewAddress)
+  {
+    boolean wasSet = false;
+    if (aNewAddress != null)
+    {
+      address = aNewAddress;
+      wasSet = true;
+    }
+    return wasSet;
+  }
+
   public void delete()
   {
     paymentInformation = null;
+    address = null;
     super.delete();
   }
 

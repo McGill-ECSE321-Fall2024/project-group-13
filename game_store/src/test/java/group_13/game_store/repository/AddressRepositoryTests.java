@@ -25,20 +25,19 @@ public class AddressRepositoryTests {
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
-        addressRepository.deleteAll();
         customerRepo.deleteAll();
+        addressRepository.deleteAll();
     }
 
     @Test
     public void testWriteAndReadAddress() {
         // Arrange
-        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
-        nicolas = customerRepo.save(nicolas);
         Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
-        savedAddress.setCustomer(nicolas);
-        // saving the above Address instance in the cleared Address table 
-        
         savedAddress = addressRepository.save(savedAddress);
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
+        nicolas.setAddress(savedAddress);
+        nicolas = customerRepo.save(nicolas);
+
         int savedAddressID = savedAddress.getAddressID();
 
         // Act
@@ -56,7 +55,6 @@ public class AddressRepositoryTests {
         assertEquals(savedAddress.getStateOrProvince(), readAddress.getStateOrProvince());
         assertEquals(savedAddress.getCountry(), readAddress.getCountry());
         assertEquals(savedAddress.getApartmentNo(), readAddress.getApartmentNo());
-        assertEquals(savedAddress.getCustomer().getUsername(), readAddress.getCustomer().getUsername());
 
     }
 

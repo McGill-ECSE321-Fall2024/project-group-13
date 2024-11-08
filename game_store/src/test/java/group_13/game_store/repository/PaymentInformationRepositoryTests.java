@@ -29,19 +29,22 @@ public class PaymentInformationRepositoryTests {
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
+        customerRepo.deleteAll();
         paymentInformationRepository.deleteAll();
         addressRepository.deleteAll();
-        customerRepo.deleteAll();
     }
 
     @Test
     public void testWriteAndReadPaymentInformation() {
         // Arrange
         Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
-        nicolas = customerRepo.save(nicolas);
         Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
-        savedAddress.setCustomer(nicolas);
         savedAddress = addressRepository.save(savedAddress);
+        nicolas.setAddress(savedAddress);
+        nicolas = customerRepo.save(nicolas);
+
+
+
         PaymentInformation savedPaymentInformation = new PaymentInformation(123456789, "John Cena",
                 Date.valueOf("2024-10-11"), 000, savedAddress);
         
