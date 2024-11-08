@@ -46,9 +46,6 @@ public class ReviewService {
     private GameRepository gameRepository;
 
     @Autowired
-    private AccountService accountService;
-
-    @Autowired
     private ReviewLikeRepository reviewLikeRepository;
 
     // Retrieve all reviews
