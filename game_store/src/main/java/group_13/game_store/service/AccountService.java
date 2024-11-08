@@ -41,7 +41,14 @@ public class AccountService {
     private AddressRepository addressRepo;
 
 
-    
+    public UserAccount findUserByUsername(String username) {
+		UserAccount anAccount = userAccountRepo.findByUsername(username);
+		if (anAccount == null) {
+			throw new IllegalArgumentException("No user with username with " + username + " exists.");
+		}
+		return anAccount;
+	}
+
     public Customer findCustomerByUsername(String username) {
 		Customer anAccount = customerRepo.findByUsername(username);
 		if (anAccount == null) {
@@ -64,6 +71,29 @@ public class AccountService {
     public boolean hasPermissionAtLeast(String username, int permissionLevel) {
         return (findPermissionLevelByUsername(username) >= permissionLevel);
     }
+
+    // method to allow user to change phone number
+    @Transactional
+    public boolean changePhoneNumber(String newPhoneNumber, String username) {
+       // validate new phone number
+        String regex = "^\\d{3}-\\d{3}-\\d{4}$";
+        if (newPhoneNumber == null || !newPhoneNumber.matches(regex)) {
+            System.out.println("Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
+            return false;
+        }
+
+        // Now check that the user with the given username exists
+        UserAccount person = userAccountRepo.findByUsername(username);
+        if (person == null) {
+            System.out.println("No user exists with the given username.");
+            return false;
+        }
+
+        person.setPhoneNumber(newPhoneNumber);
+        person = userAccountRepo.save(person);
+        return true;
+    }
+ 
 
     // Method to allow user to change password
     @Transactional
