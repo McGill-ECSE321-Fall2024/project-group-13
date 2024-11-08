@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import group_13.game_store.model.Address;
+import group_13.game_store.model.Customer;
 
 @SpringBootTest
 public class AddressRepositoryTests {
@@ -17,18 +18,26 @@ public class AddressRepositoryTests {
     @Autowired
     private AddressRepository addressRepository;
 
+    @Autowired
+    private CustomerRepository customerRepo;
+
     // clearing the Adress table that was loaded in before testing 
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
         addressRepository.deleteAll();
+        customerRepo.deleteAll();
     }
 
     @Test
     public void testWriteAndReadAddress() {
         // Arrange
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
+        nicolas = customerRepo.save(nicolas);
         Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
+        savedAddress.setCustomer(nicolas);
         // saving the above Address instance in the cleared Address table 
+        
         savedAddress = addressRepository.save(savedAddress);
         int savedAddressID = savedAddress.getAddressID();
 
@@ -47,6 +56,7 @@ public class AddressRepositoryTests {
         assertEquals(savedAddress.getStateOrProvince(), readAddress.getStateOrProvince());
         assertEquals(savedAddress.getCountry(), readAddress.getCountry());
         assertEquals(savedAddress.getApartmentNo(), readAddress.getApartmentNo());
+        assertEquals(savedAddress.getCustomer().getUsername(), readAddress.getCustomer().getUsername());
 
     }
 

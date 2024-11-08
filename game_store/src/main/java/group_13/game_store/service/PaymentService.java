@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
-import group_13.game_store.model.DeliveryInformation;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCopy;
 import group_13.game_store.model.PaymentInformation;
@@ -51,23 +50,16 @@ public class PaymentService {
                 return false;
             }
 
-            // Check if customer has delivery information
-            DeliveryInformation deliveryInformation = customer.getDeliveryInformation();
-            if (deliveryInformation == null) {
-                System.out.print("Customer does not have delivery information set up");
-                return false;
-            }
-
-            // Validate postal code format for delivery address
-            if (!deliveryInformation.getDeliveryAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$")) {
-                System.out.print("Customer delivery address postal code information is not valid");
-                return false;
-            }
-
             // Check if customer has payment information
             PaymentInformation paymentInformation = customer.getPaymentInformation();
             if (paymentInformation == null) {
                 System.out.print("Customer does not have valid payment information");
+                return false;
+            }
+
+            // Validate postal code format for address
+            if (!paymentInformation.getBillingAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$")) {
+                System.out.print("Customer address postal code information is not valid");
                 return false;
             }
 

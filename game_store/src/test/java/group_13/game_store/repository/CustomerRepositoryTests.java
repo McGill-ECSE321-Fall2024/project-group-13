@@ -13,12 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
-import group_13.game_store.model.DeliveryInformation;
 import group_13.game_store.model.PaymentInformation;
 
 @SpringBootTest
 public class CustomerRepositoryTests {
-    // loading an instance of the local tables containing rows of Customer, PaymentInformation, DeliveryInformation, and Address instances from the local database
+    // loading an instance of the local tables containing rows of Customer, PaymentInformation, and Address instances from the local database
     @Autowired
     private CustomerRepository customerRepo;
 
@@ -26,18 +25,14 @@ public class CustomerRepositoryTests {
     private PaymentInformationRepository paymentRepo;
 
     @Autowired
-    private DeliveryInformationRepository deliveryRepo;
-
-    @Autowired
     private AddressRepository addressRepo;
 
-    // clearing the Customer, PaymentInformation, and DeliveryInformation, and Address tables that were loaded in before testing
+    // clearing the Customer, PaymentInformation, and Address tables that were loaded in before testing
     @BeforeEach
     @AfterEach
     public void clearDatabase(){
         customerRepo.deleteAll();
         paymentRepo.deleteAll();
-        deliveryRepo.deleteAll();
         addressRepo.deleteAll();
     }
 
@@ -46,22 +41,23 @@ public class CustomerRepositoryTests {
         //Arrange
         Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
         
-        //Create a fake Address and a fake Date that are needed for nicolasPayment and nicolasDelivery so that we can test those
+        //Create a fake Address and a fake Date that are needed for nicolasPayment so that we can test those
         Address nicolasAddress = new Address("pine", "R5H 7K9", 15, "Monteal", "Quebec", "Canada", 21);
         addressRepo.save(nicolasAddress);
+
         
-        //Create the Payment Information, Delivery Information for Nicolas so that we can test the associations are correctly saved in the database
+        //Create the Payment Information for Nicolas so that we can test the associations are correctly saved in the database
         PaymentInformation nicolasPayment = new PaymentInformation(27122313, "nicolas", Date.valueOf("2026-10-11"), 252, nicolasAddress);
         paymentRepo.save(nicolasPayment);
+        
 
-        DeliveryInformation nicolasDelivery = new DeliveryInformation("NicolasDelivery", nicolasAddress);
-        deliveryRepo.save(nicolasDelivery);
-
-        //Assign both the Delivery information and Payment information to nicolas
-        nicolas.setDeliveryInformation(nicolasDelivery);
+        //Assign the Payment information to nicolas
         nicolas.setPaymentInformation(nicolasPayment);
-
         nicolas = customerRepo.save(nicolas);
+
+        
+
+        
 
         //Act
         Customer nicolasFromDb = customerRepo.findByUsername("nicolasIsAmazing");
@@ -78,12 +74,10 @@ public class CustomerRepositoryTests {
         assertEquals(nicolas.getPhoneNumber(), nicolasFromDb.getPhoneNumber());
         assertEquals(nicolas.getPermissionLevel(), nicolasFromDb.getPermissionLevel());
 
-        //Check that both the payment information and delivery information are present
-        assertEquals(true, nicolasFromDb.hasDeliveryInformation());
+        //Check that the payment information is present
         assertEquals(true, nicolasFromDb.hasPaymentInformation());
 
-        //Check that both Delivery Information and Payment Information are equal
-        assertEquals(nicolas.getDeliveryInformation().getDeliveryInfoID(), nicolasFromDb.getDeliveryInformation().getDeliveryInfoID());
+        //Check that the Payment Information is equal
         assertEquals(nicolas.getPaymentInformation().getPaymentInfoID(), nicolasFromDb.getPaymentInformation().getPaymentInfoID());
         
     }
