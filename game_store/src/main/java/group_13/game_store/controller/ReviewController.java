@@ -114,6 +114,28 @@ public class ReviewController {
     }
 
     /*
+     * /games/{gameID}/reviews/{reviewID}/likes [PUT]
+     */
+    @PutMapping("/games/{gameID}/reviews/{reviewID}/likes")
+    public ReviewResponseDto updatesLikes(@PathVariable int reviewID,
+            @RequestParam String loggedInUsername,
+            @RequestParam boolean addLike) {
+        // Check if the user has permission to like a review
+        if (!accountService.hasPermission(loggedInUsername, 2)) {
+            throw new IllegalArgumentException("User does not have permission to like a review.");
+        }
+
+        if(addLike) {
+            reviewService.addLike(reviewID, loggedInUsername);
+        } else {
+            reviewService.removeLike(reviewID, loggedInUsername);
+        }
+
+        return new ReviewResponseDto(reviewService.getReview(reviewID));
+        }
+
+
+    /*
      * /games/{id}/reviews/{reviewID}/reply [GET, POST]
      */
     @GetMapping("/games/gameID/reviews/{reviewID}/reply")
