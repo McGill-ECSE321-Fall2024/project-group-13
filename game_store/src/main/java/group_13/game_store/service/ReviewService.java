@@ -13,11 +13,13 @@ import group_13.game_store.model.Game;
 import group_13.game_store.model.Owner;
 import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
+import group_13.game_store.model.ReviewLike;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.ReplyRepository;
+import group_13.game_store.repository.ReviewLikeRepository;
 import group_13.game_store.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 
@@ -44,6 +46,9 @@ public class ReviewService {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private ReviewLikeRepository reviewLikeRepository;
+
     // Retrieve all reviews
     public List<Review> getAllReviews() {
         return (List<Review>) reviewRepository.findAll();
@@ -67,7 +72,7 @@ public class ReviewService {
     // Method to create a new review based on the inputed parameters, it will return
     // false if it failed to create the review and true if it succeeded
     @Transactional
-    public Review createReview(String aDescription, int aScore, List<Customer> likedByCustomers, String reviewerID,
+    public Review createReview(String aDescription, int aScore, String reviewerID,
             int gameID) {
         try {
             // Find the reviewer based on the reviewerId provided. If its not a customer it
@@ -108,8 +113,7 @@ public class ReviewService {
             }
 
             // Create the reviews with the inputed parameters as well as the current date
-            Review review = new Review(aDescription, aScore, Date.valueOf(LocalDate.now()), aReviewer, aReviewedGame,
-                    likedByCustomers);
+            Review review = new Review(aDescription, aScore, Date.valueOf(LocalDate.now()), aReviewer, aReviewedGame);
 
             // Save the created review;
             return reviewRepository.save(review);
@@ -123,8 +127,7 @@ public class ReviewService {
 
     // Update an existing review
     @Transactional
-    public Review updateReview(int reviewID, String aDescription, int aScore, List<Customer> likedByCustomers,
-            String reviewerID) {
+    public Review updateReview(int reviewID, String aDescription, int aScore, String reviewerID) {
         // Check if the user has permission to update a game
         if (!accountService.hasPermission(reviewerID, 1)) {
             throw new IllegalArgumentException("User does not have permission to update a game.");
@@ -137,9 +140,6 @@ public class ReviewService {
         if (aScore == 0) {
             throw new IllegalArgumentException("Score cannot be null or empty.");
         }
-        if (likedByCustomers == null) {
-            throw new IllegalArgumentException("Liked by customers cannot be null.");
-        }
         if (reviewID <= 0 || aScore <= 0) {
             throw new IllegalArgumentException("Review ID must be greater than zero.");
         }
@@ -148,7 +148,6 @@ public class ReviewService {
         if (review != null) {
             review.setDescription(aDescription);
             review.setScore(aScore);
-            review.setLikedByCustomers(likedByCustomers);
 
             // Update the date to being today
             review.setDate(Date.valueOf(LocalDate.now()));
@@ -164,45 +163,28 @@ public class ReviewService {
     // return false if it failed to add the like and true if it succeeded
     @Transactional
     public boolean addLike(int reviewID, String customerUsername) {
-        try {
-            // Unfortunately no real way to know if this works or not unless we test the
-            // repo itself
-            List<Review> likedReviews = reviewRepository.findReviewsLikedByCustomer(customerUsername);
+        /// Retrieve the customer mad review
+        Customer customer = customerRepo.findByUsername(customerUsername);
+        Review review = reviewRepository.findByReviewID(reviewID);
 
-            // Check if the customer has already liked the review
-            boolean customerHasLiked = false;
-            for (Review review : likedReviews) {
-                if (review.getReviewID() == reviewID) {
-                    customerHasLiked = true;
-                }
-            }
-
-            // If the customer has already liked the review we cannot like it again and
-            // return -1 to indicate an error
-            if (customerHasLiked) {
-                System.out.println("Customer has already liked the review so it can't like it again");
-                return false;
-            }
-
-            // Find the review based on the reviewID and add a like to it
-            Review review = reviewRepository.findByReviewID(reviewID);
-
-            // Add the customer to the list of customers that liked the review
-            List<Customer> customerThatLiked = review.getLikedByCustomers();
-            Customer customer = customerRepo.findByUsername(customerUsername);
-            customerThatLiked.add(customer);
-
-            // Add the like to the review this also increments likes
-            review.setLikedByCustomers(customerThatLiked);
-
-            reviewRepository.save(review);
-            return true;
-
-        } catch (Exception e) {
-            // If an error occurs return -1 and print the error
-            System.out.println("Error in addLike: " + e);
-            return false;
+        //If either the customer or the review is not found we throw an exception
+        if (customer == null || review == null) {
+            throw new IllegalArgumentException("Customer or review not found.");
         }
+
+        //If the customer has already liked the review you cannot like it again
+        if (reviewLikeRepository.existsByReviewAndCustomer(review, customer)) {
+            throw new IllegalArgumentException("Customer has already liked the review.");
+        }
+
+        // Create a new ReviewLike entity
+        ReviewLike reviewLike = new ReviewLike(review, customer);
+        reviewLikeRepository.save(reviewLike);
+
+        review.addReviewLike(reviewLike);
+        reviewRepository.save(review);
+
+        return true;
     }
 
     // Method to remove a like from a review based on the reviewID and the
@@ -210,45 +192,27 @@ public class ReviewService {
     // succeeded
     @Transactional
     public boolean removeLike(int reviewID, String customerUsername) {
-        try {
-            // Unfortunately no real way to know if this works or not unless we test the
-            // repo itself
-            List<Review> likedReviews = reviewRepository.findReviewsLikedByCustomer(customerUsername);
+        /// Retrieve the customer mad review
+        Customer customer = customerRepo.findByUsername(customerUsername);
+        Review review = reviewRepository.findByReviewID(reviewID);
 
-            // Check if the customer has already liked the review
-            boolean customerHasLiked = false;
-            for (Review review : likedReviews) {
-                if (review.getReviewID() == reviewID) {
-                    customerHasLiked = true;
-                }
-            }
-
-            // If the customer has not liked the review we cannot remove a like and return
-            // -1 to indicate an error
-            if (!customerHasLiked) {
-                System.out.println("Customer has not liked the review so it can't unlike it");
-                return false;
-            }
-
-            // Find the review based on the reviewID
-            Review review = reviewRepository.findByReviewID(reviewID);
-
-            // Remove the customer from the list of customers that liked the review
-            List<Customer> customerThatLiked = review.getLikedByCustomers();
-            Customer customer = customerRepo.findByUsername(customerUsername);
-            customerThatLiked.remove(customer);
-
-            // Remove the like from the review this also decrements likes
-            review.setLikedByCustomers(customerThatLiked);
-
-            reviewRepository.save(review);
-            return true;
-
-        } catch (Exception e) {
-            // If an error occurs return -1 and print the error
-            System.out.println("Error in removeLike: " + e);
-            return false;
+        //If either the customer or the review is not found we throw an exception
+        if (customer == null || review == null) {
+            throw new IllegalArgumentException("Customer or review not found.");
         }
+
+        //If the customer has already liked the review you cannot like it again
+        if (!reviewLikeRepository.existsByReviewAndCustomer(review, customer)) {
+            throw new IllegalArgumentException("Customer hasnt yet liked the review.");
+        }
+        ReviewLike reviewLike = reviewLikeRepository.findByReviewAndCustomer(review, customer);
+
+        review.removeReviewLike(reviewLike);
+        reviewRepository.save(review);
+
+        reviewLikeRepository.delete(reviewLike);;
+
+        return true;
     }
 
     // Method to let the owner reply to a review if there are no current replies to

@@ -50,7 +50,7 @@ public class ReviewRepositoryTests {
         GameCategory gameCategory = new GameCategory("Shooter game in the first person", GameCategory.VisibilityStatus.Visible, "FPS");
         Customer customer = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890");
         Game game = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
-        Review review = new Review("Very good game!", 4, Date.valueOf("2024-10-11"), customer, game, new ArrayList<>());
+        Review review = new Review("Very good game!", 4, Date.valueOf("2024-10-11"), customer, game);
         
         // saving the above GameCategory, Game, Customer, and Review instances in the cleared GameCategory, Game, Customer, and Review tables 
         gameCategory = gameCategoryRepo.save(gameCategory);
@@ -68,6 +68,7 @@ public class ReviewRepositoryTests {
         assertNotNull(reviewFromDb);
         assertNotNull(reviewFromDb.getReviewedGame());
         assertNotNull(reviewFromDb.getReviewer());
+        
         // verifying if all the fields of Review instance that was created before saving it into the local database matches the fields of the loaded row instance of Review from the table
         assertEquals(id, reviewFromDb.getReviewID());
         assertEquals(review.getReviewer().getUsername(), reviewFromDb.getReviewer().getUsername());
@@ -97,9 +98,9 @@ public class ReviewRepositoryTests {
         customer2 = customerRepo.save(customer2);
         customer3 = customerRepo.save(customer3);
 
-        Review review1 = new Review("Great game!", 5, Date.valueOf("2024-10-11"), customer1, game, new ArrayList<>());
-        Review review2 = new Review("Not bad", 3, Date.valueOf("2024-10-12"), customer2, game, new ArrayList<>());
-        Review review3 = new Review("Could be better", 2, Date.valueOf("2024-10-13"), customer3, game, new ArrayList<>());
+        Review review1 = new Review("Great game!", 5, Date.valueOf("2024-10-11"), customer1, game);
+        Review review2 = new Review("Not bad", 3, Date.valueOf("2024-10-12"), customer2, game);
+        Review review3 = new Review("Could be better", 2, Date.valueOf("2024-10-13"), customer3, game);
 
         review1 = reviewRepo.save(review1);
         review2 = reviewRepo.save(review2);
