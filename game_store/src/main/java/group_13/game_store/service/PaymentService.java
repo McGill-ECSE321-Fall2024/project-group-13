@@ -5,13 +5,18 @@ import java.sql.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import group_13.game_store.model.CartItem;
+import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCopy;
 import group_13.game_store.model.PaymentInformation;
+import group_13.game_store.model.UserAccount;
+import group_13.game_store.repository.AddressRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameRepository;
+import group_13.game_store.repository.UserAccountRepository;
+import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.GameCopyRepository;
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.OrderRepository;
@@ -33,6 +38,15 @@ public class PaymentService {
 
     @Autowired
     private CartItemRepository cartItemRepo;
+
+    @Autowired
+    private AddressRepository addressRepo;
+
+    @Autowired
+    private UserAccountRepository userAccountRepo;
+
+    @Autowired
+    private PaymentInformationRepository paymentInfoRepo;
 
     /**
      * Processes the purchase of all items in a customer's cart.
@@ -162,4 +176,103 @@ public class PaymentService {
             System.out.print(e.getMessage());
         }
     }
+
+
+    @Transactional
+    public boolean addAddressToUser(String username, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null || !(user instanceof Customer)) {
+            System.out.println("User not found or not a customer.");
+            return false;
+        }
+
+        // Ensure customer has a PaymentInformation instance
+        Customer customer = (Customer) user;
+        PaymentInformation paymentInfo = customer.getPaymentInformation();
+        if (paymentInfo == null) {
+            System.out.println("No payment information found for the customer.");
+            return false;
+        }
+
+        // Validate address fields
+        if (street == null || street.trim().isEmpty() || postalCode == null || postalCode.trim().isEmpty() || number <= 0 ||
+            city == null || city.trim().isEmpty() || stateOrProvince == null || stateOrProvince.trim().isEmpty() ||
+            country == null || country.trim().isEmpty() || (apartmentNo != null && apartmentNo <= 0)) {
+            System.out.println("Invalid address information.");
+            return false;
+        }
+
+        // Create and save new address
+        Address newAddress = new Address(street, postalCode, number, city, stateOrProvince, country, apartmentNo != null ? apartmentNo : 0);
+        addressRepo.save(newAddress);
+
+        // Set address in PaymentInformation and save
+        paymentInfo.setBillingAddress(newAddress);
+        paymentInfoRepo.save(paymentInfo);
+
+        System.out.println("Address added successfully.");
+        return true;
+    }
+
+    @Transactional
+    public boolean updateAddressForUser(String username, int addressId, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null || !(user instanceof Customer)) {
+            System.out.println("User not found or not a customer.");
+            return false;
+        }
+
+        // Retrieve customer's PaymentInformation and validate address exists
+        Customer customer = (Customer) user;
+        PaymentInformation paymentInfo = customer.getPaymentInformation();
+        if (paymentInfo == null || paymentInfo.getBillingAddress() == null || paymentInfo.getBillingAddress().getAddressID() != addressId) {
+            System.out.println("No matching address found for the customer.");
+            return false;
+        }
+
+        // Validate address fields
+        if (street == null || street.trim().isEmpty() || postalCode == null || postalCode.trim().isEmpty() || number <= 0 ||
+            city == null || city.trim().isEmpty() || stateOrProvince == null || stateOrProvince.trim().isEmpty() ||
+            country == null || country.trim().isEmpty() || (apartmentNo != null && apartmentNo <= 0)) {
+            System.out.println("Invalid address information.");
+            return false;
+        }
+
+        // Update address fields
+        Address address = paymentInfo.getBillingAddress();
+        address.setStreet(street);
+        address.setPostalCode(postalCode);
+        address.setNumber(number);
+        address.setCity(city);
+        address.setStateOrProvince(stateOrProvince);
+        address.setCountry(country);
+        address.setApartmentNo(apartmentNo != null ? apartmentNo : 0);
+
+        addressRepo.save(address);
+
+        System.out.println("Address updated successfully.");
+        return true;
+    }
+
+    @Transactional
+    public Address getAddressForUser(String username) {
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null || !(user instanceof Customer)) {
+            System.out.println("User not found or not a customer.");
+            return null;
+        }
+
+        // Retrieve customer's PaymentInformation and get billing address
+        Customer customer = (Customer) user;
+        PaymentInformation paymentInfo = customer.getPaymentInformation();
+        Address address = paymentInfo != null ? paymentInfo.getBillingAddress() : null;
+        if (address == null) {
+            System.out.println("No billing address found for this customer.");
+            return null;
+        }
+
+        return address;
+    }
+
+
 }
