@@ -328,4 +328,157 @@ public class AccountService {
         return true;
     }
 
+    @Transactional
+    public boolean addAddressToUser(String username, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {
+        // Validate that the user exists
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null) {
+            System.out.println("No user exists with the given username.");
+            return false;
+        }
+        // Ensure the user is a customer
+        if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer");
+            return false;
+        }
+
+        // Validate the address fields
+        if (street == null || street.trim().isEmpty()) {
+            System.out.println("Street cannot be empty.");
+            return false;
+        }
+        if (postalCode == null || postalCode.trim().isEmpty()) {
+            System.out.println("Postal code cannot be empty.");
+            return false;
+        }
+        if (number <= 0) {
+            System.out.println("House/building number must be a positive integer.");
+            return false;
+        }
+        if (city == null || city.trim().isEmpty()) {
+            System.out.println("City cannot be empty.");
+            return false;
+        }
+        if (stateOrProvince == null || stateOrProvince.trim().isEmpty()) {
+            System.out.println("State/Province cannot be empty.");
+            return false;
+        }
+        if (country == null || country.trim().isEmpty()) {
+            System.out.println("Country cannot be empty.");
+            return false;
+        }
+        if (apartmentNo != null && apartmentNo <= 0) {
+            System.out.println("Apartment number must be a positive integer if specified.");
+            return false;
+        }
+
+        // Create and save the new address
+        Address newAddress = new Address(street, postalCode, number, city, stateOrProvince, country, apartmentNo != null ? apartmentNo : 0);
+        
+        addressRepo.save(newAddress); // Persist the address in the database
+
+        // Associate the address with the customer
+        Customer customer = (Customer) user;
+        customer.setAddress(newAddress);
+        customerRepo.save(customer); // Save the updated customer with the new address
+
+        System.out.println("Address added successfully.");
+        return true;
+    }
+    
+
+    @Transactional
+    public boolean updateAddressForUser(String username, int addressId, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {
+        // Validate that the user exists
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null) {
+            System.out.println("No user exists with the given username.");
+            return false;
+        }
+        // Ensure the user is a customer
+        if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer.");
+            return false;
+        }
+
+        // Retrieve the address and validate it exists
+        Address address = addressRepo.findByAddressID(addressId);
+        if (address == null) {
+            System.out.println("No address exists with the given address ID.");
+            return false;
+        }
+
+        // Validate the address fields
+        if (street == null || street.trim().isEmpty()) {
+            System.out.println("Street cannot be empty.");
+            return false;
+        }
+        if (postalCode == null || postalCode.trim().isEmpty()) {
+            System.out.println("Postal code cannot be empty.");
+            return false;
+        }
+        if (number <= 0) {
+            System.out.println("House/building number must be a positive integer.");
+            return false;
+        }
+        if (city == null || city.trim().isEmpty()) {
+            System.out.println("City cannot be empty.");
+            return false;
+        }
+        if (stateOrProvince == null || stateOrProvince.trim().isEmpty()) {
+            System.out.println("State/Province cannot be empty.");
+            return false;
+        }
+        if (country == null || country.trim().isEmpty()) {
+            System.out.println("Country cannot be empty.");
+            return false;
+        }
+        if (apartmentNo != null && apartmentNo <= 0) {
+            System.out.println("Apartment number must be a positive integer if specified.");
+            return false;
+        }
+
+        // Update the address fields
+        address.setStreet(street);
+        address.setPostalCode(postalCode);
+        address.setNumber(number);
+        address.setCity(city);
+        address.setStateOrProvince(stateOrProvince);
+        address.setCountry(country);
+        address.setApartmentNo(apartmentNo != null ? apartmentNo : 0); // Set apartment number or 0 if null
+
+        addressRepo.save(address); // Save the updated address in the database
+
+        System.out.println("Address updated successfully.");
+        return true;
+    }
+
+
+
+    @Transactional
+    public Address getAddressForUser(String username) {
+        // Retrieve the user by their username
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null) {
+            System.out.println("No user exists with the given username.");
+            return null; // Or throw a custom exception if preferred
+        }
+
+        // Ensure the user is a customer
+        if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer.");
+            return null; // Or throw a custom exception if preferred
+        }
+
+        // Retrieve the customer's address
+        Customer customer = (Customer) user;
+        Address address = customer.getAddress(); //Need to add function to model
+        if (address == null) {
+            System.out.println("No address found for the given user.");
+            return null; // Or throw a custom exception if preferred
+        }
+
+        return address;
+    }
+
 }
