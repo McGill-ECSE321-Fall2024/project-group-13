@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
+import group_13.game_store.model.Game.VisibilityStatus;
 import group_13.game_store.model.Review;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
@@ -160,7 +161,7 @@ public class GameStoreManagementService {
 
     // Add a new category -- Permission req (Only Owner)
     @Transactional
-    public void addCategory(String owner_username, String name, String description) {
+    public GameCategory addCategory(String owner_username, String name, String description) {
         // Check if the user has permission to add a category
         if (!accountService.hasPermission(owner_username, 2)) {
             throw new IllegalArgumentException("User does not have permission to add a category.");
@@ -176,15 +177,24 @@ public class GameStoreManagementService {
 
         GameCategory category = new GameCategory(description, GameCategory.VisibilityStatus.Visible, name);
         gameCategoryRepository.save(category);
+        
+        return category;
     }
 
     // Archive an existing category -- Permission req (Only Owner)
     @Transactional
-    public void archiveCategory(int categoryId, String username) {
+    public void archiveCategory(int categoryId, String username){
         if (accountService.hasPermission(username, 2)) {
             GameCategory category = gameCategoryRepository.findByCategoryID(categoryId);
             if (category != null) {
-                category.setStatus(GameCategory.VisibilityStatus.Archived);
+                if (accountService.hasPermission(username, 3))
+                {
+                    category.setStatus(GameCategory.VisibilityStatus.Archived);
+                }
+                else
+                {
+                    category.setStatus(GameCategory.VisibilityStatus.PendingArchive);
+                }
                 gameCategoryRepository.save(category);
             } else {
                 throw new IllegalArgumentException("Category with ID " + categoryId + " not found.");
@@ -195,8 +205,25 @@ public class GameStoreManagementService {
     }
 
     // Retrieve all categories
-    public List<GameCategory> getAllCategories() {
+    public List<GameCategory> getAllCategories(){
+
         return (List<GameCategory>) gameCategoryRepository.findAll();
+    }
+
+    // Retrieve category by id
+    public GameCategory getCategoryById(int id){
+        GameCategory gameCategory = gameCategoryRepository.findByCategoryID(id);
+        if (gameCategory == null)
+        {
+            //idicate no game category was found
+        }
+        return gameCategory;
+    }
+
+    // Retrieve all visible categories
+    public List<GameCategory> getAllPendingArchiveCategories(){
+        List<GameCategory.VisibilityStatus> pendingArchive = List.of(GameCategory.VisibilityStatus.PendingArchive);
+        return (List<GameCategory>) gameCategoryRepository.findByStatusIn(pendingArchive);
     }
 
     // ************************** PROMOTION MANAGEMENT **************************
