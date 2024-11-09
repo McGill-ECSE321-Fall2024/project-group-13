@@ -65,9 +65,9 @@ public class BrowsingServiceTests {
 
     private Game game3 = new Game("ThirdGame", "Description3", "img3", 30, 30.0, "PG", VisibilityStatus.Archived,
             category2);
-    
+
     private Game game4 = new Game("FourthGame", "Description4", "img4", 0, 30.0, "PG", VisibilityStatus.PendingArchive,
-        category2);
+            category2);
 
     private Customer customer1 = new Customer("username1", "password1", "email1", "firstName1", "lastName1");
 
@@ -80,7 +80,6 @@ public class BrowsingServiceTests {
     private CartItem cartItem2Customer1 = new CartItem(new CartItem.Key(customer1, game2), 2);
 
     private CartItem cartItem1Customer2 = new CartItem(new CartItem.Key(customer2, game1), 0);
-
 
     // Setup mock data
     @BeforeEach
@@ -95,7 +94,8 @@ public class BrowsingServiceTests {
         category2.setCategoryID(2);
     }
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing @@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     // ************************** getAllGames Tests **************************
     @Test
@@ -187,7 +187,8 @@ public class BrowsingServiceTests {
         verify(gameRepository, times(1)).findByGameID(invalidGameId);
     }
 
-    // ************************** getGamesByCategoryName Tests **************************
+    // ************************** getGamesByCategoryName Tests
+    // **************************
     @Test
     public void testGetGamesByCategoryNameWhenGamesExist() {
         // Arrange
@@ -229,7 +230,8 @@ public class BrowsingServiceTests {
 
     // Act
 
-    // ************************** getGamesByTitleStartingWith Tests **************************
+    // ************************** getGamesByTitleStartingWith Tests
+    // **************************
     @Test
     public void testGetGamesByTitleStartingWithWhenSingleGame() {
         // Arange
@@ -298,10 +300,11 @@ public class BrowsingServiceTests {
 
     // ************************** getAllAvailableGames Tests **********************
     @Test
-    public void testGetAllAvailableGamesWithGamesAvailable(){
+    public void testGetAllAvailableGamesWithGamesAvailable() {
         // Arrange
-        when(gameRepository.findByStockGreaterThanAndStatusIn(0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of(game1, game2));
+        when(gameRepository.findByStockGreaterThanAndStatusIn(0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of(game1, game2));
 
         // Act
         List<Game> serviceResult = browsingService.getAllAvailableGames();
@@ -317,14 +320,16 @@ public class BrowsingServiceTests {
         assertTrue(!serviceResult.contains(game4), "Game4 should not be in the list");
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByStockGreaterThanAndStatusIn(0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByStockGreaterThanAndStatusIn(0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
     @Test
-    public void testGetAllAvailableGamesWithNoGamesAvailable(){
+    public void testGetAllAvailableGamesWithNoGamesAvailable() {
         // Arrange
-        when(gameRepository.findByStockGreaterThanAndStatusIn(0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of());
+        when(gameRepository.findByStockGreaterThanAndStatusIn(0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of());
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
@@ -334,16 +339,18 @@ public class BrowsingServiceTests {
         assertEquals("No games available", exception.getReason());
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByStockGreaterThanAndStatusIn(0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByStockGreaterThanAndStatusIn(0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
     // ************************** getAvailableGameById Tests **************************
     @Test
-    public void testGetAvailableGameByIdWithGameAvailable(){
+    public void testGetAvailableGameByIdWithGameAvailable() {
         // Arrange
         int validAvailableGameId = 1;
-        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validAvailableGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(game1);
+        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validAvailableGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(game1);
 
         // Act
         Game serviceResult = browsingService.getAvailableGameById(validAvailableGameId);
@@ -360,14 +367,16 @@ public class BrowsingServiceTests {
         assertEquals(serviceResult.getStatus(), game1.getStatus());
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validAvailableGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validAvailableGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
-    public void testGetAvailableGameByIdWithGameUnavailable(){
+    public void testGetAvailableGameByIdWithGameUnavailable() {
         // Arrange
         int invalidAvailableGameId = 3;
-        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(invalidAvailableGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(null);
+        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(invalidAvailableGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(null);
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
@@ -377,7 +386,8 @@ public class BrowsingServiceTests {
         assertEquals("Game not available", exception.getReason());
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(invalidAvailableGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(invalidAvailableGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
     // ************************** getAvailableGamesByCategoryName Tests **************************
@@ -385,8 +395,9 @@ public class BrowsingServiceTests {
     public void testGetAvailableGamesByCategoryNameWhenGamesExist() {
         // Arrange
         String validAvailabCategoryName = "CategoryName1";
-        when(gameRepository.findByCategory_NameAndStockGreaterThanAndStatusIn(validAvailabCategoryName, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of(game1, game2));
+        when(gameRepository.findByCategory_NameAndStockGreaterThanAndStatusIn(validAvailabCategoryName, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of(game1, game2));
 
         // Act
         List<Game> serviceResult = browsingService.getAvailableGamesByCategoryName(validAvailabCategoryName);
@@ -401,15 +412,17 @@ public class BrowsingServiceTests {
         assertTrue(!serviceResult.contains(game4), "Game4 should not be in the list");
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByCategory_NameAndStockGreaterThanAndStatusIn(validAvailabCategoryName, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByCategory_NameAndStockGreaterThanAndStatusIn(validAvailabCategoryName, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
     @Test
     public void testGetAvailableGamesByCategoryNameWhenNoGamesExist() {
         // Arrange
         String invalidAvailableCategoryName = "InvalidCategory";
-        when(gameRepository.findByCategory_NameAndStockGreaterThanAndStatusIn(invalidAvailableCategoryName, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of());
+        when(gameRepository.findByCategory_NameAndStockGreaterThanAndStatusIn(invalidAvailableCategoryName, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of());
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
@@ -419,7 +432,8 @@ public class BrowsingServiceTests {
         assertEquals("No games available in this category", exception.getReason());
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByCategory_NameAndStockGreaterThanAndStatusIn(invalidAvailableCategoryName, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByCategory_NameAndStockGreaterThanAndStatusIn(invalidAvailableCategoryName,
+                0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
     // ************************** getAvailableGamesByTitleStartingWith Tests **************************
@@ -427,11 +441,13 @@ public class BrowsingServiceTests {
     public void testGetAvailableGamesByTitleStartingWithWhenSingleGame() {
         // Arange
         String validSingleAvailableGameStartTitle = "Game2";
-        when(gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(validSingleAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of(game2));
+        when(gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(validSingleAvailableGameStartTitle, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of(game2));
 
-        // Act  
-        List<Game> serviceResult = browsingService.getAvailableGamesByTitleStartingWith(validSingleAvailableGameStartTitle);
+        // Act
+        List<Game> serviceResult = browsingService
+                .getAvailableGamesByTitleStartingWith(validSingleAvailableGameStartTitle);
 
         // Assert
         assertNotNull(serviceResult);
@@ -439,18 +455,22 @@ public class BrowsingServiceTests {
         assertTrue(serviceResult.contains(game2), "Game2 should be in the list");
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(validSingleAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(
+                validSingleAvailableGameStartTitle, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
-    @Test 
+    @Test
     public void testGetAvailableGamesByTitleStartingWithWhenMultipleGames() {
         // Arrange
         String validMultipleAvailableGameStartTitle = "Game";
-        when(gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(validMultipleAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of(game1, game2));
+        when(gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(validMultipleAvailableGameStartTitle,
+                0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of(game1, game2));
 
         // Act
-        List<Game> serviceResult = browsingService.getAvailableGamesByTitleStartingWith(validMultipleAvailableGameStartTitle);
+        List<Game> serviceResult = browsingService
+                .getAvailableGamesByTitleStartingWith(validMultipleAvailableGameStartTitle);
 
         // Assert
         assertNotNull(serviceResult);
@@ -459,7 +479,9 @@ public class BrowsingServiceTests {
         assertTrue(serviceResult.contains(game2), "Game2 should be in the list");
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(validMultipleAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(
+                validMultipleAvailableGameStartTitle, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
 
     }
 
@@ -467,8 +489,9 @@ public class BrowsingServiceTests {
     public void testGetAvailableGamesByTitleStartingWithWhenNoGames() {
         // Arrange
         String invalidAvailableGameStartTitle = "Third";
-        when(gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(invalidAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
-        .thenReturn(List.of());
+        when(gameRepository.findByTitleStartingWithAndStockGreaterThanAndStatusIn(invalidAvailableGameStartTitle, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(List.of());
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
@@ -478,7 +501,9 @@ public class BrowsingServiceTests {
         assertEquals("No available games with this title", exception.getReason());
 
         // verify that the repository method was called
-        verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(invalidAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(
+                invalidAvailableGameStartTitle, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Customer Cart @@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -488,7 +513,8 @@ public class BrowsingServiceTests {
     public void testGetCustomerCartByUsernameWhenCartItemsExist() {
         // Arrange
         String validCustomerUsername = "username1";
-        when(cartItemRepository.findByKeyCustomerAccountUsername(validCustomerUsername)).thenReturn(List.of(cartItem1Customer1, cartItem2Customer1));
+        when(cartItemRepository.findByKeyCustomerAccountUsername(validCustomerUsername))
+                .thenReturn(List.of(cartItem1Customer1, cartItem2Customer1));
 
         // Act
         List<CartItem> serviceResult = browsingService.getCustomerCartByUsername(validCustomerUsername);
@@ -523,5 +549,48 @@ public class BrowsingServiceTests {
 
     // Note don't need to validate the username because it is done in the controller
 
-    
+    // ************************** addGameToCart Tests **************************
+    @Test
+    public void testAddGameToCartWhenGameAvailable() {
+        // Arrange
+        String validCustomerUsername = "username1";
+        int validGameId = 1;
+        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(game1);
+
+        // Act
+        boolean isSuccesful = browsingService.addGameToCart(validGameId, validCustomerUsername, validGameId);
+
+        // Assert
+        assertTrue(isSuccesful);
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+    }
+
+    @Test
+    public void testAddGameToCartWhenInvalidQuantity() {
+        // Arrange
+        String validCustomerUsername = "username1";
+        int validGameId = 1;
+        int invalidQuantity = -1;
+        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(game1);
+
+        // Act and Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> browsingService.addGameToCart(validGameId, validCustomerUsername, invalidQuantity));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Invalid quantity", exception.getReason());
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+
+    }
+
 }
