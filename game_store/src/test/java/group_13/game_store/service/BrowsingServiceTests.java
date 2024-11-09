@@ -53,13 +53,16 @@ public class BrowsingServiceTests {
     private GameCategory category1 = new GameCategory("CategoryDescription1",
             group_13.game_store.model.GameCategory.VisibilityStatus.Visible, "CategoryName1");
 
+    private GameCategory category2 = new GameCategory("CategoryDescription2",
+            group_13.game_store.model.GameCategory.VisibilityStatus.Visible, "SecondCategory");
+
     private Game game1 = new Game("Game1", "Description1", "img1", 10, 10.0, "PG", VisibilityStatus.Visible, category1);
 
     private Game game2 = new Game("Game2", "Description2", "img2", 20, 20.0, "PG", VisibilityStatus.PendingArchive,
             category1);
 
     private Game game3 = new Game("ThirdGame", "Description3", "img3", 30, 30.0, "PG", VisibilityStatus.Archived,
-            category1);
+            category2);
 
     // Setup mock data
     @BeforeEach
@@ -70,9 +73,11 @@ public class BrowsingServiceTests {
         game3.setGameID(3);
 
         category1.setCategoryID(1);
+        category2.setCategoryID(2);
     }
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing @@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     // ************************** getAllGames Tests **************************
     @Test
@@ -109,7 +114,8 @@ public class BrowsingServiceTests {
         when(gameRepository.findAll()).thenReturn(List.of());
 
         // Act and Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> browsingService.getAllGames());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> browsingService.getAllGames());
 
         assertEquals(exception.getStatusCode(), HttpStatus.NOT_FOUND);
         assertEquals(exception.getReason(), "No games found");
@@ -162,8 +168,49 @@ public class BrowsingServiceTests {
         verify(gameRepository, times(1)).findByGameID(invalidGameId);
     }
 
+    // ************************** getGamesByCategoryName Tests **************************
+    @Test
+    public void testGetGamesByCategoryNameWhenGamesExist() {
+        // Arrange
+        String validCategoryName = "CategoryName1";
+        when(gameRepository.findByCategory_Name(validCategoryName)).thenReturn(List.of(game1, game2));
+
+        // Act
+        List<Game> serviceResult = browsingService.getGamesByCategoryName(validCategoryName);
+
+        // Assert
+        assertNotNull(serviceResult);
+
+        // Assert that the list contains the expected games
+        assertTrue(serviceResult.contains(game1), "Game1 should be in the list");
+        assertTrue(serviceResult.contains(game2), "Game2 should be in the list");
+        assertTrue(!serviceResult.contains(game3), "Game3 should not be in the list");
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByCategory_Name(validCategoryName);
+    }
+
+    @Test
+    public void testGetGamesByCategoryNameWhenNoGamesExist() {
+        // Arrange
+        String invalidCategoryName = "InvalidCategory";
+        when(gameRepository.findByCategory_Name(invalidCategoryName)).thenReturn(List.of());
+
+        // Act and Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> browsingService.getGamesByCategoryName(invalidCategoryName));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No games found in this category", exception.getReason());
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByCategory_Name(invalidCategoryName);
+    }
+
+    // Act
+
     // ************************** getGamesByTitleStartingWith Tests **************************
-    @Test 
+    @Test
     public void testGetGamesByTitleStartingWithWhenSingleGame() {
         // Arange
         String validSingleGameStartTitle = "Third";
@@ -184,7 +231,7 @@ public class BrowsingServiceTests {
         // verify that the repository method was called
         verify(gameRepository, times(1)).findByTitleStartingWith(validSingleGameStartTitle);
 
-    }  
+    }
 
     @Test
     public void testGetGamesByTitleStartingWithWhenMultipleGames() {
@@ -208,7 +255,6 @@ public class BrowsingServiceTests {
         verify(gameRepository, times(1)).findByTitleStartingWith(validMultipleGameStartTitle);
     }
 
-
     @Test
     public void testGetGamesByTitleStartingWithWhenNoGames() {
         // Arrange
@@ -225,8 +271,5 @@ public class BrowsingServiceTests {
         // verify that the repository method was called
         verify(gameRepository, times(1)).findByTitleStartingWith(invalidGameStartTitle);
     }
-
-
-    // ************************** getGamesByCategoryName Tests **************************
 
 }
