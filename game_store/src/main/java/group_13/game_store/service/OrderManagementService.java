@@ -38,7 +38,7 @@ public class OrderManagementService {
         Order order = orderRepo.findByOrderID(orderId);
         if (order == null) {
             //indicate no order was found
-            throw new IllegalArgumentException("No order with order ID " + orderId + ".")
+            throw new IllegalArgumentException("No order with order ID " + orderId + ".");
         }
         return order;
     }

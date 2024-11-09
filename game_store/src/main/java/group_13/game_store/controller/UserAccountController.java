@@ -23,6 +23,7 @@ import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
+import group_13.game_store.service.PaymentService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
@@ -32,6 +33,8 @@ import group_13.game_store.model.Review;
 public class UserAccountController {
     @Autowired
     private OrderManagementService orderManagementService;
+    @Autowired
+    private PaymentService paymentService;
     @Autowired
     private GameStoreManagementService gameStoreManagementService;
     @Autowired
@@ -81,33 +84,19 @@ public class UserAccountController {
         return new CustomerResponseDto(customerToFind);
     }
 
-    // updating a user's phone number 
+    // updating a user's phone number or password
     @PutMapping("/users/{username}")
-    public UserAccountResponseDto updateUserPhoneNumber(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
-        // validatin that a logged in account is updating the password
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("Must be registered user to change phone number");
-        }
-        
+    public UserAccountResponseDto updateGeneralUserInformation(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
+        // validating that a logged in account is update the password or phone number
         // every user has permission to change their own password
-        UserAccount aUser = accountService.findUserByUsername(request.getUsername());
-
-        // changing phone number of user whether it is owner, employee, or customer
-        accountService.changePhoneNumber(request.getPhoneNumber(), request.getUsername());
-
-        return new UserAccountResponseDto(aUser);
-        
-    }
-
-    // updating a user's password
-    @PutMapping("/users/{username}")
-    public UserAccountResponseDto updateUserPassword(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
-        // only registerd user has permission to change their own password
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
             throw new IllegalArgumentException("Must be registered user to change phone number");
         }
+        
         
         UserAccount aUser = accountService.findUserByUsername(username);
+        // changing phone number of user whether it is owner, employee, or customer
+        accountService.changePhoneNumber(request.getPhoneNumber(), request.getUsername());
 
         // changing password of user whether it is owner, employee, or customer
         accountService.changePassword(request.getPassword(), request.getUsername());
@@ -131,4 +120,27 @@ public class UserAccountController {
         return new OrderListDto(allOrdersOfCustomers);
     }
 
+    @PostMapping("/customers/{username}/orders") 
+    public OrderResponseDto createOrder(@PathVariable String username, @RequestBody OrderRequestDto request, @RequestParam String loggedInUsername) {
+        // only customer should be able to add orders to their order history
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("User must be a customer to make own orders");
+        }
+
+        // purchasing the cart creates the order, which is now saved in the database
+        Order createdOrder = paymentService.purchaseCart(username);
+        // will need to the return variable for PaymentService.purchaseCart for this method to allow the return of a created OrderResponseDto
+        return new OrderResponseDto(createdOrder);    
+    }
+
+    @GetMapping("/customers/{username}/orders/{orderId}")
+    public OrderResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
+        // only customer should be able to check their own order
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("User must be a customer to check their own order");
+        }
+
+        Order foundOrder = orderManagementService.getOrderById(orderId);
+        return new OrderResponseDto(foundOrder);
+    }
 }
