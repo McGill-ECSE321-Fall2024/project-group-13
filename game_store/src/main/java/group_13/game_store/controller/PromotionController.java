@@ -56,7 +56,7 @@ public class PromotionController {
         }
 
         // Create a promotion with the information from the request
-        Promotion promotion = gameStoreManagementService.addPromotion(loggedInUsername,
+        Promotion promotion = gameStoreManagementService.addPromotion(
                 request.getPercentage(),
                 request.getStartDate(),
                 request.getEndDate(),
@@ -94,7 +94,7 @@ public class PromotionController {
         }
 
         // Add a promotion to a game by its unique ID
-        Promotion promotion = gameStoreManagementService.addPromotion(loggedInUsername,
+        Promotion promotion = gameStoreManagementService.addPromotion(
                 request.getPercentage(),
                 request.getStartDate(),
                 request.getEndDate(),
@@ -128,7 +128,6 @@ public class PromotionController {
 
         // Update a promotion by its unique ID if it does not exist we get an error
         Promotion promotion = gameStoreManagementService.updatePromotion(promotionID,
-                loggedInUsername,
                 request.getPercentage(),
                 request.getStartDate(),
                 request.getEndDate(),

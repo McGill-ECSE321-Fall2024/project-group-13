@@ -80,7 +80,6 @@ public class ReviewController {
         // information
         Review review = reviewService.createReview(request.getDescription(),
                 request.getScore(),
-                request.getLikedByCustomers(),
                 // Date is automatically set to today when a review is created
                 // CreateReview will not let you create a review if the user is not logged in as
                 // a customer that has bought the game
@@ -109,8 +108,7 @@ public class ReviewController {
             throw new IllegalArgumentException("User does not have permission to create/update reviews.");
         }
 
-        Review updatedReview = reviewService.updateReview(reviewID, request.getDescription(), request.getScore(),
-                request.getLikedByCustomers(), loggedInUsername);
+        Review updatedReview = reviewService.updateReview(reviewID, request.getDescription(), request.getScore(), loggedInUsername);
 
         return new ReviewResponseDto(updatedReview);
     }

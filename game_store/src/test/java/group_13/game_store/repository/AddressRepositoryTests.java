@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import group_13.game_store.model.Address;
+import group_13.game_store.model.Customer;
 
 @SpringBootTest
 public class AddressRepositoryTests {
@@ -17,10 +18,14 @@ public class AddressRepositoryTests {
     @Autowired
     private AddressRepository addressRepository;
 
+    @Autowired
+    private CustomerRepository customerRepo;
+
     // clearing the Adress table that was loaded in before testing 
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
+        customerRepo.deleteAll();
         addressRepository.deleteAll();
     }
 
@@ -28,8 +33,11 @@ public class AddressRepositoryTests {
     public void testWriteAndReadAddress() {
         // Arrange
         Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
-        // saving the above Address instance in the cleared Address table 
         savedAddress = addressRepository.save(savedAddress);
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
+        nicolas.setAddress(savedAddress);
+        nicolas = customerRepo.save(nicolas);
+
         int savedAddressID = savedAddress.getAddressID();
 
         // Act

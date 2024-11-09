@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 
 import group_13.game_store.model.Address;
+import group_13.game_store.model.Customer;
 import group_13.game_store.model.PaymentInformation;
 
 @SpringBootTest
@@ -21,11 +22,14 @@ public class PaymentInformationRepositoryTests {
     private PaymentInformationRepository paymentInformationRepository;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private CustomerRepository customerRepo;
 
     // clearing the Address and PaymentInformation, and Address tables that were loaded in before testing
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
+        customerRepo.deleteAll();
         paymentInformationRepository.deleteAll();
         addressRepository.deleteAll();
     }
@@ -33,8 +37,14 @@ public class PaymentInformationRepositoryTests {
     @Test
     public void testWriteAndReadPaymentInformation() {
         // Arrange
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
         Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
         savedAddress = addressRepository.save(savedAddress);
+        nicolas.setAddress(savedAddress);
+        nicolas = customerRepo.save(nicolas);
+
+
+
         PaymentInformation savedPaymentInformation = new PaymentInformation(123456789, "John Cena",
                 Date.valueOf("2024-10-11"), 000, savedAddress);
         

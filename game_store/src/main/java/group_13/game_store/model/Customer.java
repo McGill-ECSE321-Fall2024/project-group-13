@@ -21,9 +21,8 @@ public class Customer extends UserAccount
   //Customer Associations
   @OneToOne(optional=true)
   private PaymentInformation paymentInformation;
-
   @OneToOne(optional=true)
-  private DeliveryInformation deliveryInformation;
+  private Address address;
 
   //------------------------
   // CONSTRUCTOR
@@ -59,17 +58,7 @@ public class Customer extends UserAccount
     boolean has = paymentInformation != null;
     return has;
   }
-  /* Code from template association_GetOne */
-  public DeliveryInformation getDeliveryInformation()
-  {
-    return deliveryInformation;
-  }
 
-  public boolean hasDeliveryInformation()
-  {
-    boolean has = deliveryInformation != null;
-    return has;
-  }
   /* Code from template association_SetUnidirectionalOptionalOne */
   public boolean setPaymentInformation(PaymentInformation aNewPaymentInformation)
   {
@@ -78,19 +67,28 @@ public class Customer extends UserAccount
     wasSet = true;
     return wasSet;
   }
-  /* Code from template association_SetUnidirectionalOptionalOne */
-  public boolean setDeliveryInformation(DeliveryInformation aNewDeliveryInformation)
+
+  /* Code from template association_GetOne */
+  public Address getAddress()
+  {
+    return address;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setAddress(Address aNewAddress)
   {
     boolean wasSet = false;
-    deliveryInformation = aNewDeliveryInformation;
-    wasSet = true;
+    if (aNewAddress != null)
+    {
+      address = aNewAddress;
+      wasSet = true;
+    }
     return wasSet;
   }
 
   public void delete()
   {
     paymentInformation = null;
-    deliveryInformation = null;
+    address = null;
     super.delete();
   }
 

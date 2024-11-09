@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
-import group_13.game_store.model.DeliveryInformation;
 import group_13.game_store.model.PaymentInformation;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.repository.AddressRepository;
 import group_13.game_store.repository.CustomerRepository;
-import group_13.game_store.repository.DeliveryInformationRepository;
 import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
 import jakarta.transaction.Transactional;
@@ -33,9 +31,6 @@ public class AccountService {
 
     @Autowired
     private PaymentInformationRepository paymentInfoRepo;
-
-    @Autowired
-    private DeliveryInformationRepository deliveryInfoRepo;
 
     @Autowired
     private AddressRepository addressRepo;
@@ -293,47 +288,6 @@ public class AccountService {
         return true;
     }
 
-    // Method to create/update delivery info
-    @Transactional
-    public boolean changeDeliveryInfo(String username, String deliveryName, Address deliveryAddress) {
-         // Create a new PaymentInfo object if they don't have one yet
-         UserAccount user = userAccountRepo.findByUsername(username);
-        
-         if (user == null) {
-             System.out.println("No such user with the given username exists");
-             return false;
-         }
-         // Ensures that the given user is a customer
-         if (!(user instanceof Customer)) {
-            System.out.println("The given user is not a Customer");
-             return false;
-         }
- 
-         // Typecasts to a customer and checks if they have a DeliveryInformation or not.
-         // If they don't then create one with the given information
-         Customer customer = (Customer) user;
-         DeliveryInformation deliveryInfo = customer.getDeliveryInformation();
- 
-         // Validates input delivery information
-         boolean valid = validateDeliveryInfo(deliveryName, deliveryAddress);
-         if (!valid) {
-            // Calling the validate method will print something if there is a problem
-             return false;
-         }
- 
-         if (deliveryInfo == null) {
-             DeliveryInformation newDeliveryInfo = new DeliveryInformation(deliveryName, deliveryAddress);
-             deliveryInfoRepo.save(newDeliveryInfo); // save the new DeliveryInformation into the database
-             customer.setDeliveryInformation(newDeliveryInfo);
-             return true;
-         }
- 
-         // Update the DeliveryInformation object if they already have one using setters
-         deliveryInfo.setDeliveryAddress(deliveryAddress);
-         deliveryInfo.setDeliveryName(deliveryName);
-         return true;
-    }
-
     // Method to get payment info from a certain customer
     @Transactional
     public PaymentInformation getPaymentInformationByCustomerUsername(String username) {
@@ -350,24 +304,6 @@ public class AccountService {
         }
 
         return paymentInfo;
-    }
-
-    // Method to get delivery info from a certain customer
-    @Transactional
-    public DeliveryInformation getDeliveryInformationByCustomerUsername(String username) {
-        Customer customer = customerRepo.findByUsername(username);
-
-        if (customer == null) {
-            System.out.println("This customer does not exist lol");
-        }
-
-        DeliveryInformation deliveryInfo = deliveryInfoRepo.findByDeliveryInfoID(customer.getDeliveryInformation().getDeliveryInfoID());
-
-        if (deliveryInfo == null) {
-            System.out.println("Delivery info is null for this customer");
-        }
-
-        return deliveryInfo;
     }
 
 
@@ -389,24 +325,6 @@ public class AccountService {
         return paymentInfo.getPaymentInfoID();
     }
 
-    // Method to get the deliveryinfo id from customer username
-    @Transactional
-    public int getDeliveryInfoIdByUsername(String username) {
-        Customer customer = customerRepo.findByUsername(username);
-
-        if (customer == null) {
-            System.out.println("This customer is null");
-        }
-
-        DeliveryInformation deliveryInfo = deliveryInfoRepo.findByDeliveryInfoID(customer.getDeliveryInformation().getDeliveryInfoID());
-
-        if (deliveryInfo == null) {
-            System.out.println("Delivery info is null for this customer");
-        }
-
-        return deliveryInfo.getDeliveryInfoID();
-    }
-
     // Method to get an address given an address id
     @Transactional
     public Address getAddressById(int addressId) {
@@ -420,7 +338,6 @@ public class AccountService {
     }
 
 
-    // Method to validate payment info
     public boolean validatePaymentInfo(long cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
         // Validate given information
         // Check the card number length
@@ -454,13 +371,157 @@ public class AccountService {
         return true;
     }
 
-    // Method to validate delivery info
-    public boolean validateDeliveryInfo(String deliveryName, Address deliveryAddress) {
-        // Ensure that they enter a delivery name
-        if (deliveryName == null) {
-            System.out.println("Please enter a name for this delivery information");
+    @Transactional
+    public boolean addAddressToUser(String username, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {
+        // Validate that the user exists
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null) {
+            System.out.println("No user exists with the given username.");
             return false;
         }
+        // Ensure the user is a customer
+        if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer");
+            return false;
+        }
+
+        // Validate the address fields
+        if (street == null || street.trim().isEmpty()) {
+            System.out.println("Street cannot be empty.");
+            return false;
+        }
+        if (postalCode == null || postalCode.trim().isEmpty()) {
+            System.out.println("Postal code cannot be empty.");
+            return false;
+        }
+        if (number <= 0) {
+            System.out.println("House/building number must be a positive integer.");
+            return false;
+        }
+        if (city == null || city.trim().isEmpty()) {
+            System.out.println("City cannot be empty.");
+            return false;
+        }
+        if (stateOrProvince == null || stateOrProvince.trim().isEmpty()) {
+            System.out.println("State/Province cannot be empty.");
+            return false;
+        }
+        if (country == null || country.trim().isEmpty()) {
+            System.out.println("Country cannot be empty.");
+            return false;
+        }
+        if (apartmentNo != null && apartmentNo <= 0) {
+            System.out.println("Apartment number must be a positive integer if specified.");
+            return false;
+        }
+
+        // Create and save the new address
+        Address newAddress = new Address(street, postalCode, number, city, stateOrProvince, country, apartmentNo != null ? apartmentNo : 0);
+        
+        addressRepo.save(newAddress); // Persist the address in the database
+
+        // Associate the address with the customer
+        Customer customer = (Customer) user;
+        customer.setAddress(newAddress);
+        customerRepo.save(customer); // Save the updated customer with the new address
+
+        System.out.println("Address added successfully.");
         return true;
     }
+    
+
+    @Transactional
+    public boolean updateAddressForUser(String username, int addressId, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {
+        // Validate that the user exists
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null) {
+            System.out.println("No user exists with the given username.");
+            return false;
+        }
+        // Ensure the user is a customer
+        if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer.");
+            return false;
+        }
+
+        // Retrieve the address and validate it exists
+        Address address = addressRepo.findByAddressID(addressId);
+        if (address == null) {
+            System.out.println("No address exists with the given address ID.");
+            return false;
+        }
+
+        // Validate the address fields
+        if (street == null || street.trim().isEmpty()) {
+            System.out.println("Street cannot be empty.");
+            return false;
+        }
+        if (postalCode == null || postalCode.trim().isEmpty()) {
+            System.out.println("Postal code cannot be empty.");
+            return false;
+        }
+        if (number <= 0) {
+            System.out.println("House/building number must be a positive integer.");
+            return false;
+        }
+        if (city == null || city.trim().isEmpty()) {
+            System.out.println("City cannot be empty.");
+            return false;
+        }
+        if (stateOrProvince == null || stateOrProvince.trim().isEmpty()) {
+            System.out.println("State/Province cannot be empty.");
+            return false;
+        }
+        if (country == null || country.trim().isEmpty()) {
+            System.out.println("Country cannot be empty.");
+            return false;
+        }
+        if (apartmentNo != null && apartmentNo <= 0) {
+            System.out.println("Apartment number must be a positive integer if specified.");
+            return false;
+        }
+
+        // Update the address fields
+        address.setStreet(street);
+        address.setPostalCode(postalCode);
+        address.setNumber(number);
+        address.setCity(city);
+        address.setStateOrProvince(stateOrProvince);
+        address.setCountry(country);
+        address.setApartmentNo(apartmentNo != null ? apartmentNo : 0); // Set apartment number or 0 if null
+
+        addressRepo.save(address); // Save the updated address in the database
+
+        System.out.println("Address updated successfully.");
+        return true;
+    }
+
+
+
+    @Transactional
+    public Address getAddressForUser(String username) {
+        // Retrieve the user by their username
+        UserAccount user = userAccountRepo.findByUsername(username);
+        if (user == null) {
+            System.out.println("No user exists with the given username.");
+            return null; // Or throw a custom exception if preferred
+        }
+
+        // Ensure the user is a customer
+        if (!(user instanceof Customer)) {
+            System.out.println("The given user is not a Customer.");
+            return null; // Or throw a custom exception if preferred
+        }
+
+        // Retrieve the customer's address
+        Customer customer = (Customer) user;
+        Address address = customer.getAddress(); //Need to add function to model
+        if (address == null) {
+            System.out.println("No address found for the given user.");
+            return null; // Or throw a custom exception if preferred
+        }
+
+        return address;
+    }
+
 }
