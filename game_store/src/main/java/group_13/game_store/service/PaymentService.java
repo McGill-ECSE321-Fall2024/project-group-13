@@ -82,7 +82,7 @@ public class PaymentService {
             // Validate postal code format for address
             if (!paymentInformation.getBillingAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$")) {
                 System.out.print("Customer address postal code information is not valid");
-                return false;
+                return null;
             }
 
             // Validate credit card number and CVV code
