@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ import group_13.game_store.service.PaymentService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -44,22 +46,21 @@ public class UserAccountController {
     public CustomerResponseDto createCustomer(@RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
         // validate that user is neither employee, owner, or customer (will need to figure that out)
         if (accountService.hasPermission(loggedInUsername, 1) || accountService.hasPermission(loggedInUsername, 2) || accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User must be logged out to create a customer account");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be logged out to create a customer account");
         }
         // check if the account can be created at all
         Customer createdCustomerAccount = accountService.createCustomerAccount(request.getName(), request.getUsername(), request.getEmail(), request.getPassword(), request.getPhoneNumber());
-        if (createdCustomerAccount != null) {
-            return new CustomerResponseDto(createdCustomerAccount);
-        } else {
-            throw new IllegalArgumentException("Account creation has not been made");
-        }   
+        if (createdCustomerAccount == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account creation has not been made.");
+        }
+        return new CustomerResponseDto(createdCustomerAccount);
     }
 
     @GetMapping("/customers")
     public CustomerListDto findAllCustomers(@RequestParam String loggedInUsername) {
         // validate that user is either employee or owner
-        if (accountService.hasPermission(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User must be an owner to view all customers");
+        if (accountService.hasPermission(loggedInUsername, 2)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee to view all customers");
         }
 
         List<CustomerResponseDto> allCustomers = new ArrayList<CustomerResponseDto>();
@@ -76,10 +77,14 @@ public class UserAccountController {
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
         // validate that it is an employee or owner who is searching for customer
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
-            throw new IllegalArgumentException("User must be an owner or employee");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee");
         }
 
         Customer customerToFind = accountService.findCustomerByUsername(username);
+        if (customerToFind == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer " + username + " was not found.");
+        }
+
         return new CustomerResponseDto(customerToFind);
     }
 
@@ -89,11 +94,14 @@ public class UserAccountController {
         // validating that a logged in account is update the password or phone number
         // every user has permission to change their own password
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("Must be registered user to change phone number");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Must be registered user to change phone number");
         }
         
         
         UserAccount aUser = accountService.findUserByUsername(username);
+        if (aUser == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User accound " + username + " has not been made.");
+        }
         // changing phone number of user whether it is owner, employee, or customer
         accountService.changePhoneNumber(request.getPhoneNumber(), request.getUsername());
 
@@ -107,8 +115,8 @@ public class UserAccountController {
     @GetMapping("/customers/{username}/orders")
     public OrderListDto findAllOrdersOfCustomer(@RequestParam String loggedInUsername, @PathVariable String username) {
         // only customer should be able to see their order history
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User must be a customer to view their own orders");
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to view their own orders");
         }
 
         List<OrderResponseDto> allOrdersOfCustomers = new ArrayList<OrderResponseDto>();
@@ -122,12 +130,16 @@ public class UserAccountController {
     @PostMapping("/customers/{username}/orders") 
     public OrderResponseDto createOrder(@PathVariable String username, @RequestBody OrderRequestDto request, @RequestParam String loggedInUsername) {
         // only customer should be able to add orders to their order history
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User must be a customer to make own orders");
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to make own orders");
         }
 
         // purchasing the cart creates the order, which is now saved in the database
         Order createdOrder = paymentService.purchaseCart(username);
+        if (createdOrder == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order made by " + username + " has not been made.");
+        }
+
         // will need to the return variable for PaymentService.purchaseCart for this method to allow the return of a created OrderResponseDto
         return new OrderResponseDto(createdOrder);    
     }
@@ -135,22 +147,28 @@ public class UserAccountController {
     @GetMapping("/customers/{username}/orders/{orderId}")
     public OrderResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
         // only customer should be able to check their own order
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User must be a customer to check their own order");
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to check their own order");
         }
 
         Order foundOrder = orderManagementService.getOrderById(orderId);
+        if (foundOrder == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " made by " + username + " has not been made.");
+        }
         return new OrderResponseDto(foundOrder);
     }
 
     @PutMapping("/customers/{username}/orders/{orderId}/games/{gameId}")
     public OrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @PathVariable int gameId, @RequestParam String loggedInUsername) {
         // only customer should be able to return their own order
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User must be a customer to return their order");
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to return their order");
         }
 
         Order returnedOrder = orderManagementService.returnOrder(orderId, gameId);
+        if (returnedOrder == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " from " + username +  "for game " + gameId + "has not been made.");
+        }
 
         return new OrderResponseDto(returnedOrder);
     }
