@@ -122,7 +122,7 @@ public class BrowsingService {
 
         if (game == null) {
             // Indicate that the game does not exist
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not available");
         }
 
         return game;
@@ -137,7 +137,7 @@ public class BrowsingService {
 
         if (games.isEmpty()){
             // Indicate that there are no available games in this category
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found in this category");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games available in this category");
         }
 
         return games;
@@ -153,7 +153,7 @@ public class BrowsingService {
 
         if (games.isEmpty()) {
             // Indicate that there are no available games with the given name
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No games found with this title");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No available games with this title");
         }
 
         return games;
