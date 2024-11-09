@@ -5,6 +5,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
+import group_13.game_store.model.CartItem;
+import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Game.VisibilityStatus;
@@ -66,6 +68,19 @@ public class BrowsingServiceTests {
     
     private Game game4 = new Game("FourthGame", "Description4", "img4", 0, 30.0, "PG", VisibilityStatus.PendingArchive,
         category2);
+
+    private Customer customer1 = new Customer("username1", "password1", "email1", "firstName1", "lastName1");
+
+    private Customer customer2 = new Customer("username2", "password2", "email2", "firstName2", "lastName2");
+
+    private Customer customer3 = new Customer("username3", "password3", "email3", "firstName3", "lastName3");
+
+    private CartItem cartItem1Customer1 = new CartItem(new CartItem.Key(customer1, game1), 1);
+
+    private CartItem cartItem2Customer1 = new CartItem(new CartItem.Key(customer1, game2), 2);
+
+    private CartItem cartItem1Customer2 = new CartItem(new CartItem.Key(customer2, game1), 0);
+
 
     // Setup mock data
     @BeforeEach
@@ -465,6 +480,48 @@ public class BrowsingServiceTests {
         // verify that the repository method was called
         verify(gameRepository, times(1)).findByTitleStartingWithAndStockGreaterThanAndStatusIn(invalidAvailableGameStartTitle, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
     }
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Customer Cart @@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    // ************************** getCustomerCartByUsername Tests **************************
+    @Test
+    public void testGetCustomerCartByUsernameWhenCartItemsExist() {
+        // Arrange
+        String validCustomerUsername = "username1";
+        when(cartItemRepository.findByKeyCustomerAccountUsername(validCustomerUsername)).thenReturn(List.of(cartItem1Customer1, cartItem2Customer1));
+
+        // Act
+        List<CartItem> serviceResult = browsingService.getCustomerCartByUsername(validCustomerUsername);
+
+        // Assert
+        assertNotNull(serviceResult);
+        assertEquals(2, serviceResult.size());
+        assertTrue(serviceResult.contains(cartItem1Customer1), "CartItem1 should be in the list");
+        assertTrue(serviceResult.contains(cartItem2Customer1), "CartItem2 should be in the list");
+
+        // verify that the repository method was called
+        verify(cartItemRepository, times(1)).findByKeyCustomerAccountUsername(validCustomerUsername);
+
+    }
+
+    @Test
+    public void testGetCustomerCartByUsernameWhenNoCartItemsExist() {
+        // Arrange
+        String invalidCustomerUsername = "username3";
+        when(cartItemRepository.findByKeyCustomerAccountUsername(invalidCustomerUsername)).thenReturn(List.of());
+
+        // Act
+        List<CartItem> serviceResult = browsingService.getCustomerCartByUsername(invalidCustomerUsername);
+
+        // Assert
+        assertNotNull(serviceResult);
+        assertEquals(0, serviceResult.size()); // empty list for no cart items
+
+        // verify that the repository method was called
+        verify(cartItemRepository, times(1)).findByKeyCustomerAccountUsername(invalidCustomerUsername);
+    }
+
+    // Note don't need to validate the username because it is done in the controller
 
     
 }

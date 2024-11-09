@@ -170,11 +170,6 @@ public class BrowsingService {
         // Check if the user exists and is a customer
         Customer loggedInCustomer = customerRepository.findByUsername(username);
 
-        if (loggedInCustomer == null) {
-            // indicate that there is an issue with the loggedIn customer (might not be needed)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
-        }
-
         if (quantity < 1) {
             // indicate invalid quantity
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid quantity");
