@@ -3,6 +3,7 @@ package group_13.game_store.service;
 import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
@@ -18,6 +19,7 @@ import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 
+@Service
 public class PaymentService {
 
     @Autowired
