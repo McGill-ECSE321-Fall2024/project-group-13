@@ -17,7 +17,6 @@ import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.dto.OrderListDto;
 import group_13.game_store.dto.OrderRequestDto;
 import group_13.game_store.dto.OrderResponseDto;
-import group_13.game_store.dto.ReviewListResponseDto;
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
@@ -27,7 +26,7 @@ import group_13.game_store.service.PaymentService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
-import group_13.game_store.model.Review;
+
 
 @RestController
 public class UserAccountController {
@@ -142,5 +141,17 @@ public class UserAccountController {
 
         Order foundOrder = orderManagementService.getOrderById(orderId);
         return new OrderResponseDto(foundOrder);
+    }
+
+    @PutMapping("/customers/{username}/orders/{orderId}/games/{gameId}")
+    public OrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @PathVariable int gameId, @RequestParam String loggedInUsername) {
+        // only customer should be able to return their own order
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
+            throw new IllegalArgumentException("User must be a customer to return their order");
+        }
+
+        Order returnedOrder = orderManagementService.returnOrder(orderId, gameId);
+
+        return new OrderResponseDto(returnedOrder);
     }
 }

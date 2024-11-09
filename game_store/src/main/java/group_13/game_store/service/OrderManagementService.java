@@ -45,7 +45,7 @@ public class OrderManagementService {
     
 
     @Transactional
-    public boolean returnOrder(int orderID, int gameID)  {
+    public Order returnOrder(int orderID, int gameID)  {
         // validation
         // check if order exists
         Order orderToReturn = orderRepo.findByOrderID(orderID);
@@ -79,11 +79,11 @@ public class OrderManagementService {
             gameToReturn = gameRepo.save(gameToReturn);
             orderToReturn = orderRepo.save(orderToReturn);
 
-            return true;
+            return orderToReturn;
         } 
         
         // default response if purchase was not made within 7 days
-        return false;
+        return null;
     }
 
     @Transactional
