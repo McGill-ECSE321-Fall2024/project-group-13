@@ -39,66 +39,66 @@ public class PaymentService {
      * Processes the purchase of all items in a customer's cart.
      * 
      * @param username The username of the customer making the purchase.
-     * @return true if the purchase is successful, false otherwise.
+     * @return Order if the purchase is successful, false otherwise.
      */
     @Transactional
-    public boolean purchaseCart(String username) {
+    public Order purchaseCart(String username) {
         try {
             // Retrieve customer details by username
             Customer customer = customerRepo.findByUsername(username);
             if (customer == null) {
                 System.out.print("No such customer with username exists");
-                return false;
+                return null;
             }
 
             // Check if customer has delivery information
             DeliveryInformation deliveryInformation = customer.getDeliveryInformation();
             if (deliveryInformation == null) {
                 System.out.print("Customer does not have delivery information set up");
-                return false;
+                return null;
             }
 
             // Validate postal code format for delivery address
             if (!deliveryInformation.getDeliveryAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$")) {
                 System.out.print("Customer delivery address postal code information is not valid");
-                return false;
+                return null;
             }
 
             // Check if customer has payment information
             PaymentInformation paymentInformation = customer.getPaymentInformation();
             if (paymentInformation == null) {
                 System.out.print("Customer does not have valid payment information");
-                return false;
+                return null;
             }
 
             // Validate credit card number and CVV code
             if (Long.toString(paymentInformation.getCardNumber()).length() != 16) {
                 System.out.print("Customer does not have valid credit card number");
-                return false;
+                return null;
             }
             if (Integer.toString(paymentInformation.getCvvCode()).length() != 3) {
                 System.out.print("Customer does not have valid CVV code");
-                return false;
+                return null;
             }
 
             // Validate postal code format for billing address
             if (!paymentInformation.getBillingAddress().getPostalCode().matches("^[A-Za-z][0-9][A-Za-z][0-9][A-Za-z][0-9]$")) {
                 System.out.print("Customer billing address postal code information is not valid");
-                return false;
+                return null;
             }
 
             // Check if credit card is expired
             Date currentDate = new Date(System.currentTimeMillis());
             if (paymentInformation.getExpiryDate().before(currentDate)) {
                 System.out.print("Customer credit card is expired");
-                return false;
+                return null;
             }
 
             // Retrieve all items in the customer's cart
             CartItem[] cartItems = getCartItems(customer);
             if (cartItems == null || cartItems.length <= 0) {
                 System.out.print("Customer cart is empty");
-                return false;
+                return null;
             }
 
             // Check if there is enough stock for each game in the cart
@@ -107,7 +107,7 @@ public class PaymentService {
                 game = cartItems[i].getKey().getGame();
                 if (cartItems[i].getQuantity() > game.getStock()) {
                     System.out.print(String.format("There is not enough stock of %s to complete purchase", game.getTitle()));
-                    return false;
+                    return null;
                 }
             }
 
@@ -130,11 +130,11 @@ public class PaymentService {
             // Clear customer's cart and save the order
             clearCart(customer);
             order = orderRepo.save(order);
-            return true;
+            return order;
         } catch (Exception e) {
             System.out.print("Unexpected error encountered when purchasing cart:");
             System.out.print(e.getMessage());
-            return false;
+            return null;
         }
     }
 
