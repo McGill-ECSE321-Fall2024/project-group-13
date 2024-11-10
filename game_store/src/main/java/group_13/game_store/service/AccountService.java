@@ -5,8 +5,11 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 
+import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.PaymentInformation;
@@ -33,7 +36,22 @@ public class AccountService {
     private AddressRepository addressRepo;
 
 
-    
+    public UserAccount findUserByUsername(String username) {
+		UserAccount anAccount = userAccountRepo.findByUsername(username);
+		if (anAccount == null) {
+			throw new IllegalArgumentException("No user with username with " + username + " exists.");
+		}
+		return anAccount;
+	}
+
+    public Customer findCustomerByUsername(String username) {
+		Customer anAccount = customerRepo.findByUsername(username);
+		if (anAccount == null) {
+			throw new IllegalArgumentException("No customer username with " + username + " exists.");
+		}
+		return anAccount;
+	}
+
     // Method to get the permission level of a user based on their username
     public int findPermissionLevelByUsername(String username) {
         return userAccountRepo.findByUsername(username).getPermissionLevel();
@@ -48,6 +66,29 @@ public class AccountService {
     public boolean hasPermissionAtLeast(String username, int permissionLevel) {
         return (findPermissionLevelByUsername(username) >= permissionLevel);
     }
+
+    // method to allow user to change phone number
+    @Transactional
+    public boolean changePhoneNumber(String newPhoneNumber, String username) {
+       // validate new phone number
+        String regex = "^\\d{3}-\\d{3}-\\d{4}$";
+        if (newPhoneNumber == null || !newPhoneNumber.matches(regex)) {
+            System.out.println("Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
+            return false;
+        }
+
+        // Now check that the user with the given username exists
+        UserAccount person = userAccountRepo.findByUsername(username);
+        if (person == null) {
+            System.out.println("No user exists with the given username.");
+            return false;
+        }
+
+        person.setPhoneNumber(newPhoneNumber);
+        person = userAccountRepo.save(person);
+        return true;
+    }
+ 
 
     // Method to allow user to change password
     @Transactional
@@ -85,7 +126,9 @@ public class AccountService {
         }
 
         // Now we can change their password
-        person.setPassword(newPassword);
+        String newHashedPassword = hashPassword(newPassword);
+        person.setPassword(newHashedPassword);
+        person = userAccountRepo.save(person);
         return true;
     }
 
