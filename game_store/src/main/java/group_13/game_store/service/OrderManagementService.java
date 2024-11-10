@@ -45,7 +45,7 @@ public class OrderManagementService {
     
 
     @Transactional
-    public Order returnOrder(int orderID, int gameID)  {
+    public Order returnOrder(int orderID, int gameID, Date dateToReturn)  {
         // validation
         // check if order exists
         Order orderToReturn = orderRepo.findByOrderID(orderID);
@@ -63,7 +63,7 @@ public class OrderManagementService {
         }
 
         // check if 7 days passed after the purchas within a set amount of milliseconds
-        Date dateToReturn = Date.valueOf(LocalDate.now());
+        //Date dateToReturn = Date.valueOf(LocalDate.now());
         Date dateOfPurchase = orderToReturn.getPurchaseDate();
         long millisecondsElapsedSincePurchase = dateToReturn.getTime() - dateOfPurchase.getTime();
         long millisecondsInDay = 1000 * 60 * 60 * 24;
