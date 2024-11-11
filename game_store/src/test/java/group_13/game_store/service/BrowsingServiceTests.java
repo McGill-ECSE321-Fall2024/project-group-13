@@ -633,4 +633,34 @@ public class BrowsingServiceTests {
         
     }
 
+    @Test
+    public void testAddGameToCartWhenNotEnoughStock() {
+        // Arrange
+        String validCustomerUsername = "username1";
+        int outOfStockGame = 4;
+        int validQuantity = 1;
+        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(outOfStockGame, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(game4);
+        when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+        when(cartItemRepository.save(any(CartItem.class))).thenReturn(cartItem1Customer1);
+        when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(null); // no cart item with this key
+
+        // Act and Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> browsingService.addGameToCart(outOfStockGame, validCustomerUsername, validQuantity));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Not enough stock", exception.getReason());
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(outOfStockGame, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+        verify(cartItemRepository, times(0)).save(any(CartItem.class));
+        verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
+    }
+
+
+
 }
