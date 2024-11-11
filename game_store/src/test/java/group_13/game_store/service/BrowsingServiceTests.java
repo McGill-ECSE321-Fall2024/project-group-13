@@ -700,5 +700,131 @@ public class BrowsingServiceTests {
                 verify(cartItemRepository, times(1)).findByKeyCustomerAccountUsername(validCustomerUsername);
 
         }
+        // ************************** removeGameFromCart Tests **************************
+        @Test
+        public void testRemoveGameFromCartWhenGameInCart(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int validGameId = 1;
+                when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(cartItem1Customer1);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(validGameId)).thenReturn(game1);
+
+                // Act
+                boolean isSuccesful = browsingService.removeGameFromCart(validCustomerUsername, validGameId);
+
+                // Assert
+                assertTrue(isSuccesful);
+
+                // Verify
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(gameRepository, times(1)).findByGameID(validGameId);
+                verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
+                verify(cartItemRepository, times(1)).delete(cartItem1Customer1);
+        }
+
+        @Test
+        public void testRemoveGameFromCartWhenGameNotInCart(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int invalidGameId = 999;
+                when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(null);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(invalidGameId)).thenReturn(null);
+
+                // Act and Assert
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> browsingService.removeGameFromCart(validCustomerUsername, invalidGameId));
+                assertEquals(exception.getStatusCode(), HttpStatus.NOT_FOUND);
+                assertEquals(exception.getReason(), "Game not found in cart");
+        }
+
+        // ************************** updateGameQuantityInCart Tests **************************
+        @Test
+        public void testUpdateGameQuantityWhenValid(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int validGameId = 1;
+                int validQuantity = 5;
+                when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(cartItem1Customer1);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(validGameId)).thenReturn(game1);
+
+                // Act
+                boolean isSuccesful = browsingService.updateGameQuantityInCart(validCustomerUsername, validGameId, validQuantity);
+
+                // Assert
+                assertTrue(isSuccesful);
+
+                // Verify
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(gameRepository, times(1)).findByGameID(validGameId);
+                verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
+                verify(cartItemRepository, times(1)).save(cartItem1Customer1);
+        }
+
+        @Test
+        public void testUpdateGameQuantityWhenInvalidQuantity(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int validGameId = 1;
+                int invalidQuantity = -1;
+                when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(cartItem1Customer1);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(validGameId)).thenReturn(game1);
+
+                // Act and Assert
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> browsingService.updateGameQuantityInCart(validCustomerUsername, validGameId, invalidQuantity));
+                assertEquals(exception.getStatusCode(), HttpStatus.BAD_REQUEST);
+                assertEquals(exception.getReason(), "Invalid quantity");
+
+                // Verify
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(gameRepository, times(1)).findByGameID(validGameId);
+                verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
+                verify(cartItemRepository, times(0)).save(cartItem1Customer1);
+
+        }
+
+        @Test
+        public void testUpdateGameQuantityWhenGameNotInCart(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int invalidGameId = 999;
+                int validQuantity = 5;
+                when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(null);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(invalidGameId)).thenReturn(null);
+
+                // Act and Assert
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> browsingService.updateGameQuantityInCart(validCustomerUsername, invalidGameId, validQuantity));
+                assertEquals(exception.getStatusCode(), HttpStatus.NOT_FOUND);
+                assertEquals(exception.getReason(), "Game not found in cart");
+
+                // Verify
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(gameRepository, times(1)).findByGameID(invalidGameId);
+                verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
+                verify(cartItemRepository, times(0)).save(cartItem1Customer1);
+        }
+
+        
+        // ************************** getCatSubtotalPrice Tests **************************
+        @Test
+        public void testGetCartSubtotalPriceWhenCartItemsExist(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                when(cartItemRepository.findByKeyCustomerAccountUsername(validCustomerUsername)).thenReturn(List.of(cartItem1Customer1, cartItem2Customer1));
+
+                // Act
+                double subtotal = browsingService.getCartSubtotalPrice(validCustomerUsername);
+
+                // Assert
+                assertEquals(subtotal, 50.0);
+
+                // Verify
+                verify(cartItemRepository, times(1)).findByKeyCustomerAccountUsername(validCustomerUsername);
+        }
+
+
 
 }
