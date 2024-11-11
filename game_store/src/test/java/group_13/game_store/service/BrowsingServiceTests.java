@@ -9,12 +9,15 @@ import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
+import group_13.game_store.model.Promotion;
+import group_13.game_store.model.WishlistItem;
 import group_13.game_store.model.Game.VisibilityStatus;
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.repository.WishlistItemRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
+
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
@@ -71,19 +77,29 @@ public class BrowsingServiceTests {
         private Game game4 = new Game("FourthGame", "Description4", "img4", 0, 30.0, "PG",
                         VisibilityStatus.PendingArchive,
                         category2);
-
+        
+        private Game game5 = new Game("FifthGame", "Description5", "img5", 0, 30.0, "PG",
+                        VisibilityStatus.PendingArchive,
+                        category2);
         private Customer customer1 = new Customer("username1", "password1", "email1", "firstName1", "lastName1");
-
-        private Customer customer2 = new Customer("username2", "password2", "email2", "firstName2", "lastName2");
-
-        private Customer customer3 = new Customer("username3", "password3", "email3", "firstName3", "lastName3");
 
         private CartItem cartItem1Customer1 = new CartItem(new CartItem.Key(customer1, game1), 1);
 
         private CartItem cartItem2Customer1 = new CartItem(new CartItem.Key(customer1, game2), 2);
 
-        private CartItem cartItem1Customer2 = new CartItem(new CartItem.Key(customer2, game1), 0);
+        private WishlistItem wishlistItem1Customer1 = new WishlistItem(new WishlistItem.Key(customer1, game1));
 
+        private WishlistItem wishlistItem2Customer1 = new WishlistItem(new WishlistItem.Key(customer1, game2));
+
+        private LocalDate today = LocalDate.now();
+
+        private LocalDate tomorrow = today.plusDays(1);
+
+        private Promotion promotion1 = new Promotion(10, Date.valueOf(today), Date.valueOf(tomorrow), "Promotion1",
+                        "Description1");
+        private Promotion promotion2 = new Promotion(20, Date.valueOf(today), Date.valueOf(tomorrow), "Promotion2",
+                        "Description2");
+        
         // Setup mock data
         @BeforeEach
         public void setup() {
@@ -92,9 +108,16 @@ public class BrowsingServiceTests {
                 game2.setGameID(2);
                 game3.setGameID(3);
                 game4.setGameID(4);
+                game5.setGameID(5);
 
                 category1.setCategoryID(1);
                 category2.setCategoryID(2);
+
+                promotion1.setPromotionID(1);
+                promotion2.setPromotionID(2);
+
+                game1.setPromotion(promotion1);
+                game2.setPromotion(promotion2);
         }
 
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing @@@@@@@@@@@@@@@@@@@@@
@@ -825,6 +848,171 @@ public class BrowsingServiceTests {
                 verify(cartItemRepository, times(1)).findByKeyCustomerAccountUsername(validCustomerUsername);
         }
 
+        // ************************** clearCart Tests **************************
+        @Test
+        public void testClearCartWhenCartItemsExist(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                when(cartItemRepository.findByKeyCustomerAccountUsername(validCustomerUsername)).thenReturn(List.of(cartItem1Customer1, cartItem2Customer1));
+
+                // Act
+                browsingService.clearCart(validCustomerUsername);
+
+                // Verify
+                verify(cartItemRepository, times(1)).findByKeyCustomerAccountUsername(validCustomerUsername);
+                verify(cartItemRepository, times(1)).delete(cartItem1Customer1);
+                verify(cartItemRepository, times(1)).delete(cartItem2Customer1);
+        }
+
+               
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Customer Wishlist @@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        // ************************** getCustomerWishlistByUsername Tests **************************
+        @Test
+        public void testGetCustomerWishlistByUsernameWhenWishlistItemsExist(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                when(wishlistItemRepository.findByKey_CustomerAccount_Username(validCustomerUsername)).thenReturn(List.of(wishlistItem1Customer1, wishlistItem2Customer1));
+
+                // Act
+                List<WishlistItem> customerWishlist = browsingService.getCustomerWishlistByUsername(validCustomerUsername);
+
+                // Assert
+                assertNotNull(customerWishlist);
+                assertEquals(customerWishlist.size(), 2);
+                assertTrue(customerWishlist.contains(wishlistItem1Customer1));
+                assertTrue(customerWishlist.contains(wishlistItem2Customer1));
+
+                // Verify
+                verify(wishlistItemRepository, times(1)).findByKey_CustomerAccount_Username(validCustomerUsername);
+        }
+        
+        // ************************** addGameToWishlist Tests **************************
+        @Test
+        public void testAddGameToWishlistWhenGameAvailable(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int validGameId = 5;
+                when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive))).thenReturn(game5);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(wishlistItemRepository.findByKey(any(WishlistItem.Key.class))).thenReturn(null); // no wishlist item with this key
+                when(wishlistItemRepository.save(any(WishlistItem.class))).thenReturn(wishlistItem1Customer1);
+                
+                // Act
+                boolean isSuccesful = browsingService.addGameToWishlist(validGameId, validCustomerUsername);
+
+                // Assert
+                assertTrue(isSuccesful);
+
+                // Verify
+                verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(wishlistItemRepository, times(1)).save(any(WishlistItem.class));
+                verify(wishlistItemRepository, times(1)).findByKey(any(WishlistItem.Key.class));
+              
+        }
+
+        @Test
+        public void testAddGameWhenGameInWishlist() {
+                // Arrange
+                String validCustomerUsername = "username1";
+                int validGameId = 1;
+                when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive))).thenReturn(game1);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(wishlistItemRepository.findByKey(any(WishlistItem.Key.class))).thenReturn(wishlistItem1Customer1); // wishlist item already exists
+
+                // Act and Assert
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> browsingService.addGameToWishlist(validGameId, validCustomerUsername));
+                assertEquals(exception.getStatusCode(), HttpStatus.BAD_REQUEST);
+                assertEquals(exception.getReason(), "Game already in wishlist");
+
+                // Verify
+                verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0, List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(wishlistItemRepository, times(0)).save(any(WishlistItem.class));
+                verify(wishlistItemRepository, times(1)).findByKey(any(WishlistItem.Key.class));
+        }
+
+        // ************************** aremoveGameFromWishlist Tests **************************
+        @Test
+        public void testRemoveGameFromWishlistWhenGameInWishlist(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int validGameId = 1;
+                when(wishlistItemRepository.findByKey(any(WishlistItem.Key.class))).thenReturn(wishlistItem1Customer1);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(validGameId)).thenReturn(game1);
+
+                // Act
+                boolean isSuccesful = browsingService.removeGameFromWishlist(validCustomerUsername, validGameId);
+
+                // Assert
+                assertTrue(isSuccesful);
+
+                // Verify
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(gameRepository, times(1)).findByGameID(validGameId);
+                verify(wishlistItemRepository, times(1)).findByKey(any(WishlistItem.Key.class));
+                verify(wishlistItemRepository, times(1)).delete(wishlistItem1Customer1);
+        }
+
+        @Test
+        public void testRemoveGameFromWishlistWhenGameNotInWishlist(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                int invalidGameId = 999;
+                when(wishlistItemRepository.findByKey(any(WishlistItem.Key.class))).thenReturn(null);
+                when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+                when(gameRepository.findByGameID(invalidGameId)).thenReturn(null);
+
+                // Act and Assert
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> browsingService.removeGameFromWishlist(validCustomerUsername, invalidGameId));
+                assertEquals(exception.getStatusCode(), HttpStatus.NOT_FOUND);
+                assertEquals(exception.getReason(), "Game not found in wishlist");
+
+                // Verify
+                verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+                verify(gameRepository, times(1)).findByGameID(invalidGameId);
+                verify(wishlistItemRepository, times(1)).findByKey(any(WishlistItem.Key.class));
+                verify(wishlistItemRepository, times(0)).delete(any(WishlistItem.class));
+        }
+
+        // ************************** clearWishlist Tests **************************
+        @Test
+        public void testClearWishlistWhenWishlistItemsExist(){
+                // Arrange
+                String validCustomerUsername = "username1";
+                when(wishlistItemRepository.findByKey_CustomerAccount_Username(validCustomerUsername)).thenReturn(List.of(wishlistItem1Customer1, wishlistItem2Customer1));
+
+                // Act
+                browsingService.clearWishlist(validCustomerUsername);
+
+                // Verify
+                verify(wishlistItemRepository, times(1)).findByKey_CustomerAccount_Username(validCustomerUsername);
+                verify(wishlistItemRepository, times(1)).delete(wishlistItem1Customer1);
+                verify(wishlistItemRepository, times(1)).delete(wishlistItem2Customer1);
+        }
+
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Customer Promotions @@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        // ************************** getAllValidPromotions Tests **************************
+        @Test
+        public void testGetAllValidPromotionsWhenPromotionsExist(){
+                // Arrange
+                when(promotionRepository.findByGame_GameIDAndStartDateLessThanEqualAndEndDateGreaterThanEqual(1, Date.valueOf(today), Date.valueOf(today))).thenReturn(List.of(promotion1));
+
+                // Act
+                List<Promotion> promotions = browsingService.getAllValigPromotions(1);
+
+                // Assert
+                assertNotNull(promotions);
+
+                assertEquals(promotions.size(), 1);
+                assertTrue(promotions.contains(promotion1));
+
+                // Verify
+                verify(promotionRepository, times(1)).findByGame_GameIDAndStartDateLessThanEqualAndEndDateGreaterThanEqual(1, Date.valueOf(today), Date.valueOf(today));
+        }
 
 
 }

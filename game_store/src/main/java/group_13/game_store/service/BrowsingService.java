@@ -286,18 +286,13 @@ public class BrowsingService {
         // Check if the user exists and is a customer
         Customer loggedInCustomer = customerRepository.findByUsername(username);
 
-        if (loggedInCustomer == null) {
-            // indicate that there is an issue with the loggedIn customer (might not be needed)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
-        }
-
         // Check if the game is already in the wishlist
         WishlistItem.Key wishlistItemKey = new WishlistItem.Key(loggedInCustomer, addedGame);
         WishlistItem wishlistItem = wishlistItemRepository.findByKey(wishlistItemKey);
 
         if (wishlistItem != null) {
             // Indicate that the game is already in the wishlist
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Game already in wishlist");
         }
 
         // Add the game to the customer's wishlist by creating a wishlistItem
