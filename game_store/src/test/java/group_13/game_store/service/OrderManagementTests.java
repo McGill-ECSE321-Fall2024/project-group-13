@@ -64,31 +64,55 @@ public class OrderManagementTests {
     @Test
     public void testGetOrderByIdWhenValidId() {
         // arrange
-        when(orderRepository.findByOrderID(1)).thenReturn(order1);
+        int validOrderId = 1;
+        when(orderRepository.findByOrderID(validOrderId)).thenReturn(order1);
 
         // act
-        Order orderToFind = service.getOrderById(1);
+        Order orderToFind = service.getOrderById(validOrderId);
 
         // assert
         assertNotNull(orderToFind);
 		assertEquals(randomDate1, orderToFind.getPurchaseDate());
 		assertNull(orderToFind.getReturnDate());
 		assertEquals(customer1.getUsername(), orderToFind.getCustomer().getUsername());
+
+        verify(orderRepository, times(1)).findByOrderID(validOrderId);
     }
 
     @Test
     public void testGetOrderByIdWhenInvalidId() {
+        // arrange
+        int invalidOrderId = 33;
+        when(orderRepository.findByOrderID(invalidOrderId)).thenReturn(null);
 
+        // act
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.getOrderById(invalidOrderId));
+        
+        // assert
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Order with id 33 not found", exception.getReason());
+        verify(orderRepository, times(1)).findByOrderID(invalidOrderId);
     }
 
     @Test
     public void testReturnOrderWhenSuccessful() {
-        
+        // arrange
+        int validOrderId = 1;
+        when(orderRepository.findByOrderID(validOrderId)).thenReturn(order1);
+
+        // act
+        Order orderToReturn = service.returnOrder(order1.getOrderID(), game1.getGameID(), randomDate2);
+
+        // assert
+        assertNotNull(orderToReturn);
+		assertEquals(randomDate1, orderToReturn.getPurchaseDate());
+		// checking if return date has been set
+        assertEquals(randomDate2, orderToReturn.getReturnDate());
+		assertEquals(customer1.getUsername(), orderToReturn.getCustomer().getUsername());
     }
 
     @Test
-    public void testReturnOrderWhenUnsuccessful() {
-        
+    public void testReturnOrderWhenUnsuccessful() {        
     }
 
     @Test

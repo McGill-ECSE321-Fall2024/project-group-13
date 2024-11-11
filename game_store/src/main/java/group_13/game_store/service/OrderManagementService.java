@@ -1,6 +1,8 @@
 package group_13.game_store.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import jakarta.transaction.Transactional;
 
 import java.sql.Date;
@@ -19,6 +21,7 @@ import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.GameRepository;
 //import group_13.game_store.repository.GameCopyRepository;
+import org.springframework.http.HttpStatus;
 
 @Service
 public class OrderManagementService {
@@ -38,7 +41,7 @@ public class OrderManagementService {
         Order order = orderRepo.findByOrderID(orderId);
         if (order == null) {
             //indicate no order was found
-            throw new IllegalArgumentException("No order with order ID " + orderId + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No order with order ID " + orderId + ".");
         }
         return order;
     }
@@ -50,16 +53,16 @@ public class OrderManagementService {
         // check if order exists
         Order orderToReturn = orderRepo.findByOrderID(orderID);
         if (orderToReturn == null) {
-            throw new IllegalArgumentException("No order with order ID " + orderID + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No order with order ID " + orderID + ".");
         }
         // check if game exists
         Game gameToReturn = gameRepo.findByGameID(gameID);
         if (gameToReturn == null) {
-            throw new IllegalArgumentException("No game with game ID " + gameID + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No game with game ID " + gameID + ".");
         }
         // check if order was already returned
         if (orderToReturn.isIsReturned() == true) {
-            throw new IllegalArgumentException("Order " + orderID + " was already returned.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + orderID + " was already returned.");
         }
 
         // check if 7 days passed after the purchas within a set amount of milliseconds
@@ -94,7 +97,7 @@ public class OrderManagementService {
         Customer customerToLookup = customerRepo.findByUsername(aCustomer);
         if (customerToLookup == null) {
             // placeholder exception
-            throw new IllegalArgumentException("No customer with username ID " + aCustomer + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No customer with username ID " + aCustomer + ".");
         }
 
         
