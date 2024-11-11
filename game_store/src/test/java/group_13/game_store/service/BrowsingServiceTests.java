@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
@@ -94,8 +95,7 @@ public class BrowsingServiceTests {
         category2.setCategoryID(2);
     }
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@ Owner and Employee Browsing @@@@@@@@@@@@@@@@@@@@@
 
     // ************************** getAllGames Tests **************************
     @Test
@@ -230,8 +230,7 @@ public class BrowsingServiceTests {
 
     // Act
 
-    // ************************** getGamesByTitleStartingWith Tests
-    // **************************
+    // ************************** getGamesByTitleStartingWith Tests ************************
     @Test
     public void testGetGamesByTitleStartingWithWhenSingleGame() {
         // Arange
@@ -555,12 +554,16 @@ public class BrowsingServiceTests {
         // Arrange
         String validCustomerUsername = "username1";
         int validGameId = 1;
+        int validQuantity = 1;
         when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
                 List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
                 .thenReturn(game1);
+        when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+        when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(null); // no cart item with this key
+        when(cartItemRepository.save(any(CartItem.class))).thenReturn(cartItem1Customer1);
 
         // Act
-        boolean isSuccesful = browsingService.addGameToCart(validGameId, validCustomerUsername, validGameId);
+        boolean isSuccesful = browsingService.addGameToCart(validGameId, validCustomerUsername, validQuantity);
 
         // Assert
         assertTrue(isSuccesful);
@@ -568,6 +571,9 @@ public class BrowsingServiceTests {
         // verify that the repository method was called
         verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
                 List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+        verify(cartItemRepository, times(1)).save((any(CartItem.class)));
+        verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
     }
 
     @Test
@@ -579,7 +585,10 @@ public class BrowsingServiceTests {
         when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
                 List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
                 .thenReturn(game1);
-
+        when (customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+        when(cartItemRepository.save(any(CartItem.class))).thenReturn(cartItem1Customer1);
+        when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(null); // no cart item with this key
+        
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> browsingService.addGameToCart(validGameId, validCustomerUsername, invalidQuantity));
@@ -590,7 +599,38 @@ public class BrowsingServiceTests {
         // verify that the repository method was called
         verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
                 List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+        verify(cartItemRepository, times(0)).save(any(CartItem.class));
+        verify(cartItemRepository, times(0)).findByKey(any(CartItem.Key.class));
+    }
 
+    @Test 
+    public void testAddGameToCartWhenGameAlreadyInCart() {
+        // Arrange 
+        String validCustomerUsername = "username1";
+        int validGameId = 1;
+        int validQuantity = 1;
+        when(gameRepository.findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive)))
+                .thenReturn(game1);
+        when(customerRepository.findByUsername(validCustomerUsername)).thenReturn(customer1);
+        when(cartItemRepository.save(any(CartItem.class))).thenReturn(cartItem1Customer1);  
+        when(cartItemRepository.findByKey(any(CartItem.Key.class))).thenReturn(cartItem1Customer1); // cart item already exists
+
+        // Act and Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> browsingService.addGameToCart(validGameId, validCustomerUsername, validQuantity));
+        
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Game already in cart", exception.getReason());
+
+        // verify that the repository method was called
+        verify(gameRepository, times(1)).findByGameIDAndStockGreaterThanAndStatusIn(validGameId, 0,
+                List.of(Game.VisibilityStatus.Visible, Game.VisibilityStatus.PendingArchive));
+        verify(customerRepository, times(1)).findByUsername(validCustomerUsername);
+        verify(cartItemRepository, times(0)).save(any(CartItem.class));
+        verify(cartItemRepository, times(1)).findByKey(any(CartItem.Key.class));
+        
     }
 
 }
