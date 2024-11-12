@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,15 +28,20 @@ import org.springframework.web.server.ResponseStatusException;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
+import group_13.game_store.model.Owner;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.Review;
+import group_13.game_store.model.Reply;
 import group_13.game_store.model.ReviewLike;
 import group_13.game_store.model.ReviewLike;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
+import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.ReviewLikeRepository;
 import group_13.game_store.repository.ReviewRepository;
+import group_13.game_store.repository.EmployeeRepository;
+import group_13.game_store.repository.ReplyRepository;
 
 @SpringBootTest
 public class ReviewServiceTest {
@@ -53,7 +60,17 @@ public class ReviewServiceTest {
     @Mock
     private ReviewLikeRepository reviewLikeRepository;
 
-    @Mock GameCategoryRepository gameCategoryRepository;
+    @Mock
+    private OwnerRepository ownerRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepo;
+
+    @Mock 
+    private GameCategoryRepository gameCategoryRepository;
+
+    @Mock 
+    private ReplyRepository replyRepository;
 
     // Declare instance variables
     private GameCategory gameCategory1;
@@ -67,6 +84,7 @@ public class ReviewServiceTest {
     private Customer customer3;
     private Customer customer4;
     private Customer customer5;
+    private Owner owner;
 
     private Game game1;
     private Game game2;
@@ -89,6 +107,8 @@ public class ReviewServiceTest {
         customer4 = new Customer("Alice", "alice_wonderland", "alice@mail.com", "alice123", "789-012-3456");
         customer5 = new Customer("Bob", "bob_builder", "bob@mail.com", "bob123", "012-345-6789");
 
+        owner = new Owner("Owner", "owner", "owner@mail.com", "owner123", "123-456-7890");
+        
         game1 = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory1);
         game2 = new Game("Age of Empires", "Build and Conquer", "GameImg", 50, 40, "10+", Game.VisibilityStatus.Visible, gameCategory2);
         game3 = new Game("Uncharted", "Adventure", "GameImg", 60, 50, "12+", Game.VisibilityStatus.Visible, gameCategory3);
@@ -525,5 +545,212 @@ public class ReviewServiceTest {
     //     verify(customerRepo, times(2)).findByUsername("alice_wonderland");
     // }
 
+    @Test
+    public void testReplyToReview_Success(){
+        // Arrange
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
+
+        String replyString = "Thank you for the review!";
+
+        // Mock the repositories
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
+        when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        //Mock the user account calls
+        when(ownerRepository.findByUsername("owner")).thenReturn(owner);
+        when(customerRepo.findByUsername("owner")).thenReturn(null);
+        when(employeeRepo.findByUsername("owner")).thenReturn(null);    
+
+        //Mock the saved values
+        when(replyRepository.save(any(Reply.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Reply reply = reviewService.replyToReview(1, "owner", replyString);
+
+        // Assert
+        assertNotNull(reply);
+        assertEquals(Date.valueOf(LocalDate.now()), reply.getDate());
+        assertEquals(replyString, reply.getText());
+
+        assertNotNull(review.getReply());
+        assertEquals(reply, review.getReply());
+
+        // Verify that the save method was called once
+        verify(reviewRepository, times(1)).save(review);
+        verify(replyRepository, times(1)).save(reply);
+    }
+
+    @Test
+    public void testReplyToReview_UserNotAnOwner() {
+        // Arrange
+        String replyString = "Thank you for the review!";
+
+        // Mock the user account calls
+        when(ownerRepository.findByUsername("nonOwnerUser")).thenReturn(null);
+        when(customerRepo.findByUsername("nonOwnerUser")).thenReturn(customer1);
+        when(employeeRepo.findByUsername("nonOwnerUser")).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.replyToReview(1, "nonOwnerUser", replyString)
+        );
+
+        // Verify the exception message and status code
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("User is not an owner.", exception.getReason());
+
+        // Verify that no save methods were called
+        verify(reviewRepository, never()).save(any());
+        verify(replyRepository, never()).save(any());
+    }
+
+    @Test
+    public void testReplyToReview_UserNotFound() {
+        // Arrange
+        String replyString = "Thank you for the review!";
+
+        // Mock the user account calls
+        when(ownerRepository.findByUsername("unknownUser")).thenReturn(null);
+        when(customerRepo.findByUsername("unknownUser")).thenReturn(null);
+        when(employeeRepo.findByUsername("unknownUser")).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.replyToReview(1, "unknownUser", replyString)
+        );
+
+        // Verify the exception message and status code
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("User not found.", exception.getReason());
+
+        // Verify that no save methods were called
+        verify(reviewRepository, never()).save(any());
+        verify(replyRepository, never()).save(any());
+    }
+
+    @Test
+    public void testReplyToReview_ReviewNotFound() {
+        // Arrange
+        String replyString = "Thank you for the review!";
+
+        // Mock the user account calls
+        when(ownerRepository.findByUsername("owner")).thenReturn(owner);
+        when(customerRepo.findByUsername("owner")).thenReturn(null);
+        when(employeeRepo.findByUsername("owner")).thenReturn(null);
+
+        // Mock the review retrieval
+        when(reviewRepository.findByReviewID(1)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.replyToReview(1, "owner", replyString)
+        );
+
+        // Verify the exception message and status code
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Review not found.", exception.getReason());
+
+        // Verify that no save methods were called
+        verify(replyRepository, never()).save(any());
+        verify(reviewRepository, never()).save(any());
+    }
+
+    @Test
+    public void testReplyToReview_ReviewAlreadyHasReply() {
+        // Arrange
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
+
+        String replyString = "Thank you for the review!";
+        Reply existingReply = new Reply("Existing reply", Date.valueOf(LocalDate.now()));
+        review.setReply(existingReply);
+
+        // Mock the user account calls
+        when(ownerRepository.findByUsername("owner")).thenReturn(owner);
+        when(customerRepo.findByUsername("owner")).thenReturn(null);
+        when(employeeRepo.findByUsername("owner")).thenReturn(null);
+
+        // Mock the review retrieval
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.replyToReview(1, "owner", replyString)
+        );
+
+        // Verify the exception message and status code
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("Review already has a reply.", exception.getReason());
+
+        // Verify that no save methods were called
+        verify(replyRepository, never()).save(any());
+        verify(reviewRepository, never()).save(any());
+    }
+
+
+    @Test
+    public void testGetGameRating_NoReviewsFound() {
+        // Arrange
+        int gameID = 1;
+
+        // Mock the repository to return null
+        when(reviewRepository.findByReviewedGame_GameID(gameID)).thenReturn(null);
+
+        // Act
+        int rating = reviewService.getGameRating(gameID);
+
+        // Assert
+        assertEquals(0, rating);
+
+        // Verify that the findByReviewedGame_GameID method was called once
+        verify(reviewRepository, times(1)).findByReviewedGame_GameID(gameID);
+    }
+
+    @Test
+    public void testGetGameRating_EmptyReviewList() {
+        // Arrange
+        int gameID = 1;
+
+        // Mock the repository to return an empty list
+        when(reviewRepository.findByReviewedGame_GameID(gameID)).thenReturn(Collections.emptyList());
+
+        // Act
+        int rating = reviewService.getGameRating(gameID);
+
+        // Assert
+        assertEquals(0, rating); // Assuming that an empty list should return 0 as the average
+
+        // Verify that the findByReviewedGame_GameID method was called once
+        verify(reviewRepository, times(1)).findByReviewedGame_GameID(gameID);
+    }
+
+    @Test
+    public void testGetGameRating_NonEmptyReviewList() {
+        // Arrange
+        int gameID = 1;
+        Review review1 = new Review("Great game!", 4, Date.valueOf(LocalDate.now()), customer1, game1);
+        Review review2 = new Review("Not bad", 3, Date.valueOf(LocalDate.now()), customer2, game1);
+        Review review3 = new Review("Excellent!", 5, Date.valueOf(LocalDate.now()), customer3, game1);
+
+        List<Review> reviews = Arrays.asList(review1, review2, review3);
+
+        // Mock the repository to return the list of reviews
+        when(reviewRepository.findByReviewedGame_GameID(gameID)).thenReturn(reviews);
+
+        // Act
+        int rating = reviewService.getGameRating(gameID);
+
+        // Assert
+        assertEquals(4, rating); // (4 + 3 + 5) / 3 = 4
+
+        // Verify that the findByReviewedGame_GameID method was called once
+        verify(reviewRepository, times(1)).findByReviewedGame_GameID(gameID);
+    }
 
 }
