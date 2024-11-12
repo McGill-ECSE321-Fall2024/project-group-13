@@ -28,9 +28,12 @@ import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.Review;
+import group_13.game_store.model.ReviewLike;
+import group_13.game_store.model.ReviewLike;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
+import group_13.game_store.repository.ReviewLikeRepository;
 import group_13.game_store.repository.ReviewRepository;
 
 @SpringBootTest
@@ -46,6 +49,9 @@ public class ReviewServiceTest {
 
     @Mock
     private GameRepository gameRepository;
+
+    @Mock
+    private ReviewLikeRepository reviewLikeRepository;
 
     @Mock GameCategoryRepository gameCategoryRepository;
 
@@ -364,5 +370,160 @@ public class ReviewServiceTest {
         assertEquals(review, foundReview);
         verify(reviewRepository, times(1)).findByReviewID(reviewID);
     }
+
+    @Test 
+    public void testAddLike_Success() {
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
+
+        // Mock the repositories
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
+        when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
+        
+        when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(false);
+
+        when(reviewLikeRepository.save(any(ReviewLike.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Mock the save method
+        when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        int amountLikes = reviewService.addLike(1, "alice_wonderland");
+
+        // Assert that both the function and the getLike methods return the expected amount of likes
+        assertEquals(1, amountLikes);
+        assertEquals(1, review.getLikes());
+
+        //Make sure only one reviewLike is associated to our review
+        assertEquals(1, review.getReviewLikes().size());
+
+        // Verify that the save method was called once
+        verify(reviewRepository, times(1)).save(review);
+
+        // Verify that the find methods were called once
+        verify(reviewRepository, times(1)).findByReviewID(1);
+        verify(customerRepo, times(1)).findByUsername("alice_wonderland");
+    }
+
+    @Test
+    public void testAddLike_CustomerNotFound() {
+        // Mock the repositories
+        when(customerRepo.findByUsername("unknown_user")).thenReturn(null);
+
+        // Assert that the exception is thrown
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.addLike(1, "unknown_user")
+        );
+
+        // Verify the exception message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Customer not found.", exception.getReason());
+
+        // Verify that the reviewLikeRepository was not called
+        verify(reviewLikeRepository,  times(0)).existsByReviewAndCustomer(any(), any());
+    }
+
+    @Test
+    public void testAddLike_ReviewNotFound() {
+        // Mock the repositories
+        when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
+        when(reviewRepository.findByReviewID(1)).thenReturn(null);
+
+        // Assert that the exception is thrown
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.addLike(1, "alice_wonderland")
+        );
+
+        // Verify the exception message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Review not found.", exception.getReason());
+
+        // Verify that the reviewLikeRepository was not called
+        verify(reviewLikeRepository,  times(0)).existsByReviewAndCustomer(any(), any());
+    }
+
+    @Test
+    public void testAddLike_CustomerAlreadyLiked() {
+        
+        Review review = new Review("Amazing game!", 4, Date.valueOf(LocalDate.now()), customer5, game5);
+        review.setReviewID(1);
+
+        // Mock the repositories
+        when(customerRepo.findByUsername("bob_builder")).thenReturn(customer5);
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
+        when(reviewLikeRepository.existsByReviewAndCustomer(review, customer5)).thenReturn(true);
+
+        // Assert that the exception is thrown
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.addLike(1, "bob_builder")
+        );
+
+        // Verify the exception message
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("Customer has already liked the review.", exception.getReason());
+
+        // Verify that the save methods were not called
+        verify(reviewLikeRepository, times(0)).save(any());
+        verify(reviewRepository, times(0)).save(any());
+    }
+
+    // @Test
+    // public void testRemoveLike_Success() {
+    //     /*
+    //     * FIRST WE ADD A LIKE TO THE REVIEW
+    //     */
+
+    //     // Set up the review and the customer that will like the review
+    //     Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+    //     review.setReviewID(1);
+
+    //     ReviewLike reviewLike = new ReviewLike(review, customer4);
+
+    //     // Mock the repositories for adding a like
+    //     when(reviewRepository.findByReviewID(1)).thenReturn(review);
+    //     when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
+    //     when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(false);
+    //     when(reviewLikeRepository.save(any(ReviewLike.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    //     when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    //     // Add a like to the review so that we can remove it later
+    //     int amountLikes = reviewService.addLike(1, "alice_wonderland");
+
+    //     // Assert that the like was added successfully
+    //     assertEquals(1, amountLikes);
+    //     assertEquals(1, review.getLikes());
+
+    //     /*
+    //     * THEN WE REMOVE THE LIKE
+    //     */
+
+    //     // Mock the repositories for removing a like
+    //     when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(true);
+    //     when(reviewLikeRepository.findByReviewAndCustomer(review, customer4)).thenReturn(reviewLike);
+    //     when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    //     // Call the removeLike method
+    //     int finalAmountLikes = reviewService.removeLike(1, "alice_wonderland");
+
+    //     // Assert that the like was removed successfully
+    //     assertEquals(0, finalAmountLikes);
+    //     assertEquals(0, review.getLikes());
+
+    //     // Verify that the review has no associated likes
+    //     assertEquals(0, review.getReviewLikes().size());
+
+    //     // Verify that the delete method was called on the reviewLikeRepository
+    //     verify(reviewLikeRepository, times(1)).delete(reviewLike);
+
+    //     // Verify that the save method was called twice (once for addLike and once for removeLike)
+    //     verify(reviewRepository, times(2)).save(review);
+
+    //     // Verify that the find methods were called as expected
+    //     verify(reviewRepository, times(2)).findByReviewID(1);
+    //     verify(customerRepo, times(2)).findByUsername("alice_wonderland");
+    // }
+
 
 }
