@@ -170,6 +170,24 @@ public class OrderManagementTests {
         verify(orderRepository, times(1)).findByOrderID(validOrderId);
     }
 
+    @Test
+    public void testReturnOrderWhenGameDoesNotExist() {     
+        // arrange
+        int validOrderId = 1;
+        int invalidGameId = 2;
+        when(orderRepository.findByOrderID(validOrderId)).thenReturn(order1);
+        when(gameRepository.findByGameID(invalidGameId)).thenReturn(null);
+        
+        // act and assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> service.returnOrder(order1.getOrderID(), 2, randomDate3));
+        
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No game with game ID 2.", exception.getReason());
+        
+        // Verify that findByOrderID() was called once for from orderRepository 
+        verify(orderRepository, times(1)).findByOrderID(validOrderId);
+    }
+
     // ================= getOrderHistoryOfCustomer Tests =================
 
     @Test
