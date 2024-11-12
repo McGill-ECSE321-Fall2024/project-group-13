@@ -47,7 +47,7 @@ public class CustomerRepositoryTests {
 
         
         //Create the Payment Information for Nicolas so that we can test the associations are correctly saved in the database
-        PaymentInformation nicolasPayment = new PaymentInformation(27122313, "nicolas", Date.valueOf("2026-10-11"), 252, nicolasAddress);
+        PaymentInformation nicolasPayment = new PaymentInformation("27122313", "nicolas", Date.valueOf("2026-10-11"), 252, nicolasAddress);
         paymentRepo.save(nicolasPayment);
         
 
