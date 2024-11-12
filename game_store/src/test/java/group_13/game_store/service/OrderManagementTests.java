@@ -53,7 +53,7 @@ public class OrderManagementTests {
     // date of successful return
     private Date randomDate2 = Date.valueOf("2024-02-14");
     // date of unsuccessful return
-    private Date randomDate3 = Date.valueOf("2024-02-16");
+    private Date randomDate3 = Date.valueOf("2024-02-17");
     
     private Customer customer1 = new Customer("Generic Name", "Generic Username", "name@outlook.com", "Passw0rd", "555-555-5555");
     private GameCategory category1 = new GameCategory("this type of game involves X", GameCategory.VisibilityStatus.Visible, "generic category");
@@ -98,7 +98,7 @@ public class OrderManagementTests {
         
         // assert
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("No order with order ID 33", exception.getReason());
+        assertEquals("No order with order ID 33.", exception.getReason());
 
         verify(orderRepository, times(1)).findByOrderID(invalidOrderId);
     }
@@ -107,7 +107,9 @@ public class OrderManagementTests {
     public void testReturnOrderWhenSuccessful() {
         // arrange
         int validOrderId = 1;
+        int validGameId = 1;
         when(orderRepository.findByOrderID(validOrderId)).thenReturn(order1);
+        when(gameRepository.findByGameID(validGameId)).thenReturn(game1);
 
         // act
         Order orderToReturn = service.returnOrder(order1.getOrderID(), game1.getGameID(), randomDate2);
@@ -120,13 +122,16 @@ public class OrderManagementTests {
 		assertEquals(customer1.getUsername(), orderToReturn.getCustomer().getUsername());
 
         verify(orderRepository, times(1)).findByOrderID(validOrderId);
+        verify(gameRepository, times(1)).findByGameID(validGameId);
     }
 
     @Test
     public void testReturnOrderWhenUnsuccessful() {     
         // arrange
         int validOrderId = 1;
+        int validGameId = 1;
         when(orderRepository.findByOrderID(validOrderId)).thenReturn(order1);
+        when(gameRepository.findByGameID(validGameId)).thenReturn(game1);
         
         // act
         // would not return an exception but a null instead...
@@ -159,7 +164,6 @@ public class OrderManagementTests {
         verify(customerRepository, times(1)).findByUsername(customer1.getUsername());
         verify(orderRepository, times(1)).findByCustomer_Username(customer1.getUsername());
     }
-
 
     @Test 
     public void testGetOrderHistoryOfCustomerWhenCustomerDoesNotExists() {
