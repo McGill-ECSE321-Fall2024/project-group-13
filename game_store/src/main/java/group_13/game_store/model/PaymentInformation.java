@@ -25,7 +25,7 @@ public class PaymentInformation
   @Id
   @GeneratedValue
   private int paymentInfoID;
-  private long cardNumber;
+  private String cardNumber;
   private String billingName;
   private Date expiryDate;
   private int cvvCode;
@@ -38,7 +38,7 @@ public class PaymentInformation
   // CONSTRUCTOR
   //------------------------
 
-  public PaymentInformation(long aCardNumber, String aBillingName, Date aExpiryDate, int aCvvCode, Address aBillingAddress)
+  public PaymentInformation(String aCardNumber, String aBillingName, Date aExpiryDate, int aCvvCode, Address aBillingAddress)
   {
     cardNumber = aCardNumber;
     billingName = aBillingName;
@@ -66,7 +66,7 @@ public class PaymentInformation
     return wasSet;
   }
 
-  public boolean setCardNumber(long aCardNumber)
+  public boolean setCardNumber(String aCardNumber)
   {
     boolean wasSet = false;
     cardNumber = aCardNumber;
@@ -103,7 +103,7 @@ public class PaymentInformation
     return paymentInfoID;
   }
 
-  public long getCardNumber()
+  public String getCardNumber()
   {
     return cardNumber;
   }

@@ -132,7 +132,7 @@ public class GameController {
     // Add a game to the store (Owner only)
     @PostMapping("/games")
     public GameResponseDto addGame(@RequestBody GameRequestDto gameRequestDto,
-                                   @RequestParam String loggedInUsername) {
+            @RequestParam String loggedInUsername) {
 
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
@@ -168,8 +168,8 @@ public class GameController {
     // Update a game in the store (Owner only)
     @PutMapping("/games/{gameID}")
     public GameResponseDto updateGame(@PathVariable int gameID,
-                                      @RequestBody GameRequestDto gameRequestDto,
-                                      @RequestParam String loggedInUsername) {
+            @RequestBody GameRequestDto gameRequestDto,
+            @RequestParam String loggedInUsername) {
 
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
