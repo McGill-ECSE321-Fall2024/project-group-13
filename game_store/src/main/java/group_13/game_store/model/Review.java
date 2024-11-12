@@ -8,7 +8,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -31,7 +33,6 @@ public class Review
   private int reviewID;
   private String description;
   private int score;
-  private int likes;
   private Date date;
 
   //Review Associations
@@ -45,8 +46,8 @@ public class Review
   private Reply reply;
 
   //Link the review to the customers that liked it
-  @OneToMany
-  private List<Customer> likedByCustomers = new ArrayList<>();
+  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  private List<ReviewLike> reviewLikes = new ArrayList<>();
 
   //------------------------
   // CONSTRUCTOR
@@ -56,29 +57,14 @@ public class Review
   protected Review() {
   }
 
-  public Review(String aDescription, int aScore, Date aDate, Customer aReviewer, Game aReviewedGame, List<Customer> likedByCustomers)
+  public Review(String aDescription, int aScore, Date aDate, Customer aReviewer, Game aReviewedGame)
   {
-    description = aDescription;
-    score = aScore;
-
-    if (likedByCustomers != null && !likedByCustomers.isEmpty()) {
-      likes = likedByCustomers.size();
-      this.likedByCustomers = likedByCustomers;
-
-    } else {
-      likes = 0;
-      this.likedByCustomers = new ArrayList<>();
-    }
-    
-    date = aDate;
-    if (!setReviewer(aReviewer))
-    {
-      throw new RuntimeException("Unable to create Review due to aReviewer. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    if (!setReviewedGame(aReviewedGame))
-    {
-      throw new RuntimeException("Unable to create Review due to aReviewedGame. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+    this.description = aDescription;
+    this.score = aScore;
+    this.date = aDate;
+    this.reviewer = aReviewer;
+    this.reviewedGame = aReviewedGame;
+    this.reviewLikes = new ArrayList<>(); // Initialize the reviewLikes list
   }
 
   //------------------------
@@ -93,18 +79,24 @@ public class Review
     return wasSet;
   }
 
-  // Get the list of customers that liked the review
-  public List<Customer> getLikedByCustomers() {
-    return likedByCustomers;
+  //Get the list of likes for this review
+  public List<ReviewLike> getReviewLikes() {
+    return reviewLikes;
+  }
+  
+  //Set the list of likes for this review
+  public void setReviewLikes(List<ReviewLike> reviewLikes) {
+    this.reviewLikes = reviewLikes;
   }
 
-  // Lets you set the list of customers that liked the review
-  public void setLikedByCustomers(List<Customer> likedByCustomers) {
-    this.likedByCustomers = likedByCustomers;
-    this.likes = likedByCustomers.size();
+  public void addReviewLike(ReviewLike reviewLike) {
+    reviewLikes.add(reviewLike);
   }
-
-
+  
+  public void removeReviewLike(ReviewLike reviewLike) {
+    reviewLikes.remove(reviewLike);
+  }
+  
   public boolean setDescription(String aDescription)
   {
     boolean wasSet = false;
@@ -146,7 +138,7 @@ public class Review
 
   public int getLikes()
   {
-    return likes;
+    return reviewLikes.size();
   }
 
   public Date getDate()

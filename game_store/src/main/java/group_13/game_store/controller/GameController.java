@@ -132,7 +132,7 @@ public class GameController {
     // Add a game to the store (Owner only)
     @PostMapping("/games")
     public GameResponseDto addGame(@RequestBody GameRequestDto gameRequestDto,
-                                   @RequestParam String loggedInUsername) {
+            @RequestParam String loggedInUsername) {
 
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
@@ -141,7 +141,6 @@ public class GameController {
         }
 
         Game createdGame = gameStoreManagementService.addGame(
-                loggedInUsername,
                 gameRequestDto.getTitle(),
                 gameRequestDto.getDescription(),
                 gameRequestDto.getImg(),
@@ -169,8 +168,8 @@ public class GameController {
     // Update a game in the store (Owner only)
     @PutMapping("/games/{gameID}")
     public GameResponseDto updateGame(@PathVariable int gameID,
-                                      @RequestBody GameRequestDto gameRequestDto,
-                                      @RequestParam String loggedInUsername) {
+            @RequestBody GameRequestDto gameRequestDto,
+            @RequestParam String loggedInUsername) {
 
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
@@ -187,8 +186,7 @@ public class GameController {
                 gameRequestDto.getPrice(),
                 gameRequestDto.getParentalRating(),
                 gameRequestDto.getStatus(),
-                gameRequestDto.getCategoryId(),
-                loggedInUsername);
+                gameRequestDto.getCategoryId());
 
         GameResponseDto gameResponseDto = new GameResponseDto(
                 updatedGame.getGameID(),
@@ -216,7 +214,7 @@ public class GameController {
                     "You do not have permission to archive games.");
         }
 
-        gameStoreManagementService.archiveGame(gameID, loggedInUsername);
+        gameStoreManagementService.archiveGame(gameID);
     }
 
     // Request to archive a game (Employee only)
@@ -230,7 +228,7 @@ public class GameController {
                     "You do not have permission to request archiving games.");
         }
 
-        gameStoreManagementService.archiveGameRequest(gameID, loggedInUsername);
+        gameStoreManagementService.archiveGameRequest(gameID);
     }
 
     // Get pending game archive requests (Owner only)

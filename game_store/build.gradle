@@ -30,6 +30,11 @@ tasks.named('test') {
 		events "passed", "failed"
  	}
 	finalizedBy jacocoTestReport
+
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn test // tests are required to run before generating the report
 }
 
 tasks.named('jacocoTestReport') {
