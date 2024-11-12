@@ -347,7 +347,7 @@ public class ReviewServiceTest {
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("Review ID must be greater than 0.", exception.getReason());
+        assertEquals("Score must be between 1 and 5.", exception.getReason());
     }
 
     @Test
@@ -753,4 +753,25 @@ public class ReviewServiceTest {
         verify(reviewRepository, times(1)).findByReviewedGame_GameID(gameID);
     }
 
+    @Test
+    public void testGetUnansweredReviews() {
+        // Arrange
+        Review review1 = new Review("Great game!", 4, Date.valueOf(LocalDate.now()), customer1, game1);
+        Review review2 = new Review("Not bad", 3, Date.valueOf(LocalDate.now()), customer2, game2);
+        Review review3 = new Review("Excellent!", 5, Date.valueOf(LocalDate.now()), customer3, game3);
+
+        // Mock the repository to return the list of reviews
+        when(reviewRepository.findByReplyIsNull()).thenReturn(Arrays.asList(review1, review2, review3));
+
+        // Act
+        List<Review> unansweredReviews = reviewService.getUnansweredReviews();
+
+        // Assert
+        assertNotNull(unansweredReviews);
+        assertEquals(3, unansweredReviews.size());
+        assertEquals(Arrays.asList(review1, review2, review3), unansweredReviews);
+
+        // Verify that the findAll method was called once
+        verify(reviewRepository, times(1)).findByReplyIsNull();
+    }
 }
