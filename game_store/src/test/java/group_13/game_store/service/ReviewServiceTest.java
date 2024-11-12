@@ -161,7 +161,7 @@ public class ReviewServiceTest {
 
     // Test case for when the customer is not found
     @Test
-    public void testCreateReviewCustomerNotFound() {
+    public void testCreateReview_CustomerNotFound() {
         // Arrange
         String description = "Great game!";
         int score = 5;
@@ -180,9 +180,29 @@ public class ReviewServiceTest {
         assertEquals("Customer not found.", exception.getReason());
     }
 
+    @Test
+    public void testCreateReview_BadScore() {
+        // Arrange
+        String description = "Great game!";
+        int score = -5;
+        String reviewerID = "non_existing_user"; // A username that doesn't exist
+        int gameID = 1;
+
+        // Mocking the customer repository to return null
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(customer1);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.createReview(description, score, reviewerID, gameID);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Score must be between 1 and 5.", exception.getReason());
+    }
+
     // Test case for when the game is not found
     @Test
-    public void testCreateReviewGameNotFound() {
+    public void testCreateReview_GameNotFound() {
         // Arrange
         String description = "Great game!";
         int score = 5;
@@ -284,6 +304,47 @@ public class ReviewServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("Review not found.", exception.getReason());
     }
+
+    @Test
+    public void testUpdateReview_BadScore() {
+        // Arrange
+        String description = "Great game!";
+        int score = -5;
+        String reviewerID = "non_existing_user"; // A username that doesn't exist
+        int gameID = 1;
+
+        // Mocking the customer repository to return null
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(customer1);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.updateReview(gameID, description, score, reviewerID);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Score must be between 1 and 5.", exception.getReason());
+    }
+
+    @Test
+    public void testUpdateReview_BadReviewID() {
+        // Arrange
+        String description = "Great game!";
+        int score = 5;
+        String reviewerID = "non_existing_user"; // A username that doesn't exist
+        int gameID = -1;
+
+        // Mocking the customer repository to return null
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(customer1);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            reviewService.updateReview(gameID, description, score, reviewerID);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Review ID must be greater than 0.", exception.getReason());
+    }
+
 
     @Test
     public void testUpdateReview_InvalidDescription() {
@@ -489,61 +550,126 @@ public class ReviewServiceTest {
         verify(reviewRepository, times(0)).save(any());
     }
 
-    // @Test
-    // public void testRemoveLike_Success() {
-    //     /*
-    //     * FIRST WE ADD A LIKE TO THE REVIEW
-    //     */
+    @Test
+    public void testRemoveLike_Success() {
+        /*
+        * FIRST WE ADD A LIKE TO THE REVIEW
+        */
 
-    //     // Set up the review and the customer that will like the review
-    //     Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
-    //     review.setReviewID(1);
+        // Set up the review and the customer that will like the review
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
 
-    //     ReviewLike reviewLike = new ReviewLike(review, customer4);
+        ReviewLike reviewLike = new ReviewLike(review, customer4);
 
-    //     // Mock the repositories for adding a like
-    //     when(reviewRepository.findByReviewID(1)).thenReturn(review);
-    //     when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
-    //     when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(false);
-    //     when(reviewLikeRepository.save(any(ReviewLike.class))).thenAnswer(invocation -> invocation.getArgument(0));
-    //     when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        review.addReviewLike(reviewLike);
 
-    //     // Add a like to the review so that we can remove it later
-    //     int amountLikes = reviewService.addLike(1, "alice_wonderland");
+        /*
+        * THEN WE REMOVE THE LIKE
+        */
 
-    //     // Assert that the like was added successfully
-    //     assertEquals(1, amountLikes);
-    //     assertEquals(1, review.getLikes());
+        // Mock the repositories for removing a like
+        when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
 
-    //     /*
-    //     * THEN WE REMOVE THE LIKE
-    //     */
+        when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(true);
+        when(reviewLikeRepository.findByReviewAndCustomer(review, customer4)).thenReturn(reviewLike);
+        when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-    //     // Mock the repositories for removing a like
-    //     when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(true);
-    //     when(reviewLikeRepository.findByReviewAndCustomer(review, customer4)).thenReturn(reviewLike);
-    //     when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        // Call the removeLike method
+        int finalAmountLikes = reviewService.removeLike(1, "alice_wonderland");
 
-    //     // Call the removeLike method
-    //     int finalAmountLikes = reviewService.removeLike(1, "alice_wonderland");
+        // Assert that the like was removed successfully
+        assertEquals(0, finalAmountLikes);
+        assertEquals(0, review.getLikes());
 
-    //     // Assert that the like was removed successfully
-    //     assertEquals(0, finalAmountLikes);
-    //     assertEquals(0, review.getLikes());
+        // Verify that the review has no associated likes
+        assertEquals(0, review.getReviewLikes().size());
 
-    //     // Verify that the review has no associated likes
-    //     assertEquals(0, review.getReviewLikes().size());
+        // Verify that the delete method was called on the reviewLikeRepository
+        verify(reviewLikeRepository, times(1)).delete(reviewLike);
 
-    //     // Verify that the delete method was called on the reviewLikeRepository
-    //     verify(reviewLikeRepository, times(1)).delete(reviewLike);
+        // Verify that the save method was called twice (once for addLike and once for removeLike)
+        verify(reviewRepository, times(1)).save(review);
 
-    //     // Verify that the save method was called twice (once for addLike and once for removeLike)
-    //     verify(reviewRepository, times(2)).save(review);
+        // Verify that the find methods were called as expected
+        verify(reviewRepository, times(1)).findByReviewID(1);
+        verify(customerRepo, times(1)).findByUsername("alice_wonderland");
+    }
 
-    //     // Verify that the find methods were called as expected
-    //     verify(reviewRepository, times(2)).findByReviewID(1);
-    //     verify(customerRepo, times(2)).findByUsername("alice_wonderland");
-    // }
+    @Test
+    public void testRemoveLike_CustomerNotFound() {
+        // Arrange
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
+
+        // Mock the repositories
+        when(customerRepo.findByUsername("unknown_user")).thenReturn(null);
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.removeLike(1, "unknown_user")
+        );
+
+        // Assert exception details
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Customer not found.", exception.getReason());
+
+        // Verify that no interactions with reviewLikeRepository occurred
+        verify(reviewLikeRepository, never()).existsByReviewAndCustomer(any(), any());
+        verify(reviewLikeRepository, never()).delete(any());
+        verify(reviewRepository, never()).save(any());
+    }
+
+    @Test
+    public void testRemoveLike_ReviewNotFound() {
+        // Mock the repositories
+        when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
+        when(reviewRepository.findByReviewID(1)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.removeLike(1, "alice_wonderland")
+        );
+
+        // Assert exception details
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Review not found.", exception.getReason());
+
+        // Verify that no interactions with reviewLikeRepository occurred
+        verify(reviewLikeRepository, never()).existsByReviewAndCustomer(any(), any());
+        verify(reviewLikeRepository, never()).delete(any());
+        verify(reviewRepository, never()).save(any());
+    }
+
+    @Test
+    public void testRemoveLike_CustomerHasNotLikedReview() {
+        // Arrange
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
+        
+        // Mock the repositories
+        when(customerRepo.findByUsername("alice_wonderland")).thenReturn(customer4);
+        when(reviewRepository.findByReviewID(1)).thenReturn(review);
+        when(reviewLikeRepository.existsByReviewAndCustomer(review, customer4)).thenReturn(false);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.removeLike(1, "alice_wonderland")
+        );
+
+        // Assert exception details
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        assertEquals("Customer has not liked the review.", exception.getReason());
+
+        // Verify that no interactions with reviewLikeRepository's delete method occurred
+        verify(reviewLikeRepository, never()).delete(any());
+        verify(reviewRepository, never()).save(any());
+    }
 
     @Test
     public void testReplyToReview_Success(){
@@ -773,5 +899,66 @@ public class ReviewServiceTest {
 
         // Verify that the findAll method was called once
         verify(reviewRepository, times(1)).findByReplyIsNull();
+    }
+
+    @Test
+    public void testGetUnansweredReviews_NoUnansweredReviews() {
+        // Mock the repository to return an empty list
+        when(reviewRepository.findByReplyIsNull()).thenReturn(Collections.emptyList());
+
+        // Act
+        List<Review> unansweredReviews = reviewService.getUnansweredReviews();
+
+        // Assert
+        assertNotNull(unansweredReviews);
+        assertEquals(0, unansweredReviews.size());
+
+        // Verify that the findAll method was called once
+        verify(reviewRepository, times(1)).findByReplyIsNull();
+    }
+
+    @Test
+    public void testGetAllReviewsForGame(){
+        // Arrange
+        Review review1 = new Review("Great game!", 4, Date.valueOf(LocalDate.now()), customer1, game1);
+        Review review2 = new Review("Not bad", 3, Date.valueOf(LocalDate.now()), customer2, game1);
+        Review review3 = new Review("Excellent!", 5, Date.valueOf(LocalDate.now()), customer3, game1);
+
+        // Mock the repository to return the list of reviews
+        when(reviewRepository.findByReviewedGame_GameID(1)).thenReturn(Arrays.asList(review1, review2, review3));
+
+        // Act
+        List<Review> reviews = reviewService.getAllReviewsForGame(1);
+
+        // Assert
+        assertNotNull(reviews);
+        assertEquals(3, reviews.size());
+        assertEquals(Arrays.asList(review1, review2, review3), reviews);
+
+        // Verify that the findByReviewedGame_GameID method was called once
+        verify(reviewRepository, times(1)).findByReviewedGame_GameID(1);
+    }
+
+    @Test
+    public void testGetReplyByReview() {
+        // Arrange
+        Review review = new Review("Great game!", 4, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(1);
+
+        Reply reply = new Reply("Thank you for the review!", Date.valueOf(LocalDate.now()));
+        review.setReply(reply);
+
+        // Mock the repository to return the review
+        when(replyRepository.findByReview_ReviewID(1)).thenReturn(reply);
+
+        // Act
+        Reply foundReply = reviewService.getReplyByReview(1);
+
+        // Assert
+        assertNotNull(foundReply);
+        assertEquals(reply, foundReply);
+
+        // Verify that the findByReviewID method was called once
+        verify(replyRepository, times(1)).findByReview_ReviewID(1);
     }
 }
