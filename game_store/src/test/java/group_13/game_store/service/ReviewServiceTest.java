@@ -323,4 +323,46 @@ public class ReviewServiceTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("Review ID and score must be greater than 0.", exception.getReason());
     }
+
+    @Test
+    public void testGetAllReviews() {
+        // Arrange
+        List<Review> reviews = new ArrayList<>();
+        reviews.add(new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1));
+        reviews.add(new Review("Not bad", 3, Date.valueOf(LocalDate.now()), customer2, game2));
+        reviews.add(new Review("Could be better", 2, Date.valueOf(LocalDate.now()), customer3, game3));
+
+        // Mocking the review repository
+        when(reviewRepository.findAll()).thenReturn(reviews);
+
+        // Act
+        List<Review> allReviews = reviewService.getAllReviews();
+
+        // Assert
+        assertNotNull(allReviews);
+        assertEquals(3, allReviews.size());
+        assertEquals(reviews, allReviews);
+
+        verify(reviewRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testGetReview() {
+        // Arrange
+        int reviewID = 1;
+        Review review = new Review("Great game!", 5, Date.valueOf(LocalDate.now()), customer1, game1);
+        review.setReviewID(reviewID);
+
+        // Mocking the review repository
+        when(reviewRepository.findByReviewID(reviewID)).thenReturn(review);
+
+        // Act
+        Review foundReview = reviewService.getReview(reviewID);
+
+        // Assert
+        assertNotNull(foundReview);
+        assertEquals(review, foundReview);
+        verify(reviewRepository, times(1)).findByReviewID(reviewID);
+    }
+
 }
