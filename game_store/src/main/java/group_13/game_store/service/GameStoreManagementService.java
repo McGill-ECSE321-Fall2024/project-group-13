@@ -204,7 +204,7 @@ public class GameStoreManagementService {
         return gameCategory;
     }
 
-    // Retrieve all visible categories
+    // Retrieve all prnding archive visibility categories
     public List<GameCategory> getAllPendingArchiveCategories(){
         List<GameCategory.VisibilityStatus> pendingArchive = List.of(GameCategory.VisibilityStatus.PendingArchive);
         return (List<GameCategory>) gameCategoryRepository.findByStatusIn(pendingArchive);
