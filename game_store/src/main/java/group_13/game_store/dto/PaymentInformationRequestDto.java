@@ -2,7 +2,7 @@ package group_13.game_store.dto;
 import java.sql.Date;
 
 public class PaymentInformationRequestDto {
-    private long cardNumber;
+    private String cardNumber;
     private String billingName;
     private Date expiryDate;
     private int cvvCode;
@@ -12,7 +12,7 @@ public class PaymentInformationRequestDto {
     protected PaymentInformationRequestDto() {
     }
 
-    public PaymentInformationRequestDto(long cardNumber, String billingName, Date expiryDate, int cvvCode, int addressId) {
+    public PaymentInformationRequestDto(String cardNumber, String billingName, Date expiryDate, int cvvCode, int addressId) {
         this.cardNumber = cardNumber;
         this.billingName = billingName;
         this.expiryDate = expiryDate;
@@ -20,11 +20,11 @@ public class PaymentInformationRequestDto {
         this.addressId = addressId;
     }
 
-    public long getCardNumber() {
+    public String getCardNumber() {
         return cardNumber;
     }
 
-    public void setCardNumber(long newCardNumber) {
+    public void setCardNumber(String newCardNumber) {
         this.cardNumber = newCardNumber;
     }
 

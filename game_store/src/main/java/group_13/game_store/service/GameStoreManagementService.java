@@ -163,11 +163,13 @@ public class GameStoreManagementService {
         gameCategoryRepository.save(category);
         
         return category;
+
+        
     }
 
     // Archive an existing category -- Permission req (Only Owner)
     @Transactional
-    public void archiveCategory(int categoryId, String username){
+    public GameCategory archiveCategory(int categoryId, String username){
         GameCategory category = gameCategoryRepository.findByCategoryID(categoryId);
         if (category != null) {
             if (accountService.hasPermission(username, 3))
@@ -182,6 +184,8 @@ public class GameStoreManagementService {
         } else {
             throw new IllegalArgumentException("Category with ID " + categoryId + " not found.");
         }
+        
+        return category;
     }
 
     // Retrieve all categories
@@ -231,7 +235,8 @@ public class GameStoreManagementService {
         }
 
         Promotion promotion = new Promotion(percentage, startDate, endDate, title, description);
-        return promotionRepository.save(promotion);
+        promotionRepository.save(promotion);
+        return promotion;
     }
 
     // Update an existing promotion
@@ -334,8 +339,7 @@ public class GameStoreManagementService {
         }
     }
 
-    // ************************** EMPLOYEE ACCOUNT MANAGEMENT
-    // **************************
+    // ************************** EMPLOYEE ACCOUNT MANAGEMENT **************************
 
     // Add a new employee account -- Permission req (Only Owner)
     @Transactional
