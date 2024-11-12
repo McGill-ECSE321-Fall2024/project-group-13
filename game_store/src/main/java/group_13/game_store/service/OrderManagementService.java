@@ -86,7 +86,8 @@ public class OrderManagementService {
         } 
         
         // default response if purchase was not made within 7 days
-        return null;
+        //return null;
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + orderID + " cannot be returned, because 7 days have already passed since its purchase.");
     }
 
     @Transactional

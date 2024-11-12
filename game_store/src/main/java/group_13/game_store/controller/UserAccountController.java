@@ -170,9 +170,9 @@ public class UserAccountController {
         // need to include date input to make tge service method returnOrder testable
         Date dateToReturn = Date.valueOf(LocalDate.now());
         Order returnedOrder = orderManagementService.returnOrder(orderId, gameId, dateToReturn);
-        if (returnedOrder == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " from " + username +  "for game " + gameId + "has not been made.");
-        }
+        //if (returnedOrder == null) {
+          //  throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " from " + username +  "for game " + gameId + "has not been made.");
+        //}
 
         return new OrderResponseDto(returnedOrder);
     }
