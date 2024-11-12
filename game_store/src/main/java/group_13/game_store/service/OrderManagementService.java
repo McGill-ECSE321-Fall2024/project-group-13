@@ -16,7 +16,6 @@ import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
 import group_13.game_store.model.Game;
 //import group_13.game_store.model.GameCopy;
-import group_13.game_store.model.GameCategory;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.GameRepository;

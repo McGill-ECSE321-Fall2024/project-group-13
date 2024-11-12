@@ -14,11 +14,14 @@ public class DataInitializer {
     @Autowired
     private OwnerRepository ownerRepo;
 
+    @Autowired
+    private AccountService accountService;
+
     @PostConstruct
     public void initializeData() {
         // Check if the default owner account already exists, and if not, create it
         if (ownerRepo.findByUsername("owner") == null) {
-            String hashedPassword = AccountService.hashPassword("ownerPassword");
+            String hashedPassword = accountService.hashPassword("ownerPassword");
             Owner owner = new Owner("Owner", "owner", "owner@gmail.com", hashedPassword, "123-456-7890");
             
             // Save to database so that there is a default owner
