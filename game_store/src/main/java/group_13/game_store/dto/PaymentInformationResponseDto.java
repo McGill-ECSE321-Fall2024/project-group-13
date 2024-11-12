@@ -7,7 +7,7 @@ import group_13.game_store.model.Address;
 public class PaymentInformationResponseDto {
 
     private int paymentInfoID;
-    private long cardNumber;
+    private String cardNumber;
     private String billingName;
     private Date expiryDate;
     private int cvvCode;
@@ -18,7 +18,7 @@ public class PaymentInformationResponseDto {
     }
 
 
-    public PaymentInformationResponseDto(int paymentInfoID, long cardNumber, String billingName, Date expiryDate, int cvvCode, Address aBillingAddress) {
+    public PaymentInformationResponseDto(int paymentInfoID, String cardNumber, String billingName, Date expiryDate, int cvvCode, Address aBillingAddress) {
         this.paymentInfoID = paymentInfoID;
         this.cardNumber = cardNumber;
         this.billingName = billingName;
@@ -34,11 +34,11 @@ public class PaymentInformationResponseDto {
         return paymentInfoID;
     }
 
-    public long cardNumber() {
+    public String cardNumber() {
         return cardNumber;
     }
 
-    public void setCardNumber(long newCardNumber) {
+    public void setCardNumber(String newCardNumber) {
         this.cardNumber = newCardNumber;
     }
 

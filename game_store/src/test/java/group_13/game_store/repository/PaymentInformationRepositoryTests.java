@@ -45,7 +45,7 @@ public class PaymentInformationRepositoryTests {
 
 
 
-        PaymentInformation savedPaymentInformation = new PaymentInformation(123456789, "John Cena",
+        PaymentInformation savedPaymentInformation = new PaymentInformation("123456789", "John Cena",
                 Date.valueOf("2024-10-11"), 000, savedAddress);
         
         // saving the above PaymentInformation and Address instances in the cleared Address and PaymentInformation tables 
