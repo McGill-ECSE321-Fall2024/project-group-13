@@ -323,8 +323,4 @@ public class ReviewServiceTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("Review ID and score must be greater than 0.", exception.getReason());
     }
-
-
-
-
 }
