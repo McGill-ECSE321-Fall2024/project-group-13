@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,10 @@ public class GameStoreManagementTest {
     private Promotion promotion1;
     private Date startDate;
     private Date endDate;
+    
+    private LocalDate today = LocalDate.now();
+    private LocalDate tomorrow = today.plusDays(1);
+
 
     @BeforeEach
     public void setup() {
@@ -63,8 +68,8 @@ public class GameStoreManagementTest {
         game2 = new Game("Game2", "Description2", "img2", 20, 20.0, "PG", Game.VisibilityStatus.PendingArchive, category1);
         game2.setGameID(2);
 
-        startDate = Date.valueOf("2024-01-01");
-        endDate = Date.valueOf("2024-12-31");
+        startDate = Date.valueOf(today);
+        endDate = Date.valueOf(tomorrow);
 
         promotion1 = new Promotion(10, startDate, endDate, "Holiday Sale", "10% off for the holidays");
         promotion1.setPromotionID(1);
