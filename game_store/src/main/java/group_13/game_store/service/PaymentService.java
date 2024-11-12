@@ -64,7 +64,7 @@ public class PaymentService {
             }
 
             // Validate credit card number and CVV code
-            if (Long.toString(paymentInformation.getCardNumber()).length() != 16) {
+            if (paymentInformation.getCardNumber().length() != 16) {
                 System.out.print("Customer does not have valid credit card number");
                 return false;
             }

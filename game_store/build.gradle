@@ -2,21 +2,19 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.4'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'jacoco'
 }
 
 group = 'group_13'
 version = '0.0.1-SNAPSHOT'
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
-
 repositories {
 	mavenCentral()
 }
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -27,4 +25,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		exceptionFormat "full"
+		events "passed", "failed"
+ 	}
+	finalizedBy jacocoTestReport
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn test // tests are required to run before generating the report
 }

@@ -203,7 +203,7 @@ public class AccountService {
 
     // Method to create/update payment info
     @Transactional
-    public boolean changePaymentInfo(String username, long cardNumber, String billingName, Date expiryDate, int cvvCode, Address billingAddress) {
+    public boolean changePaymentInfo(String username, String cardNumber, String billingName, Date expiryDate, int cvvCode, Address billingAddress) {
         // Create a new PaymentInfo object if they don't have one yet
         UserAccount user = userAccountRepo.findByUsername(username);
         
@@ -295,10 +295,10 @@ public class AccountService {
     }
 
 
-    public boolean validatePaymentInfo(long cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
+    public boolean validatePaymentInfo(String cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
         // Validate given information
         // Check the card number length
-        if (Long.toString(cardNumber).length() != 16)
+        if ((cardNumber).length() != 16)
         {
             System.out.print("Customer does not have valid credit card number");
             return false;
