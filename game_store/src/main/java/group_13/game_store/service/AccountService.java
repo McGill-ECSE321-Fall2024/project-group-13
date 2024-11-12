@@ -359,6 +359,7 @@ public class AccountService {
         // Validate given information
         // Check the card number length
         if (cardNumber.length() != 16)
+
         {
             // Indicate that the length of the card number is invalid
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid credit card number");
