@@ -6,7 +6,7 @@ This project is an e-commerce website designed to allow users to purchase video 
 
 ### Current Deliverable
 
-The first part of the project centered on constructing the model diagram and database schema, and integrating them into the persistence layer, which will serve as the foundation for the website. Tests were also written to ensure everything is functioning as expected.
+The second deliverable focuses on implementing backend services using Java Spring, evolving the persistence layer, and documenting RESTful endpoints. It includes a comprehensive software quality assurance plan, unit and integration testing, a build system for automation, and project management through GitHub issue tracking.
 
 Report available [here](https://github.com/McGill-ECSE321-Fall2024/project-group-13/wiki/Game-Store-App-Wiki)
 
