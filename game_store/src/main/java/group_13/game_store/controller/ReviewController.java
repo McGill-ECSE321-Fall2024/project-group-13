@@ -158,7 +158,7 @@ public class ReviewController {
             @RequestParam String loggedInUsername) {
         // Check if the user has permission to like a review
         if (!accountService.hasPermission(loggedInUsername, 1)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to like a review.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to unlike a review.");
         }
 
         reviewService.removeLike(reviewID, loggedInUsername);  

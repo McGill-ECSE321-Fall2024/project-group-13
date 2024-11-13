@@ -343,7 +343,7 @@ public class ReviewIntegrationTests {
 
         int gameId = game2.getGameID();
         int reviewId = review1ID;
-        String loggedInUsername = "guest"; //Emplyees dont have permission to like stuff
+        String loggedInUsername = "guest"; //Guests dont have permission to like stuff
 
         // Perform the POST request to like the review
         ResponseEntity<String> response = client.postForEntity(
@@ -407,6 +407,94 @@ public class ReviewIntegrationTests {
         // Verify that the likes count has increased in the database
         Review updatedReview = reviewRepository.findById(reviewId).get();
         assertEquals(1, updatedReview.getLikes());
+
+        // Perform the DELETE request to remove the like
+        ResponseEntity<ReviewResponseDto> response2 = client.exchange(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                HttpMethod.DELETE,
+                null,
+                ReviewResponseDto.class
+        );
+
+        // Assert the response
+        assertNotNull(response2);
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+        assertNotNull(response2.getBody());
+
+        // Verify that the likes count has decreased
+        ReviewResponseDto responseBody = response2.getBody();
+        assertEquals(reviewId, responseBody.getReviewID());
+        assertEquals("Great game!", responseBody.getDescription());
+        assertEquals(5, responseBody.getScore());
+        assertEquals("john_doe", responseBody.getReviewerUsername());
+        assertEquals(0, responseBody.getLikes()); // Should be 0 after the like is removed
+
+        // Verify that the likes count has decreased in the database
+        Review updatedReview2 = reviewRepository.findById(reviewId).get();
+        assertEquals(0, updatedReview2.getLikes());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(10)
+    public void testRemoveLike_UserLacksPermission() {
+        Review review1 = reviewRepository.findById(review1ID).get();
+        assertEquals(0, review1.getLikes());
+
+        int gameId = game2.getGameID();
+        int reviewId = review1ID;
+        String loggedInUsername = "guest"; //Guests dont have permission to like stuff
+
+        // Perform the POST request to like the review
+        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + "alice_wonderland",
+                null,
+                ReviewResponseDto.class
+        );
+
+        // Verify that the likes count has increased in the database
+        Review updatedReview = reviewRepository.findById(reviewId).get();
+        assertEquals(1, updatedReview.getLikes());
+
+        // Perform the DELETE request to remove the like
+        ResponseEntity<String> response2 = client.exchange(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                HttpMethod.DELETE,
+                null,
+                String.class
+        );
+
+        // Assert the response
+        assertNotNull(response2);
+        assertEquals(HttpStatus.FORBIDDEN, response2.getStatusCode());
+        assertTrue(response2.getBody().contains("User does not have permission to unlike a review."));
+
+        // Verify that the likes count has not changed in the database
+        Review updatedReview2 = reviewRepository.findById(reviewId).get();
+        assertEquals(1, updatedReview2.getLikes());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(11)
+    public void testRemoveLike_UserHasNotLikedReview() {
+        Review review1 = reviewRepository.findById(review1ID).get();
+        assertEquals(0, review1.getLikes());
+
+        int gameId = game2.getGameID();
+        int reviewId = review1ID;
+        String loggedInUsername = "alice_wonderland";
+
+        // Perform the DELETE request to remove the like
+        ResponseEntity<String> response = client.exchange(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                HttpMethod.DELETE,
+                null,
+                String.class
+        );
+
+        // Assert the response
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("Customer has not liked the review."));
     }
 
 
