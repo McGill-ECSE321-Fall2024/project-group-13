@@ -255,8 +255,8 @@ public class BrowsingService {
         for (CartItem cartItem : customerCart) {
             subtotalPrice += cartItem.getQuantity() * cartItem.getKey().getGame().getPrice();
         }
-
-        return subtotalPrice;
+        // Round it to 2 decimal places
+        return Math.round(subtotalPrice * 100.0) / 100.0;
     }
 
     // Clear the cart
