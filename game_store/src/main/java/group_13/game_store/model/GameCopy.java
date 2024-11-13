@@ -32,10 +32,7 @@ public class GameCopy
   // CONSTRUCTOR
   //------------------------
 
-  // Hibernate needs a no-args constructor, but it can be protected
-  protected GameCopy()
-  {
-  }
+  
 
   public GameCopy(Order aOrder, Game aGame)
   {
@@ -49,6 +46,11 @@ public class GameCopy
     }
   }
 
+  // Hibernate needs a no-args constructor, but it can be protected
+  protected GameCopy()
+  {
+  }
+  
   //------------------------
   // INTERFACE
   //------------------------
