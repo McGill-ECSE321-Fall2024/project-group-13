@@ -12,8 +12,4 @@ public class CustomerResponseDto extends UserAccountResponseDto {
         this.paymentInformation = aCustomerAccount.getPaymentInformation();
     }
 
-    // do not wanna reveal sensitive information*
-    public int getPaymentInformationID() {
-        return paymentInformation.getPaymentInfoID();
-    }
 }

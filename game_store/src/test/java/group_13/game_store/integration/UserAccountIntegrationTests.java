@@ -27,7 +27,9 @@ import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.model.Customer;
+import group_13.game_store.model.Employee;
 import group_13.game_store.repository.CustomerRepository;
+import group_13.game_store.repository.EmployeeRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -40,7 +42,11 @@ public class UserAccountIntegrationTests {
 	@Autowired
 	private CustomerRepository customerRepository;
 
+	@Autowired
+	private EmployeeRepository employeeRepository;
+
 	private Customer customer1;
+	private Employee employee1;
 
 	private String validName = "Bob";
 	private String validUsername = "Bob1234";
@@ -51,9 +57,11 @@ public class UserAccountIntegrationTests {
 	@BeforeEach
     public void setup() {
 		customer1 = new Customer("RealName", "FakeUsername", "name@outlook.com", "555-553-444" ,"Passw0rd123");
-		// create an employee too
+		employee1 = new Employee("EmployeeName", "EmployeeUsername", "employeename@outlook.com", "444-553-444" ,"Passw0rd1234567890", true);
+		
 		// create some orders too
 		customerRepository.save(customer1);
+		employeeRepository.save(employee1);
 	}
 
     @AfterAll
@@ -69,7 +77,7 @@ public class UserAccountIntegrationTests {
 
 		// act
 		// WHAT TO DO ABOUT RREQUEST PARAM IF NOT LOGGED IN
-		ResponseEntity<CustomerResponseDto> response = client.postForEntity("/customers?loggedInUsername=", testedCreatedAcount, CustomerResponseDto.class);
+		ResponseEntity<CustomerResponseDto> response = client.postForEntity("/customers?loggedInUsername=guest", testedCreatedAcount, CustomerResponseDto.class);
 
 		// assert
 		assertNotNull(response);
