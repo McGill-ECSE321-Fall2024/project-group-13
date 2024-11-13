@@ -65,13 +65,11 @@ public class UserAccountIntegrationTests {
     public void setup() {
 		customer1 = new Customer("RealNameOne", "FakeUsername1", "name1@outlook.com", "555-553-111" ,"Passw0rd1");
 		customer2 = new Customer("RealNameTwo", "FakeUsername2", "name2@outlook.com", "555-553-222" ,"Passw0rd2");
-		//customer3 = new Customer("RealNameThree", "FakeUsername3", "name3@outlook.com", "555-553-333" ,"Passw0rd3");
 		employee1 = new Employee("EmployeeName", "EmployeeUsername", "employeename@outlook.com", "444-553-444" ,"Passw0rd1234567890", true);
 		
 		// create some orders too
 		customerRepository.save(customer1);
 		customerRepository.save(customer2);
-		//customerRepository.save(customer3);
 		employeeRepository.save(employee1);
 	}
 
@@ -109,10 +107,9 @@ public class UserAccountIntegrationTests {
 		// arrange
 		UserAccountRequestDto testedCreatedAcount = new UserAccountRequestDto(validUsername, validName, validEmail, validPhoneNumber, validPassword);
 
-
 		// act
 		// WHAT TO DO ABOUT RREQUEST PARAM IF NOT LOGGED IN
-		ResponseEntity<String> response = client.postForEntity("/customers?loggedInUsername=FakeUsername", testedCreatedAcount, String.class);
+		ResponseEntity<String> response = client.postForEntity("/customers?loggedInUsername=FakeUsername1", testedCreatedAcount, String.class);
 
 		// assert
 		try {
@@ -138,25 +135,75 @@ public class UserAccountIntegrationTests {
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(2, response.getBody().customers().size());
-		//assertEquals();
-		
+		// checking to see if these customer dtos are within the CustomerListDto
+		assertEquals(customer1.getName(), response.getBody().customers().get(0).getName());
+		assertEquals(customer1.getUsername(), response.getBody().customers().get(0).getUsername());
+		assertEquals(customer1.getEmail(), response.getBody().customers().get(0).getEmail());
+		assertEquals(customer1.getPhoneNumber(), response.getBody().customers().get(0).getPhoneNumber());
+		assertEquals(customer2.getName(), response.getBody().customers().get(1).getName());
+		assertEquals(customer2.getUsername(), response.getBody().customers().get(1).getUsername());
+		assertEquals(customer2.getEmail(), response.getBody().customers().get(1).getEmail());
+		assertEquals(customer2.getPhoneNumber(), response.getBody().customers().get(1).getPhoneNumber());
 	}
 
 	@Test
 	@Order(4)
-	public void testFindAllCustomersAsCustomer(){
-		
+	public void testFindAllCustomersAsCustomerException(){
+		// Arrange
+		System.out.println("URL: /customers?loggedInUsername=FakeUserName1");
+
+		// act
+		ResponseEntity<String> response = client.getForEntity("/customers?loggedInUsername=EmployeeUsername", String.class);
+
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be an owner or employee to view all customers", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
 	}
 
 	@Test
 	@Order(5)
 	public void testFindCustomerAsEmployee(){
+		// Arrange
+		System.out.println("URL: /customers?username=FakeUsername1&loggedInUsername=EmployeeUserName");
 
+		// act
+		ResponseEntity<CustomerResponseDto> response = client.getForEntity("/customers?username=FakeUsername1&loggedInUsername=EmployeeUserName", CustomerResponseDto.class);
+	
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(customer1.getName(), response.getBody().getName());
+		assertEquals(customer1.getUsername(), response.getBody().getUsername());
+		assertEquals(customer1.getEmail(), response.getBody().getEmail());
+		assertEquals(customer1.getPhoneNumber(), response.getBody().getName());
+		assertEquals(LocalDate.now(), response.getBody().getCreationDate());
 	}
 
 	@Test
 	@Order(6)
-	public void testFindAllCustomerAsCustomer(){
+	public void testFindCustomerAsCustomerException(){
+		// Arrange
+		System.out.println("URL: /customers?username=FakeUsername2&loggedInUsername=FakeUsername1");
+
+		// act
+		ResponseEntity<String> response = client.getForEntity("/customers?username=FakeUsername2&loggedInUsername=FakeUsername1", String.class);
+	
+		// assert
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be an owner or employee", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
 		
 	}
 
