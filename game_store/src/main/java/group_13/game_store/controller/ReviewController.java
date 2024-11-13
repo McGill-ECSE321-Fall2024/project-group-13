@@ -144,7 +144,7 @@ public class ReviewController {
             @RequestParam String loggedInUsername
         ) {
         // Check if the user has permission to like a review
-        if (!accountService.hasPermission(loggedInUsername, 2)) {
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to like a review.");
         }
 
@@ -157,7 +157,7 @@ public class ReviewController {
     public ReviewResponseDto removeLike(@PathVariable int reviewID,
             @RequestParam String loggedInUsername) {
         // Check if the user has permission to like a review
-        if (!accountService.hasPermission(loggedInUsername, 2)) {
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to like a review.");
         }
 

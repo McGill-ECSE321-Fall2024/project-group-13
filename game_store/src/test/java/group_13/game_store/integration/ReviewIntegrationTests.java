@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -118,6 +120,7 @@ public class ReviewIntegrationTests {
         customer1 = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890");
         customer2 = new Customer("John", "john_doe", "john_does@mail,cou", "john123", "987-654-3210");
         customer3 = new Customer("Jane", "jane_doe", "jane_does@mail,cou", "jane123", "456-789-0123");
+        customer4 = new Customer("Alice", "alice_wonderland", "alice@mail.com", "alice123", "789-012-3456");
 
         Owner owner = new Owner("bob", "owner", "owner@mail.com,", "owner123", "123-456-7890");
         ownerRepository.save(owner);
@@ -139,6 +142,7 @@ public class ReviewIntegrationTests {
         customerRepository.save(customer1);
         customerRepository.save(customer2);
         customerRepository.save(customer3);
+        customerRepository.save(customer4);
 
         gameRepository.save(game1); // game1 now has a generated ID
         gameRepository.save(game2); // game2 now has a generated ID
@@ -254,10 +258,13 @@ public class ReviewIntegrationTests {
     public void testUpdateReview_Success() {
         // Update a review
         ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game! I love it!", 4);
+        HttpEntity<ReviewRequestDto> requestEntity = new HttpEntity<>(reviewRequestDto);
 
-        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+
+        ResponseEntity<ReviewResponseDto> response = client.exchange(
             "/games/reviews/" + review1ID + "?loggedInUsername=john_doe",
-            reviewRequestDto,
+            HttpMethod.PUT,
+            requestEntity,
             ReviewResponseDto.class
         );
 
@@ -271,6 +278,60 @@ public class ReviewIntegrationTests {
         assertNotNull(response.getBody().getDate());
         assertEquals(LocalDate.now(), response.getBody().getDate());
     } 
+
+    @Test
+    @org.junit.jupiter.api.Order(5)
+    public void testAddLike_Success() {
+        Review review1 = reviewRepository.findById(review1ID).get();
+        assertEquals(0, review1.getLikes());
+
+        int gameId = game2.getGameID();
+        int reviewId = review1ID; // Use the review created in setup
+        String loggedInUsername = "alice_wonderland";
+
+        // Perform the POST request to like the review
+        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                null,
+                ReviewResponseDto.class
+        );
+
+        // Assert the response
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        // Verify that the likes count has increased
+        ReviewResponseDto responseBody = response.getBody();
+        assertEquals(reviewId, responseBody.getReviewID());
+        assertEquals("Great game!", responseBody.getDescription());
+        assertEquals(5, responseBody.getScore());
+        assertEquals("john_doe", responseBody.getReviewerUsername());
+        assertEquals(1, responseBody.getLikes()); // Should be 1 after the like
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(6)
+    public void testAddLike_UserLacksPermission() {
+        Review review1 = reviewRepository.findById(review1ID).get();
+        assertEquals(0, review1.getLikes());
+
+        int gameId = game2.getGameID();
+        int reviewId = review1ID;
+        String loggedInUsername = "guest"; // Assuming this user lacks permission
+
+        // Perform the POST request to like the review
+        ResponseEntity<String> response = client.postForEntity(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                null,
+                String.class
+        );
+
+        // Assert the response
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to like a review."));
+    }
 
     // @Test
     // @org.junit.jupiter.api.Order(4)
