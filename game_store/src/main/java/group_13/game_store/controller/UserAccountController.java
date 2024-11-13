@@ -135,7 +135,7 @@ public class UserAccountController {
         String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
        
         // only customer should be able to see their order history
-        if (!accountService.hasPermission(checkLoggedInUser, 1)) {
+        if (!accountService.hasPermission(checkLoggedInUser, 1) & !loggedInUsername.equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to view their own orders");
         }
 

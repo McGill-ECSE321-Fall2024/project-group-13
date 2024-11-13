@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.AfterAll;
@@ -38,8 +39,10 @@ import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.model.UserAccount;
+import group_13.game_store.model.Order;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
+import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.UserAccountRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -59,10 +62,16 @@ public class UserAccountIntegrationTests {
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
+	@Autowired
+	private OrderRepository orderRepository;
+
 	private Customer customer1;
 	private Customer customer2;
-	//private Customer customer3;
 	private Employee employee1;
+	private group_13.game_store.model.Order order1;
+	private group_13.game_store.model.Order order2;
+	private Date randomDate1;
+	private Date randomDate2;
 
 	private String validName = "Bob";
 	private String validUsername = "Bob1234";
@@ -75,11 +84,16 @@ public class UserAccountIntegrationTests {
 		customer1 = new Customer("RealNameOne", "FakeUsername1", "name1@outlook.com", "555-553-111" ,"Passw0rd1");
 		customer2 = new Customer("RealNameTwo", "FakeUsername2", "name2@outlook.com", "555-553-222" ,"Passw0rd2");
 		employee1 = new Employee("EmployeeName", "EmployeeUsername", "employeename@outlook.com", "444-553-444" ,"Passw0rd1234567890", true);
-		
+		randomDate1 = Date.valueOf("2024-02-09");
+		randomDate2 = Date.valueOf("2023-12-10");
 		// create some orders too
 		customerRepository.save(customer1);
 		customerRepository.save(customer2);
 		employeeRepository.save(employee1);
+		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);
+        order2 = new group_13.game_store.model.Order(randomDate2, null, customer1);
+		orderRepository.save(order1);
+		orderRepository.save(order2);
 	}
 
     @AfterAll
@@ -89,7 +103,7 @@ public class UserAccountIntegrationTests {
 	}
 
     @Test
-	@Order(1)
+	@org.junit.jupiter.api.Order(1)
 	public void testCreateValidCustomerAccountAsAguest() {
 		// arrange
 		UserAccountRequestDto testedCreatedAcount = new UserAccountRequestDto(validUsername, validName, validEmail, validPhoneNumber, validPassword);
@@ -112,7 +126,7 @@ public class UserAccountIntegrationTests {
 
 	// expect an exception
     @Test
-	@Order(2)
+	@org.junit.jupiter.api.Order(2)
 	public void testCreateValidCustomerAccountWhenNotAGuestException() {
 		// arrange
 		UserAccountRequestDto testedCreatedAcount = new UserAccountRequestDto(validUsername, validName, validEmail, validPhoneNumber, validPassword);
@@ -133,7 +147,7 @@ public class UserAccountIntegrationTests {
     }
 
 	@Test
-	@Order(3)
+	@org.junit.jupiter.api.Order(3)
 	public void testFindAllCustomersAsEmployee() {
 		// Arrange
 		System.out.println("URL: /customers?loggedInUsername=EmployeeUsername");
@@ -157,7 +171,7 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test
-	@Order(4)
+	@org.junit.jupiter.api.Order(4)
 	public void testFindAllCustomersAsCustomerException(){
 		// Arrange
 		System.out.println("URL: /customers?loggedInUsername=FakeUserName1");
@@ -177,7 +191,7 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test
-	@Order(5)
+	@org.junit.jupiter.api.Order(5)
 	public void testFindCustomerAsEmployee(){
 		// Arrange
 		System.out.println("URL: /customers?username=FakeUsername1&loggedInUsername=EmployeeUserName");
@@ -196,7 +210,7 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test
-	@Order(6)
+	@org.junit.jupiter.api.Order(6)
 	public void testFindCustomerAsCustomerException(){
 		// Arrange
 		System.out.println("URL: /customers?username=FakeUsername2&loggedInUsername=FakeUsername1");
@@ -216,7 +230,7 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test
-	@Order(7)
+	@org.junit.jupiter.api.Order(7)
 	public void testUpdateGeneralUserInformationWhenNotAGuest(){
 		// arrange
 		String newValidPassword = "Br4ndN3wPassw0rd";
@@ -241,7 +255,7 @@ public class UserAccountIntegrationTests {
 
 	// dealing with guest again @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	@Test
-	@Order(8)
+	@org.junit.jupiter.api.Order(8)
 	public void testUpdateGeneralUserInformationWhenAGuestException(){
 		// arrange
 		// arrange
@@ -268,49 +282,79 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test 
-	@Order(9)
-	public void testFindAllOrdersOfCustomerAsAnEmployee() {
+	@org.junit.jupiter.api.Order(9)
+	public void testFindAllOrdersOfCustomerAsASameCustomer() {
+		// Arrange
+		System.out.println("URL: /customers/FakeUsername1/orders?loggedInUsername=FakeUsername1");
 
+		// act
+		ResponseEntity<OrderListDto> response = client.getForEntity("/customers/FakeUsername1/orders?loggedInUsername=FakeUsername1", OrderListDto.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(2, response.getBody().orders().size());
+		// checking to see if these order dtos are within the OrderListDto
+		assertEquals(order1.getPurchaseDate(), response.getBody().orders().get(0).getPurchaseDate());
+		assertEquals(order1.getReturnDate(), response.getBody().orders().get(0).getReturnDate());
+		assertEquals(order1.getCustomer().getUsername(), response.getBody().orders().get(0).getCustomer().getUsername());
+		assertEquals(order2.getPurchaseDate(), response.getBody().orders().get(1).getPurchaseDate());
+		assertEquals(order2.getReturnDate(), response.getBody().orders().get(1).getReturnDate());
+		assertEquals(order2.getCustomer().getUsername(), response.getBody().orders().get(1).getCustomer().getUsername());
 	}
 
 	@Test 
-	@Order(10)
-	public void testFindAllOrdersOfCustomerAsNonEmployee() {
+	@org.junit.jupiter.api.Order(10)
+	public void testFindAllOrdersOfCustomerAsNotSameCustomerException() {
+		// Arrange
+		System.out.println("URL: /customers/FakeUsername2/orders?loggedInUsername=FakeUsername1");
 
+		// act
+		ResponseEntity<String> response = client.getForEntity("/customers/FakeUsername2/orders?loggedInUsername=FakeUsername1", String.class);
+
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be a customer to view their own orders", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
 	}
 
 	@Test 
-	@Order(11)
+	@org.junit.jupiter.api.Order(11)
 	public void testCreateOrderAsCustomer() {
 
 	}
 
 	@Test 
-	@Order(12)
+	@org.junit.jupiter.api.Order(12)
 	public void testCreateOrderAsNonCustomer() {
 
 	}
 
-	@Test
-	@Order(13)
+	@Test 
+	@org.junit.jupiter.api.Order(13)
 	public void testFindOrderOfCustomerAsCustomer(){
 
 	}
 
-	@Test
-	@Order(14)
+	@Test 
+	@org.junit.jupiter.api.Order(14)
 	public void testFindOrderOfCustomerAsNonCustomer(){
 		
 	}
 
-	@Test
-	@Order(15)
+	@Test 
+	@org.junit.jupiter.api.Order(15)
 	public void testReturnOrderAsCustomer() {
 
 	}
 
-	@Test
-	@Order(16) 
+	@Test 
+	@org.junit.jupiter.api.Order(16)
 	public void testReturnOrderAsNonCustomer() {
 		
 	}
