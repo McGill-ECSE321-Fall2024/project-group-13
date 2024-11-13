@@ -125,9 +125,10 @@ public class GameCategoryIntegrationTests {
         // Arrange
         GameCategory category = gameCategoryRepo.findAll().iterator().next();
         int categoryId = category.getCategoryID();
+        System.out.println(String.format("category id: %d", categoryId));
 
         // Act
-        ResponseEntity<GameCategoryResponseDto> response = client.getForEntity("/categories/" + categoryId, GameCategoryResponseDto.class);
+        ResponseEntity<GameCategoryResponseDto> response = client.getForEntity("/categories/" + String.valueOf(categoryId), GameCategoryResponseDto.class);
 
         // Assert
         assertNotNull(response);

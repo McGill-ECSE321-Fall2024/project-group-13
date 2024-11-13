@@ -116,7 +116,7 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete employees.");
         }
         
-        gameStoreService.archiveEmployeeAccount(loggedInUsername);
+        gameStoreService.archiveEmployeeAccount(username);
 
         Employee employee = gameStoreService.getEmployeeByUsername(username);
 

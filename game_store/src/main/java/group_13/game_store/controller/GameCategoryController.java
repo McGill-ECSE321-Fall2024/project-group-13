@@ -22,7 +22,6 @@ import group_13.game_store.service.GameStoreManagementService;
 
 import java.util.List;
 
-
 @RestController
 public class GameCategoryController 
 {
@@ -80,6 +79,7 @@ public class GameCategoryController
     @GetMapping("/categories/{categoryID}")
     public GameCategoryResponseDto getGameCategoryById(@PathVariable int gameCategoryID)
     {
+        System.out.println(String.format("getMapping: game categoryID: %d", gameCategoryID));
         GameCategory category = gameStoreService.getCategoryById(gameCategoryID);
 
         return new GameCategoryResponseDto(category);

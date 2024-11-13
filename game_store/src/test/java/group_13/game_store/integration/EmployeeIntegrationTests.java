@@ -1,8 +1,8 @@
 package group_13.game_store.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +20,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import group_13.game_store.dto.EmployeeListResponseDto;
@@ -44,10 +46,11 @@ public class EmployeeIntegrationTests {
     private static final String OWNER_USERNAME = "owner";
     private static final String EMPLOYEE_USERNAME = "employee";
     private static final String NEW_EMPLOYEE_USERNAME = "new_employee";
+    private static final String OTHER_EMPLOYEE = "other_employee";
     private static final String EMPLOYEE_EMAIL = "employee@example.com";
     private static final String EMPLOYEE_PASSWORD = "password";
     private static final String EMPLOYEE_NAME = "John Doe";
-    private static final String EMPLOYEE_PHONE = "1234567890";
+    private static final String EMPLOYEE_PHONE = "123-456-7890";
 
     @AfterAll
     public void clearDatabase() {
@@ -88,19 +91,27 @@ public class EmployeeIntegrationTests {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
+
+
     @Test
     @Order(3)
     public void testCreateEmployee() {
         // Arrange
-        UserAccountRequestDto request = new UserAccountRequestDto(EMPLOYEE_USERNAME, EMPLOYEE_NAME, EMPLOYEE_EMAIL, EMPLOYEE_PASSWORD, EMPLOYEE_PHONE);
-
+        UserAccountRequestDto request = new UserAccountRequestDto(NEW_EMPLOYEE_USERNAME, EMPLOYEE_NAME, EMPLOYEE_EMAIL, EMPLOYEE_PHONE, EMPLOYEE_PASSWORD);
+    
+        // Set headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+    
+        HttpEntity<UserAccountRequestDto> requestEntity = new HttpEntity<>(request, headers);
+    
         // Act
         ResponseEntity<EmployeeResponseDto> response = client.exchange(
                 "/employees/" + NEW_EMPLOYEE_USERNAME + "?loggedInUsername=" + OWNER_USERNAME + "&isUpdate=false",
                 HttpMethod.PUT, 
-                new HttpEntity<>(request),
+                requestEntity,
                 EmployeeResponseDto.class);
-
+    
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -112,12 +123,12 @@ public class EmployeeIntegrationTests {
     @Order(4)
     public void testUpdateEmployee() {
         // Arrange
-        employeeRepo.save(new Employee(EMPLOYEE_NAME, NEW_EMPLOYEE_USERNAME, EMPLOYEE_EMAIL, EMPLOYEE_PASSWORD, EMPLOYEE_PHONE, true));
-        UserAccountRequestDto updatedRequest = new UserAccountRequestDto(NEW_EMPLOYEE_USERNAME, "Updated Name", EMPLOYEE_EMAIL, EMPLOYEE_PASSWORD, EMPLOYEE_PHONE);
+        employeeRepo.save(new Employee(EMPLOYEE_NAME, OTHER_EMPLOYEE, EMPLOYEE_EMAIL, EMPLOYEE_PASSWORD, EMPLOYEE_PHONE, true));
+        UserAccountRequestDto updatedRequest = new UserAccountRequestDto(OTHER_EMPLOYEE, "Updated Name", EMPLOYEE_EMAIL, EMPLOYEE_PHONE, EMPLOYEE_PASSWORD);
 
         // Act
         ResponseEntity<EmployeeResponseDto> response = client.exchange(
-                "/employees/" + NEW_EMPLOYEE_USERNAME + "?loggedInUsername=" + OWNER_USERNAME + "&isUpdate=true",
+                "/employees/" + OTHER_EMPLOYEE + "?loggedInUsername=" + OWNER_USERNAME + "&isUpdate=true",
                 HttpMethod.PUT,
                 new HttpEntity<>(updatedRequest),
                 EmployeeResponseDto.class);
@@ -126,6 +137,7 @@ public class EmployeeIntegrationTests {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Updated Name", response.getBody().getName());
+        assertEquals(employeeRepo.findByUsername(OTHER_EMPLOYEE).getName(), response.getBody().getName());
     }
 
     @Test
@@ -157,7 +169,7 @@ public class EmployeeIntegrationTests {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(EMPLOYEE_USERNAME, response.getBody().getUsername());
-        // assertTrue(employeeRepo.findByUsername(EMPLOYEE_USERNAME).isEmpty());
+        assertFalse(employeeRepo.findByUsername(EMPLOYEE_USERNAME).getIsActive());
     }
 
     @Test
