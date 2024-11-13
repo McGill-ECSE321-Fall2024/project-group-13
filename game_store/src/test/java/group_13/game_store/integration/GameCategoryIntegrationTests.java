@@ -59,7 +59,6 @@ public class GameCategoryIntegrationTests {
         customerRepo.deleteAll();
     }
 
-    @BeforeAll
     private void setupAccounts() {
         employeeRepo.save(new Employee("Will", EMPLOYEE_USERNAME, "tim@yahoo.ca", "123", "1234567890", true));
         customerRepo.save(new Customer("Tim", CUSTOMER_USERNAME, "tim@yahoo.ca", "123", "1234567890"));
