@@ -17,7 +17,7 @@ public class LoginController {
     AccountService accountService;
 
     /**
-     * Logs a user into the system after validating their credentials (Only guests)
+     * Logs a user into the system after validating their credentials (Only not logged in users a.k.a. guests)
      * 
      * @param loggedInUsername  The user name of the person currently logged in. If no one is logged in, it is equal to 'guest'.
      * @param loginRequestDto   Login credentials (username and password) to login with
