@@ -87,7 +87,7 @@ public class GameController {
                     game.getStock(),
                     game.getPrice(),
                     game.getParentalRating(),
-                    game.getStatus(),
+                    game.getStatus().toString(),
                     game.getCategory().getName(),
                     game.getPromotion() != null ? game.getPromotion().getTitle() : null);
             gameResponseDtos.add(gameResponseDto);
@@ -122,7 +122,7 @@ public class GameController {
                 foundGame.getStock(),
                 foundGame.getPrice(),
                 foundGame.getParentalRating(),
-                foundGame.getStatus(),
+                foundGame.getStatus().toString(),
                 foundGame.getCategory().getName(),
                 foundGame.getPromotion() != null ? foundGame.getPromotion().getTitle() : null);
 
@@ -158,7 +158,7 @@ public class GameController {
                 createdGame.getStock(),
                 createdGame.getPrice(),
                 createdGame.getParentalRating(),
-                createdGame.getStatus(),
+                createdGame.getStatus().toString(),
                 createdGame.getCategory().getName(),
                 createdGame.getPromotion() != null ? createdGame.getPromotion().getTitle() : null);
 
@@ -196,7 +196,7 @@ public class GameController {
                 updatedGame.getStock(),
                 updatedGame.getPrice(),
                 updatedGame.getParentalRating(),
-                updatedGame.getStatus(),
+                updatedGame.getStatus().toString(),
                 updatedGame.getCategory().getName(),
                 updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null);
 
@@ -255,7 +255,7 @@ public class GameController {
                     game.getStock(),
                     game.getPrice(),
                     game.getParentalRating(),
-                    game.getStatus(),
+                    game.getStatus().toString(),
                     game.getCategory().getName(),
                     game.getPromotion() != null ? game.getPromotion().getTitle() : null);
             gameResponseDtos.add(gameDto);
