@@ -159,7 +159,7 @@ public class CartController {
     @DeleteMapping("/customers/{customerUsername}/cart/{gameID}")
     public GameResponseDto removeFromCart(@PathVariable String customerUsername, @PathVariable int gameID) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -173,21 +173,22 @@ public class CartController {
         Game game = browsingService.getGameById(gameID);
 
         // create a GameResponseDto
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto; // review if this is needed
 
     }
 
     // Update the quantity of a game in the cart
-    @PatchMapping("/customers/{customerUsername}/cart/{gameID}") // I think patch is the correct method -- need to
+    @PutMapping("/customers/{customerUsername}/cart/{gameID}/quantity/{quantity}") 
                                                                  // double check
     public GameResponseDto updateQuantityInCart(@PathVariable String customerUsername, @PathVariable int gameID,
-            @RequestParam int quantity) {
+            @PathVariable int quantity) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -200,10 +201,11 @@ public class CartController {
         // get the game associated with the gameID
         Game game = browsingService.getGameById(gameID);
 
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
         // create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto; // review if this is needed
 
