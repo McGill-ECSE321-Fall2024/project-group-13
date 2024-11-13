@@ -5,6 +5,11 @@ public class ReviewRequestDto {
     private int score;
 
 
+    public ReviewRequestDto(String description, int score) {
+        this.description = description;
+        this.score = score;
+    }
+
     //Create both setters and getters for this as its a request
     public String getDescription() {
         return description;

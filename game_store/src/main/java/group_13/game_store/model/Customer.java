@@ -36,6 +36,7 @@ public class Customer extends UserAccount
   public Customer(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber)
   {
     super(aName, aUsername, aEmail, aPassword, aPhoneNumber);
+    setPermissionLevel(1);
   }
 
   //------------------------

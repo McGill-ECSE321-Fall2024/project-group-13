@@ -56,6 +56,10 @@ public class AccountService {
 
     // Method to get the permission level of a user based on their username
     public int findPermissionLevelByUsername(String username) {
+        if (username.equals("guest")) {
+            return 0;
+        }
+        
         UserAccount user = userAccountRepo.findByUsername(username);
 
         if (user == null) {
@@ -220,13 +224,13 @@ public class AccountService {
 
         // Check that the password matches with the encrypted account password
         String hashedPassword = hashPassword(password);
-        if (hashedPassword != user.getPassword()) {
+        System.out.println(hashedPassword);
+        if (!hashedPassword.equals(user.getPassword())) {
             // Indicate that the passwords do not match
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match the account with the given username");
         }
 
-        // Make the 'currently logged in' account this one somehow... issue for the frontend :)
-
+        // Set the loggedInUsername to be this username to be used by other controllers
         return username;
     }
 
@@ -283,7 +287,7 @@ public class AccountService {
         // Validates input payment information
         boolean valid = validatePaymentInfo(cardNumber, expiryDate, cvvCode, billingAddress, billingName);
 
-        if (paymentInfo == null) {
+        if (paymentInfo == null && valid) {
             PaymentInformation newPaymentInfo = new PaymentInformation(cardNumber, billingName, expiryDate, cvvCode, billingAddress);
             paymentInfoRepo.save(newPaymentInfo); // save the new PaymentInfo into the database
             customer.setPaymentInformation(newPaymentInfo);
