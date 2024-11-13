@@ -1,5 +1,8 @@
 package group_13.game_store.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,12 +53,22 @@ public class ReviewController {
 
         if (!isPendingReply) {
 
-            // Return a list of all reviews via the ReviewListResponseDto
-            return new ReviewListResponseDto(reviewService.getAllReviews());
+            // Return a list of ResponseDtos via the ReviewListResponseDto
+            List<ReviewResponseDto> reviewDtos = reviewService.getAllReviews()
+                .stream() 
+                .map(ReviewResponseDto::new)
+                .collect(Collectors.toList());
+            ReviewListResponseDto responseDto = new ReviewListResponseDto(reviewDtos);
+            return responseDto;
         } else {
 
             // Return a list of all reviews that have not been replied to via the ReviewListResponseDto
-            return new ReviewListResponseDto(reviewService.getUnansweredReviews());
+            List<ReviewResponseDto> reviewDtos = reviewService.getUnansweredReviews()
+                .stream() 
+                .map(ReviewResponseDto::new)
+                .collect(Collectors.toList());
+            ReviewListResponseDto responseDto = new ReviewListResponseDto(reviewDtos);
+            return responseDto;
         }
     }  
 
@@ -65,7 +78,12 @@ public class ReviewController {
     @GetMapping("/games/{gameID}/reviews")
     public ReviewListResponseDto getReviewsByGame(@PathVariable int gameID) {
         // Return a list of reviews associated with a game via the ReviewListResponseDto
-        return new ReviewListResponseDto(reviewService.getAllReviewsForGame(gameID));
+        List<ReviewResponseDto> reviewDtos = reviewService.getAllReviewsForGame(gameID)
+            .stream() 
+            .map(ReviewResponseDto::new)
+            .collect(Collectors.toList());
+        ReviewListResponseDto responseDto = new ReviewListResponseDto(reviewDtos);
+        return responseDto;
     }
 
     @PostMapping("/games/{gameID}/reviews")
@@ -95,13 +113,13 @@ public class ReviewController {
     /*
      * /games/{id}/reviews/{reviewID} [GET, PUT]
      */
-    @GetMapping("/games/{gameID}/reviews/{reviewID}")
+    @GetMapping("/games/reviews/{reviewID}")
     public ReviewResponseDto getReview(@PathVariable int reviewID) {
         // Return a review by its unique ID via the ReviewResponseDto
         return new ReviewResponseDto(reviewService.getReview(reviewID));
     }
 
-    @PutMapping("/games/{gameID}/reviews/{reviewID}")
+    @PutMapping("/games/reviews/{reviewID}")
     public ReviewResponseDto updateReview(@PathVariable int reviewID,
             @RequestParam String loggedInUsername,
             @RequestBody ReviewRequestDto request) {

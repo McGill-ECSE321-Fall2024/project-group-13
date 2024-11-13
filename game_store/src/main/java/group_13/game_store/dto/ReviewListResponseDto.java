@@ -5,14 +5,17 @@ import java.util.List;
 import group_13.game_store.model.Review;
 
 public class ReviewListResponseDto {
-    private List<Review> reviews;
+    private List<ReviewResponseDto> reviews;
 
-    public ReviewListResponseDto(List<Review> reviews) {
+    public ReviewListResponseDto() {
+    }
+
+    public ReviewListResponseDto(List<ReviewResponseDto> reviews) {
         this.reviews = reviews;
     }
 
-    //No setters as it is a response object
-    public List<Review> getGames() {
+    public List<ReviewResponseDto> getReviews() {
         return reviews;
     }
+
 }
