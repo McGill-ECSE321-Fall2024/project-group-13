@@ -47,14 +47,13 @@ public class UserAccountController {
     @PostMapping("/customers")
     public CustomerResponseDto createCustomer(@RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
         // validate that user is neither employee, owner, or customer (will need to figure that out)
+        
+        // COULD POTENTIALLY REMOVE THIS LINE NOW THAT WE HAVE ACCOUNTSERVICE.LOGINTOACCOUNT
         if (accountService.hasPermission(loggedInUsername, 1) || accountService.hasPermission(loggedInUsername, 2) || accountService.hasPermission(loggedInUsername, 3)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be logged out to create a customer account");
         }
         // check if the account can be created at all
         Customer createdCustomerAccount = accountService.createCustomerAccount(request.getName(), request.getUsername(), request.getEmail(), request.getPassword(), request.getPhoneNumber());
-        if (createdCustomerAccount == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account creation has not been made.");
-        }
         return new CustomerResponseDto(createdCustomerAccount);
     }
 
