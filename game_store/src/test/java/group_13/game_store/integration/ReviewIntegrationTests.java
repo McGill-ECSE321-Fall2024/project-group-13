@@ -164,7 +164,7 @@ public class ReviewIntegrationTests {
         review1ID = review1.getReviewID();
 
         // Create a review for game 2 by customer 3
-        Review review2 = reviewService.createReview("Bad Game.", 1, "jane_doe", Game2Id);
+        Review review2 = reviewService.createReview("Bad game.", 1, "jane_doe", Game2Id);
         review2ID = review2.getReviewID();
     }
 
@@ -215,35 +215,39 @@ public class ReviewIntegrationTests {
 
 
 
-    // @Test
-    // @org.junit.jupiter.api.Order(3)
-    // public void testGetReviewsByGame() {
-    //     Integer savedGameId = game1.getGameID();
+    @Test
+    @org.junit.jupiter.api.Order(3)
+    public void testGetReviewsByGame() {
+        Integer savedGameId = game2.getGameID();
 
-    //     testCreateReview(); // Create a review for the game
+        // Now perform the GET request to get all reviews
+        ResponseEntity<ReviewListResponseDto> response = client.getForEntity(
+            "/games/" + savedGameId + "/reviews",
+            ReviewListResponseDto.class
+        );
 
-    //     // Now perform the GET request to get all reviews
-    //     ResponseEntity<ReviewListResponseDto> response = client.getForEntity(
-    //         "/games/" + savedGameId + "/reviews",
-    //         ReviewListResponseDto.class
-    //     );
+        // Assert
+        assertNotNull(response, "Response should not be null");
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "HTTP status should be 200 OK");
+        assertNotNull(response.getBody(), "Response body should not be null");
 
-    //     // Assert
-    //     assertNotNull(response, "Response should not be null");
-    //     assertEquals(HttpStatus.OK, response.getStatusCode(), "HTTP status should be 200 OK");
-    //     assertNotNull(response.getBody(), "Response body should not be null");
+        ReviewListResponseDto responseBody = response.getBody();
+        List<ReviewResponseDto> reviews = responseBody.getReviews();
 
-    //     ReviewListResponseDto responseBody = response.getBody();
-    //     List<ReviewResponseDto> reviews = responseBody.getReviews();
-    //     assertNotNull(reviews, "Reviews list should not be null");
-    //     assertFalse(reviews.isEmpty(), "Reviews list should not be empty");
+        assertNotNull(reviews, "Reviews list should not be null");
+        assertFalse(reviews.isEmpty(), "Reviews list should not be empty");
 
-    //     // Additional assertions to verify the content
-    //     ReviewResponseDto review = reviews.get(0);
-    //     assertEquals("Great game!", review.getDescription(), "Review description should match");
-    //     assertEquals(5, review.getScore(), "Review score should be 5");
-    //     assertEquals("tim_roma", review.getReviewerUsername(), "Reviewer username should be 'tim_roma'");
-    // }
+        // Additional assertions to verify the content
+        ReviewResponseDto review = reviews.get(0);
+        assertEquals("Great game!", review.getDescription(), "Review description should match");
+        assertEquals(5, review.getScore(), "Review score should be 5");
+        assertEquals("john_doe", review.getReviewerUsername(), "Reviewer username should be 'tim_roma'");
+
+        ReviewResponseDto review2 = reviews.get(1);
+        assertEquals("Bad game.", review2.getDescription(), "Review description should match");
+        assertEquals(1, review2.getScore(), "Review score should be 1");
+        assertEquals("jane_doe", review2.getReviewerUsername(), "Reviewer username should be 'tim_roma'");
+    }
 
     // @Test
     // @org.junit.jupiter.api.Order(4)
