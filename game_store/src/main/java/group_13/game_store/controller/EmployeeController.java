@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.service.AccountService;
@@ -20,6 +21,7 @@ import group_13.game_store.dto.EmployeeResponseDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.model.Employee;
 
+@RestController
 public class EmployeeController {
 
     @Autowired

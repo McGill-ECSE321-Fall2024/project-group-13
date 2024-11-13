@@ -57,29 +57,30 @@ public class GameCategoryController
     {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
-
         // If the user is not the owner, throw a permission denied exception
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view game categories.");
         }
-
-        Iterable<GameCategory> gameCategories = gameStoreService.getAllCategories();
-
-        List<GameCategoryResponseDto> gameCategoryResponseDtos = new ArrayList<GameCategoryResponseDto>();
-
-        for (GameCategory category : gameCategories)
+        else
         {
-            GameCategoryResponseDto gameCategoryResponseDto = new GameCategoryResponseDto(category);
-            gameCategoryResponseDtos.add(gameCategoryResponseDto);
-        }
+            Iterable<GameCategory> gameCategories = gameStoreService.getAllCategories();
 
-        return new GameCategoryListResponseDto(gameCategoryResponseDtos);
+            List<GameCategoryResponseDto> gameCategoryResponseDtos = new ArrayList<GameCategoryResponseDto>();
+
+            for (GameCategory category : gameCategories)
+            {
+                GameCategoryResponseDto gameCategoryResponseDto = new GameCategoryResponseDto(category);
+                gameCategoryResponseDtos.add(gameCategoryResponseDto);
+            }
+
+            return new GameCategoryListResponseDto(gameCategoryResponseDtos);
+        }
     }
 
     @GetMapping("/categories/{categoryID}")
     public GameCategoryResponseDto getGameCategoryById(@PathVariable int gameCategoryID)
     {
-        GameCategory category= gameStoreService.getCategoryById(gameCategoryID);
+        GameCategory category = gameStoreService.getCategoryById(gameCategoryID);
 
         return new GameCategoryResponseDto(category);
     }
@@ -88,15 +89,18 @@ public class GameCategoryController
     public void deleteGameCategoryById(@PathVariable int gameCategoryID, @RequestParam String loggedInUsername)
     {
         // Check if the user is atleast employee
-        boolean isEmployee = accountService.hasPermissionAtLeast(loggedInUsername, 2);
+        boolean isStaff = accountService.hasPermissionAtLeast(loggedInUsername, 2);
 
         // If the user is not the owner, throw a permission denied exception
-        if (!isEmployee) {
+        if (!isStaff) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive game categories.");
         }
 
         // Archive game if user is owner, request archive if employee
-        gameStoreService.archiveCategory(gameCategoryID, loggedInUsername);
+        else
+        {
+            gameStoreService.archiveCategory(gameCategoryID, loggedInUsername);
+        }
     }
 
     @GetMapping("/categories/archive-requests")
