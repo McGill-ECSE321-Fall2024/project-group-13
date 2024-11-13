@@ -137,7 +137,7 @@ public class ReviewIntegrationTests {
         //Create some template games
         game1 = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
         game2 = new Game("Age of Empires", "Build and Conquer", "GameImg", 50, 40, "10+", Game.VisibilityStatus.Visible, gameCategory);
-
+        game3 = new Game("Uncharted", "Adventure", "GameImg", 60, 50, "12+", Game.VisibilityStatus.Visible, gameCategory);
 
         //Create some orders
         Order order1 = new Order(Date.valueOf(LocalDate.now()),null, customer1); // Order to link customer 1 to game 1     
@@ -157,6 +157,7 @@ public class ReviewIntegrationTests {
 
         gameRepository.save(game1); // game1 now has a generated ID
         gameRepository.save(game2); // game2 now has a generated ID
+        gameRepository.save(game3); // game3 now has a generated ID
 
         orderRepository.save(order1);
         orderRepository.save(order2); 
@@ -211,10 +212,50 @@ public class ReviewIntegrationTests {
         assertEquals(5, savedReview.getScore());
     }
 
+    @Test
+    @org.junit.jupiter.api.Order(2)
+    public void testCreateReview_CustomerDoesNotOwnGame() {
+        int gameId3 = game3.getGameID();
+
+        // Create a review
+        ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game!", 5);
+
+        ResponseEntity<String> response = client.postForEntity("/games/" + gameId3 + "/reviews?loggedInUsername=john_doe", reviewRequestDto, String.class);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("Customer does not have the game."));
+
+        // Verify that the review has not been saved in the database
+        List<Review> reviewList = reviewRepository.findByReviewedGame_GameID(gameId3);
+        assertTrue(reviewList.isEmpty());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(3)
+    public void testCreateReview__UserLacksPermission() {
+        int gameId3 = game3.getGameID();
+
+        // Create a review
+        ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game!", 5);
+
+        ResponseEntity<String> response = client.postForEntity("/games/" + gameId3 + "/reviews?loggedInUsername=guest", reviewRequestDto, String.class);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to create/update reviews."));
+
+        // Verify that the review has not been saved in the database
+        List<Review> reviewList = reviewRepository.findByReviewedGame_GameID(gameId3);
+        assertTrue(reviewList.isEmpty());
+    }
+
 
 
     @Test
-    @org.junit.jupiter.api.Order(2)
+    @org.junit.jupiter.api.Order(4)
     public void testGetReviewByID_Success() {
         // Get a review by its ID
         ResponseEntity<ReviewResponseDto> response = client.getForEntity("/games/reviews/" + review1ID, ReviewResponseDto.class);
@@ -236,7 +277,7 @@ public class ReviewIntegrationTests {
 
 
     @Test
-    @org.junit.jupiter.api.Order(3)
+    @org.junit.jupiter.api.Order(5)
     public void testGetReviewsByGame_Success() {
         Integer savedGameId = game2.getGameID();
 
@@ -270,7 +311,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test 
-    @org.junit.jupiter.api.Order(4)
+    @org.junit.jupiter.api.Order(6)
     public void testUpdateReview_Success() {
         // Update a review
         ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game! I love it!", 4);
@@ -301,7 +342,82 @@ public class ReviewIntegrationTests {
     } 
 
     @Test
-    @org.junit.jupiter.api.Order(5)
+    @org.junit.jupiter.api.Order(7)
+    public void testUpdateReview_UserLacksPermission() {
+        // Update a review
+        ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game! I love it!", 4);
+        HttpEntity<ReviewRequestDto> requestEntity = new HttpEntity<>(reviewRequestDto);
+
+        ResponseEntity<String> response = client.exchange(
+            "/games/reviews/" + review1ID + "?loggedInUsername=guest",
+            HttpMethod.PUT,
+            requestEntity,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to create/update reviews."));
+
+        // Verify that the review has not been updated in the database
+        Review updatedReview = reviewRepository.findById(review1ID).get();
+        assertEquals("Great game!", updatedReview.getDescription());
+        assertEquals(5, updatedReview.getScore());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(8)
+    public void testUpdateReview_ReviewDoesNotExist() {
+        // Update a review
+        ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game! I love it!", 4);
+        HttpEntity<ReviewRequestDto> requestEntity = new HttpEntity<>(reviewRequestDto);
+
+        ResponseEntity<String> response = client.exchange(
+            "/games/reviews/999?loggedInUsername=john_doe",
+            HttpMethod.PUT,
+            requestEntity,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody().contains("Review not found."));
+
+        // Verify that the review has not been updated in the database
+        Review updatedReview = reviewRepository.findById(review1ID).get();
+        assertEquals("Great game!", updatedReview.getDescription());
+        assertEquals(5, updatedReview.getScore());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(9)
+    public void testUpdateReview_InvalidDescription() {
+        // Update a review
+        ReviewRequestDto reviewRequestDto = new ReviewRequestDto("", 4);
+        HttpEntity<ReviewRequestDto> requestEntity = new HttpEntity<>(reviewRequestDto);
+
+        ResponseEntity<String> response = client.exchange(
+            "/games/reviews/" + review1ID + "?loggedInUsername=john_doe",
+            HttpMethod.PUT,
+            requestEntity,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().contains("Description cannot be null or empty."));
+
+        // Verify that the review has not been updated in the database
+        Review updatedReview = reviewRepository.findById(review1ID).get();
+        assertEquals("Great game!", updatedReview.getDescription());
+        assertEquals(5, updatedReview.getScore());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(10)
     public void testAddLike_Success() {
         Review review1 = reviewRepository.findById(review1ID).get();
         assertEquals(0, review1.getLikes());
@@ -336,7 +452,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test
-    @org.junit.jupiter.api.Order(6)
+    @org.junit.jupiter.api.Order(11)
     public void testAddLike_UserLacksPermission() {
         Review review1 = reviewRepository.findById(review1ID).get();
         assertEquals(0, review1.getLikes());
@@ -359,7 +475,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test
-    @org.junit.jupiter.api.Order(8)
+    @org.junit.jupiter.api.Order(12)
     public void testAddLike_UserAlreadyLikedReview() {
         int gameId = game2.getGameID();
         int reviewId = review1ID;
@@ -388,7 +504,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test
-    @org.junit.jupiter.api.Order(9)
+    @org.junit.jupiter.api.Order(13)
     public void testRemoveLike_Success() {
         Review review1 = reviewRepository.findById(review1ID).get();
         assertEquals(0, review1.getLikes());
@@ -435,7 +551,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test
-    @org.junit.jupiter.api.Order(10)
+    @org.junit.jupiter.api.Order(14)
     public void testRemoveLike_UserLacksPermission() {
         Review review1 = reviewRepository.findById(review1ID).get();
         assertEquals(0, review1.getLikes());
@@ -474,7 +590,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test
-    @org.junit.jupiter.api.Order(11)
+    @org.junit.jupiter.api.Order(15)
     public void testRemoveLike_UserHasNotLikedReview() {
         Review review1 = reviewRepository.findById(review1ID).get();
         assertEquals(0, review1.getLikes());
