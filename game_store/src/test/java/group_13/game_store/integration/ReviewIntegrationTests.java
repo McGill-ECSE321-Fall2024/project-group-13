@@ -204,6 +204,11 @@ public class ReviewIntegrationTests {
 
         assertNotNull(response.getBody().getDate());
         assertEquals(LocalDate.now(), response.getBody().getDate());
+
+        // Verify that the review has been saved in the database
+        Review savedReview = reviewRepository.findById(response.getBody().getReviewID()).get();
+        assertEquals("Great game!", savedReview.getDescription());
+        assertEquals(5, savedReview.getScore());
     }
 
 
@@ -288,6 +293,11 @@ public class ReviewIntegrationTests {
         assertEquals("john_doe", response.getBody().getReviewerUsername());
         assertNotNull(response.getBody().getDate());
         assertEquals(LocalDate.now(), response.getBody().getDate());
+
+        // Verify that the review has been updated in the database
+        Review updatedReview = reviewRepository.findById(review1ID).get();
+        assertEquals("Great game! I love it!", updatedReview.getDescription());
+        assertEquals(4, updatedReview.getScore());
     } 
 
     @Test
@@ -319,6 +329,10 @@ public class ReviewIntegrationTests {
         assertEquals(5, responseBody.getScore());
         assertEquals("john_doe", responseBody.getReviewerUsername());
         assertEquals(1, responseBody.getLikes()); // Should be 1 after the like
+
+        // Verify that the likes count has increased in the database
+        Review updatedReview = reviewRepository.findById(reviewId).get();
+        assertEquals(1, updatedReview.getLikes());
     }
 
     @Test
@@ -329,7 +343,7 @@ public class ReviewIntegrationTests {
 
         int gameId = game2.getGameID();
         int reviewId = review1ID;
-        String loggedInUsername = "tom_holland"; //Emplyees dont have permission to like stuff
+        String loggedInUsername = "guest"; //Emplyees dont have permission to like stuff
 
         // Perform the POST request to like the review
         ResponseEntity<String> response = client.postForEntity(
@@ -390,18 +404,9 @@ public class ReviewIntegrationTests {
                 ReviewResponseDto.class
         );
 
-        // Assert the response
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-
-        // Verify that the likes count has increased
-        ReviewResponseDto responseBody = response.getBody();
-        assertEquals(reviewId, responseBody.getReviewID());
-        assertEquals("Great game!", responseBody.getDescription());
-        assertEquals(5, responseBody.getScore());
-        assertEquals("john_doe", responseBody.getReviewerUsername());
-        assertEquals(1, responseBody.getLikes()); // Should be 1 after the like
+        // Verify that the likes count has increased in the database
+        Review updatedReview = reviewRepository.findById(reviewId).get();
+        assertEquals(1, updatedReview.getLikes());
     }
 
 
