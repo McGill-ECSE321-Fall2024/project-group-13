@@ -43,7 +43,7 @@ public class WishListController {
     public GameListResponseDto getWishList(@PathVariable String customerID) {
 
         // Check if the customer exists and is a valid customer
-        if (!accountService.hasPermission(customerID, 2)) {
+        if (!accountService.hasPermission(customerID, 1)) {
             // throw permission denied exception
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only customers can access their wishlists");
         }
@@ -59,10 +59,11 @@ public class WishListController {
             // get the game associated with the wishlist item
             Game game = item.getKey().getGame();
 
+            String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
             // create a GameResponseDto
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(),promotionTitle);
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -76,7 +77,7 @@ public class WishListController {
     public GameResponseDto addGameToWishlist(@PathVariable String customerID, @PathVariable int gameID) {
 
         // Check if the customer exists and is a valid customer
-        if (!accountService.hasPermission(customerID, 2)) {
+        if (!accountService.hasPermission(customerID, 1)) {
             // throw permission denied exception
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only customers can access their wishlists");
         }
@@ -87,10 +88,12 @@ public class WishListController {
         // Get the game associated with the gameID
         Game game = browsingService.getGameById(gameID);
 
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
+
         // Create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto;
     }
@@ -100,7 +103,7 @@ public class WishListController {
     public GameResponseDto removeGameFromWishlist(@PathVariable String customerID, @PathVariable int gameID) {
 
         // Check if the customer exists and is a valid customer
-        if (!accountService.hasPermission(customerID, 2)) {
+        if (!accountService.hasPermission(customerID, 1)) {
             // throw permission denied exception
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only customers can access their wishlists");
         }
@@ -111,10 +114,12 @@ public class WishListController {
         // Get the game associated with the gameID
         Game game = browsingService.getGameById(gameID);
 
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
+
         // Create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto;
     }
@@ -124,7 +129,7 @@ public class WishListController {
     public GameListResponseDto clearWishlist(@PathVariable String customerID) {
 
         // Check if the customer exists and is a valid customer
-        if (!accountService.hasPermission(customerID, 2)) {
+        if (!accountService.hasPermission(customerID, 1)) {
             // throw permission denied exception
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only customers can access their wishlists");
         }
@@ -132,26 +137,8 @@ public class WishListController {
         // Use the browsing service to clear the wishlist
         browsingService.clearWishlist(customerID);
 
-        // Get the wishlist items for the customer
-        List<WishlistItem> WishlistItems = browsingService.getCustomerWishlistByUsername(customerID);
-
+       // return an empty list
         List<GameResponseDto> games = new ArrayList<>();
-
-        // for each wishlist item, get the game associated with it and create a
-        // GameResponseDto and add it to the list
-        for (WishlistItem item : WishlistItems) {
-            // get the game associated with the wishlist item
-            Game game = item.getKey().getGame();
-
-            // create a GameResponseDto
-            GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
-                    game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
-
-            // add the GameResponseDto to the list
-            games.add(gameResponseDto);
-
-        }
 
         return new GameListResponseDto(games);
 
