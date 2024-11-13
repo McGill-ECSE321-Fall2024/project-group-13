@@ -62,7 +62,7 @@ public class WishListController {
             // create a GameResponseDto
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getName(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -90,7 +90,7 @@ public class WishListController {
         // Create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getName(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
 
         return gameResponseDto;
     }
@@ -114,7 +114,7 @@ public class WishListController {
         // Create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getName(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
 
         return gameResponseDto;
     }
@@ -146,7 +146,7 @@ public class WishListController {
             // create a GameResponseDto
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getName(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);

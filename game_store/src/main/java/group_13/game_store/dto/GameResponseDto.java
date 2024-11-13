@@ -14,14 +14,14 @@ public class GameResponseDto {
     private double price;
     private String parentalRating;
     private VisibilityStatus status;
-    private String categoryName;
+    private int categoryId;
     private String promotionName;
 
     public GameResponseDto() {
     }
 
     public GameResponseDto(int gameID, String title, String description, String img, int stock, double price,
-            String parentalRating, String status, String categoryName, String promotionName) {
+            String parentalRating, String status, int categoryId, String promotionName) {
         this.gameID = gameID;
         this.title = title;
         this.description = description;
@@ -29,7 +29,7 @@ public class GameResponseDto {
         this.stock = stock;
         this.price = price;
         this.parentalRating = parentalRating;
-        this.categoryName = categoryName;
+        this.categoryId = categoryId;
         this.promotionName = promotionName;
 
         if (status.equals("Visible")) {
@@ -78,8 +78,9 @@ public class GameResponseDto {
         return status.toString();
     }
 
-    public String getCategoryName() {
-        return categoryName;
+   
+    public int getCategoryId() {
+        return categoryId;
     }
 
     public String getPromotionName() {
@@ -101,13 +102,13 @@ public class GameResponseDto {
                 img.equals(that.img) &&
                 parentalRating.equals(that.parentalRating) &&
                 status == that.status &&
-                categoryName.equals(that.categoryName) &&
+                categoryId == that.categoryId &&
                 Objects.equals(promotionName, that.promotionName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gameID, title, description, img, stock, price, parentalRating, status, categoryName,
+        return Objects.hash(gameID, title, description, img, stock, price, parentalRating, status, categoryId,
                 promotionName);
     }
 }

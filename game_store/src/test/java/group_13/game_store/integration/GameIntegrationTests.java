@@ -29,6 +29,7 @@ import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.dto.GameListResponseDto;
+import group_13.game_store.dto.GameRequestDto;
 import group_13.game_store.dto.GameResponseDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
@@ -61,6 +62,8 @@ public class GameIntegrationTests {
     private GameResponseDto expectedGame6;
     private GameResponseDto expectedGame7;
 
+    private GameCategory gameCategory1;
+
     @BeforeAll
     public void setup() {
 
@@ -73,7 +76,7 @@ public class GameIntegrationTests {
         // ***** Game Categories *****
 
         // Game Category 1: Visible
-        GameCategory gameCategory1 = new GameCategory("Description 1", GameCategory.VisibilityStatus.Visible,
+        gameCategory1 = new GameCategory("Description 1", GameCategory.VisibilityStatus.Visible,
                 "GameCategory1");
         gameCategoryRepo.save(gameCategory1);
 
@@ -129,7 +132,7 @@ public class GameIntegrationTests {
                 game1.getPrice(),
                 game1.getParentalRating(),
                 game1.getStatus().toString(),
-                game1.getCategory().getName(),
+                game1.getCategory().getCategoryID(),
                 null);
 
         expectedGame2 = new GameResponseDto(
@@ -141,7 +144,7 @@ public class GameIntegrationTests {
                 game2.getPrice(),
                 game2.getParentalRating(),
                 game2.getStatus().toString(),
-                game2.getCategory().getName(),
+                game2.getCategory().getCategoryID(),
                 null);
 
         expectedGame3 = new GameResponseDto(
@@ -153,7 +156,7 @@ public class GameIntegrationTests {
                 game3.getPrice(),
                 game3.getParentalRating(),
                 game3.getStatus().toString(),
-                game3.getCategory().getName(),
+                game3.getCategory().getCategoryID(),
                 null);
 
         expectedGame4 = new GameResponseDto(
@@ -165,7 +168,7 @@ public class GameIntegrationTests {
                 game4.getPrice(),
                 game4.getParentalRating(),
                 game4.getStatus().toString(),
-                game4.getCategory().getName(),
+                game4.getCategory().getCategoryID(),
                 null);
 
         expectedGame5 = new GameResponseDto(
@@ -177,7 +180,7 @@ public class GameIntegrationTests {
                 game5.getPrice(),
                 game5.getParentalRating(),
                 game5.getStatus().toString(),
-                game5.getCategory().getName(),
+                game5.getCategory().getCategoryID(),
                 null);
 
         expectedGame6 = new GameResponseDto(
@@ -189,7 +192,7 @@ public class GameIntegrationTests {
                 game6.getPrice(),
                 game6.getParentalRating(),
                 game6.getStatus().toString(),
-                game6.getCategory().getName(),
+                game6.getCategory().getCategoryID(),
                 null);
 
         expectedGame7 = new GameResponseDto(
@@ -201,7 +204,7 @@ public class GameIntegrationTests {
                 game7.getPrice(),
                 game7.getParentalRating(),
                 game7.getStatus().toString(),
-                game7.getCategory().getName(),
+                game7.getCategory().getCategoryID(),
                 null);
 
         // ***** Users *****
@@ -506,5 +509,71 @@ public class GameIntegrationTests {
         // Assert equality
         assertEquals(expectedGame2, actualGame);
     }
+
+    @Order(12)
+        public void testGetGameByIdGameNotFound() {
+                // Arrange
+                long gameID = 1000;
+                String url = String.format("/games/%d?loggedInUsername=Employee1Username", gameID);
+                System.out.println(String.format("URL: %s", url));
+        
+                // Act
+                ResponseEntity<String> response = client.getForEntity(url, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(404, json.getInt("status"));
+                assertEquals("Not Found", json.getString("error"));
+                assertEquals("Game not found", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+
+        }
+
+                // **** POST /games Tests ****
+
+        @Test
+        @Order(13) 
+        public void testAddGameAsAnOwner() {
+                // Arrange
+                String url = "/games?loggedInUsername=owner";
+                GameRequestDto gameToAdd = new GameRequestDto(
+                        "Game 8",
+                        "Description 8",
+                        "Image 8",
+                        10,
+                        9.99,
+                        "18+",
+                        "Visible",
+                        gameCategory1.getCategoryID()
+                        
+                );
+
+                // Act
+                ResponseEntity<GameResponseDto> response = client.postForEntity(url, gameToAdd, GameResponseDto.class);
+
+                // Assert
+                assertNotNull(response);
+                assertEquals(HttpStatus.OK, response.getStatusCode());
+                assertNotNull(response.getBody());
+                GameResponseDto actualGame = response.getBody();
+
+                // Assert equality
+                assertEquals(gameToAdd.getTitle(), actualGame.getTitle());
+                assertEquals(gameToAdd.getDescription(), actualGame.getDescription());
+                assertEquals(gameToAdd.getImg(), actualGame.getImg());
+                assertEquals(gameToAdd.getStock(), actualGame.getStock());
+                assertEquals(gameToAdd.getPrice(), actualGame.getPrice());
+                assertEquals(gameToAdd.getParentalRating(), actualGame.getParentalRating());
+                assertEquals(gameToAdd.getStatus(), actualGame.getStatus());
+                assertEquals(gameToAdd.getCategoryId(), actualGame.getCategoryId());
+
+        }
+
+
+
 
 }

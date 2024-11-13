@@ -88,7 +88,7 @@ public class GameController {
                     game.getPrice(),
                     game.getParentalRating(),
                     game.getStatus().toString(),
-                    game.getCategory().getName(),
+                    game.getCategory().getCategoryID(),
                     game.getPromotion() != null ? game.getPromotion().getTitle() : null);
             gameResponseDtos.add(gameResponseDto);
         }
@@ -123,7 +123,7 @@ public class GameController {
                 foundGame.getPrice(),
                 foundGame.getParentalRating(),
                 foundGame.getStatus().toString(),
-                foundGame.getCategory().getName(),
+                foundGame.getCategory().getCategoryID(),
                 foundGame.getPromotion() != null ? foundGame.getPromotion().getTitle() : null);
 
         return gameResponseDto;
@@ -140,6 +140,7 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to add games.");
         }
 
+
         Game createdGame = gameStoreManagementService.addGame(
                 gameRequestDto.getTitle(),
                 gameRequestDto.getDescription(),
@@ -147,8 +148,10 @@ public class GameController {
                 gameRequestDto.getStock(),
                 gameRequestDto.getPrice(),
                 gameRequestDto.getParentalRating(),
-                gameRequestDto.getStatus(),
+                stringToStatus(gameRequestDto.getStatus()),
                 gameRequestDto.getCategoryId());
+
+        // Create the game in the database
 
         GameResponseDto gameResponseDto = new GameResponseDto(
                 createdGame.getGameID(),
@@ -159,7 +162,7 @@ public class GameController {
                 createdGame.getPrice(),
                 createdGame.getParentalRating(),
                 createdGame.getStatus().toString(),
-                createdGame.getCategory().getName(),
+                createdGame.getCategory().getCategoryID(),
                 createdGame.getPromotion() != null ? createdGame.getPromotion().getTitle() : null);
 
         return gameResponseDto;
@@ -185,7 +188,7 @@ public class GameController {
                 gameRequestDto.getStock(),
                 gameRequestDto.getPrice(),
                 gameRequestDto.getParentalRating(),
-                gameRequestDto.getStatus(),
+                stringToStatus(gameRequestDto.getStatus()),
                 gameRequestDto.getCategoryId());
 
         GameResponseDto gameResponseDto = new GameResponseDto(
@@ -197,7 +200,7 @@ public class GameController {
                 updatedGame.getPrice(),
                 updatedGame.getParentalRating(),
                 updatedGame.getStatus().toString(),
-                updatedGame.getCategory().getName(),
+                updatedGame.getCategory().getCategoryID(),
                 updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null);
 
         return gameResponseDto;
@@ -256,11 +259,24 @@ public class GameController {
                     game.getPrice(),
                     game.getParentalRating(),
                     game.getStatus().toString(),
-                    game.getCategory().getName(),
+                    game.getCategory().getCategoryID(),
                     game.getPromotion() != null ? game.getPromotion().getTitle() : null);
             gameResponseDtos.add(gameDto);
         }
 
         return new GameListResponseDto(gameResponseDtos);
+    }
+
+    private static Game.VisibilityStatus stringToStatus(String status) {
+        if (status.equals("Visible")) {
+            return Game.VisibilityStatus.Visible;
+        } else if (status.equals("Archived")) {
+            return Game.VisibilityStatus.Archived;
+        } else if (status.equals("PendingVisible")) {
+            return Game.VisibilityStatus.PendingVisible;
+        } else {
+            // default status if not one of the above
+            return Game.VisibilityStatus.Archived;
+        }
     }
 }
