@@ -217,10 +217,7 @@ public class ReviewService {
     // it
     @Transactional
     public Reply replyToReview(int reviewID, String replyerId, String reply) {
-        final String ANSI_RESET = "\u001B[0m";
-        final String ANSI_YELLOW = "\u001B[33m";
-
-        System.out.println(ANSI_YELLOW + "This text is yellow!" + ANSI_RESET);
+        
 
         // Look for the user based on the replyerId
         Owner replyerOwner = ownerRepo.findByUsername(replyerId);

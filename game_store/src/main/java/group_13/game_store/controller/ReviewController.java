@@ -170,7 +170,7 @@ public class ReviewController {
     /*
      * /games/{id}/reviews/{reviewID}/reply [GET, POST]
      */
-    @GetMapping("/games//reviews/{reviewID}/reply")
+    @GetMapping("/games//reviews/{reviewID}/replies")
     public ReplyResponseDto getReplyToReview(@PathVariable int reviewID) {
         // Reply to a review by its unique ID and return the review as a response object
 
@@ -179,7 +179,7 @@ public class ReviewController {
         return new ReplyResponseDto(reply);
     }
 
-    @PostMapping("/games/reviews/{reviewID}/reply")
+    @PostMapping("/games/reviews/{reviewID}/replies")
     public ReplyResponseDto replyToReview(@PathVariable int reviewID, @RequestParam String loggedInUsername,
             @RequestBody ReplyRequestDto request) {
 
