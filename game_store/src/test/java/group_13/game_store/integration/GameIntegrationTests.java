@@ -5,6 +5,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -13,8 +15,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.AfterAll;
 
@@ -255,6 +259,31 @@ public class GameIntegrationTests {
 
     @Test
     @Order(2)
+    public void testGetGamesAsGuest() {
+        // Arrange
+        String url = "/games?loggedInUsername=Customer1Username";
+        System.out.println(String.format("URL: %s", url));
+
+        // Act
+        ResponseEntity<GameListResponseDto> response = client.getForEntity(url, GameListResponseDto.class);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        List<GameResponseDto> actualGames = response.getBody().getGames();
+        assertNotNull(actualGames);
+        assertEquals(3, actualGames.size());
+
+        // Expected games
+        List<GameResponseDto> expectedGames = Arrays.asList(expectedGame1, expectedGame5, expectedGame7);
+
+        // Assert equality
+        assertTrue(actualGames.containsAll(expectedGames));
+    }
+
+    @Test
+    @Order(3)
     public void testGetAllGamesAsEmployee() {
         // Arrange
         String url = "/games?loggedInUsername=Employee1Username";
@@ -281,7 +310,7 @@ public class GameIntegrationTests {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testGetAllGamesAsOwner() {
         // Arrange
         String url = "/games?loggedInUsername=owner";
@@ -308,8 +337,8 @@ public class GameIntegrationTests {
     }
 
     @Test
-    @Order(4)
-    public void testGetAllGamesStartingWithGameAsCustomer() {
+    @Order(5)
+    public void testGetAllGamesStartingWithGameAsCustomerOrGuest() {
         // Arrange
         String url = "/games?loggedInUsername=Customer1Username&title=Game";
         System.out.println(String.format("URL: %s", url));
@@ -333,7 +362,7 @@ public class GameIntegrationTests {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testGetAllGamesStartingWithGameAsEmployeeOrOwner() {
         // Arrange
         String url = "/games?loggedInUsername=Employee1Username&title=Game";
@@ -360,8 +389,8 @@ public class GameIntegrationTests {
     }
 
     @Test
-    @Order(6)
-    public void testGetAllGamesWithCategoryAsCustomer() {
+    @Order(7)
+    public void testGetAllGamesWithCategoryAsCustomerOrGuest() {
         // Arrange
         String url = "/games?loggedInUsername=Customer1Username&category=GameCategory2";
         System.out.println(String.format("URL: %s", url));
@@ -385,7 +414,7 @@ public class GameIntegrationTests {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void testGetAllGamesWithCategoryAsEmployeeOrOwner() {
         // Arrange
         String url = "/games?loggedInUsername=Employee1Username&category=GameCategory1";
@@ -411,10 +440,34 @@ public class GameIntegrationTests {
         assertTrue(actualGames.containsAll(expectedGames));
     }
 
+        @Test
+        @Order(9)
+        public void testGetAllGamesNoGamesFoundException() {
+                // Arrange
+                String url = "/games?loggedInUsername=Employee1Username&category=GameCategory3";
+                System.out.println(String.format("URL: %s", url));
+
+                // Act
+                ResponseEntity<String> response = client.getForEntity(url, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+            org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+            assertEquals(404, json.getInt("status"));
+            assertEquals("Not Found", json.getString("error"));
+            assertEquals("No games found in this category", json.getString("message"));
+        } catch (org.json.JSONException e) {
+            fail("Response body is not a valid JSON");
+        }
+
+        }
+
+
         // **** GET /games{gameID} Tests ****
     @Test
-    @Order(8)
-    public void testGetGameByIdAsCustomer() {
+    @Order(10)
+    public void testGetGameByIdAsCustomerOrGuest() {
         // Arrange
         long game1Id = expectedGame1.getGameID();
         String url = String.format("/games/%d?loggedInUsername=Customer1Username", game1Id);
@@ -434,7 +487,7 @@ public class GameIntegrationTests {
     }
 
     @Test
-    @Order(9)
+    @Order(11)
     public void testGetGameByIdAsEmployeeOrOwner() {
         // Arrange
         long game2Id = expectedGame2.getGameID();
