@@ -3,6 +3,7 @@ package group_13.game_store.integration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -30,6 +31,8 @@ import group_13.game_store.model.Promotion;
 import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.repository.ReviewRepository;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 
@@ -46,6 +49,30 @@ public class PromotionIntegrationTests {
     @AfterAll
     public void clearDatabase() {
         promotionRepository.deleteAll();
+    }
+
+    private int promotion1ID;
+    private int promotion2ID;
+    private int promotion3ID;
+    private int promotion4ID;
+
+    @BeforeEach
+    public void setup() {
+        Promotion promotion1 = new Promotion(20, Date.valueOf(LocalDate.of(2024, 6, 14)), Date.valueOf(LocalDate.of(2024, 9, 14)), "Summer Sale", "This is a sale for the whole summer woohoo.");
+        Promotion promotion2 = new Promotion(30, Date.valueOf(LocalDate.of(2024, 9, 14)), Date.valueOf(LocalDate.of(2024, 12, 14)), "Fall Sale", "This is a sale for the whole fall woohoo.");
+        Promotion promotion3 = new Promotion(40, Date.valueOf(LocalDate.of(2024, 12, 14)), Date.valueOf(LocalDate.of(2025, 3, 14)), "Winter Sale", "This is a sale for the whole winter woohoo.");
+        Promotion promotion4 = new Promotion(50, Date.valueOf(LocalDate.of(2025, 3, 14)), Date.valueOf(LocalDate.of(2025, 6, 14)), "Spring Sale", "This is a sale for the whole spring woohoo.");
+
+        promotion1 = promotionRepository.save(promotion1);
+        promotion2 = promotionRepository.save(promotion2);
+        promotion3 = promotionRepository.save(promotion3);
+        promotion4 = promotionRepository.save(promotion4);
+
+
+        promotion1ID = promotion1.getPromotionID();
+        promotion2ID = promotion2.getPromotionID();
+        promotion3ID = promotion3.getPromotionID();
+        promotion4ID = promotion4.getPromotionID();
     }
 
     @Test
@@ -286,5 +313,48 @@ public class PromotionIntegrationTests {
         // Check if the promotion was not saved in the database
         assertEquals(previousPromotionCount, promotionRepository.count());
     }
+
+    // @Test
+    // @Order(8)
+    // public void  testUpdatePromotion_Success() {
+    //     String loggedInUsername = "owner";
+        
+    //     int percentage = 50;
+    //     String description = "Fall sale extra!";
+    //     Date startDate = Date.valueOf(LocalDate.of(2024, 10, 14));
+    //     Date endDate = Date.valueOf(LocalDate.of(2025, 2, 14)); //Make it a valid promotion
+    //     String title = "Fall Sale plus 40 percent";
+
+    //     // Update a review
+    //     PromotionRequestDto promotionRequest = new PromotionRequestDto(percentage, description, startDate, endDate, title);
+    //     HttpEntity<PromotionRequestDto> requestEntity = new HttpEntity<>(promotionRequest);
+
+
+    //     ResponseEntity<PromotionResponseDto> response = client.exchange(
+    //         "/games/promotions" + promotion1ID + "?loggedInUsername=" + loggedInUsername,
+    //         HttpMethod.PUT,
+    //         requestEntity,
+    //         PromotionResponseDto.class
+    //     );
+
+    //     // Assert
+    //     assertNotNull(response);
+    //     assertEquals(HttpStatus.OK, response.getStatusCode());
+    //     assertNotNull(response.getBody());
+
+    //     // Check if the response matches the request
+    //     PromotionResponseDto promotionResponse = response.getBody();
+    //     assertEquals(percentage, promotionResponse.getPercentage());
+    //     assertEquals(description, promotionResponse.getDescription());
+    //     assertEquals(title, promotionResponse.getTitle());
+        
+    //     // Check if the promotion was properly saved in the database
+    //     Promotion savedPromotion = promotionRepository.findById(promotion1ID).get();
+    //     assertNotNull(savedPromotion);
+    //     assertEquals(percentage, savedPromotion.getPercentage());
+    //     assertEquals(description, savedPromotion.getDescription());
+    //     assertEquals(title, savedPromotion.getTitle());
+    // }
+
     
 }
