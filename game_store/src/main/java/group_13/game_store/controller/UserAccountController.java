@@ -66,7 +66,7 @@ public class UserAccountController {
         String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
 
         // validate that user is either employee or owner
-        if (accountService.hasPermission(checkLoggedInUser, 2)) {
+        if (accountService.hasPermissionAtLeast(checkLoggedInUser, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee to view all customers");
         }
 

@@ -7,6 +7,11 @@ import group_13.game_store.dto.OrderResponseDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +51,8 @@ public class UserAccountIntegrationTests {
 	private EmployeeRepository employeeRepository;
 
 	private Customer customer1;
+	private Customer customer2;
+	//private Customer customer3;
 	private Employee employee1;
 
 	private String validName = "Bob";
@@ -56,11 +63,15 @@ public class UserAccountIntegrationTests {
 
 	@BeforeEach
     public void setup() {
-		customer1 = new Customer("RealName", "FakeUsername", "name@outlook.com", "555-553-444" ,"Passw0rd123");
+		customer1 = new Customer("RealNameOne", "FakeUsername1", "name1@outlook.com", "555-553-111" ,"Passw0rd1");
+		customer2 = new Customer("RealNameTwo", "FakeUsername2", "name2@outlook.com", "555-553-222" ,"Passw0rd2");
+		//customer3 = new Customer("RealNameThree", "FakeUsername3", "name3@outlook.com", "555-553-333" ,"Passw0rd3");
 		employee1 = new Employee("EmployeeName", "EmployeeUsername", "employeename@outlook.com", "444-553-444" ,"Passw0rd1234567890", true);
 		
 		// create some orders too
 		customerRepository.save(customer1);
+		customerRepository.save(customer2);
+		//customerRepository.save(customer3);
 		employeeRepository.save(employee1);
 	}
 
@@ -76,7 +87,7 @@ public class UserAccountIntegrationTests {
 		UserAccountRequestDto testedCreatedAcount = new UserAccountRequestDto(validUsername, validName, validEmail, validPhoneNumber, validPassword);
 
 		// act
-		// WHAT TO DO ABOUT RREQUEST PARAM IF NOT LOGGED IN
+		// WHAT TO DO ABOUT RREQUEST PARAM IF NOT LOGGED IN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		ResponseEntity<CustomerResponseDto> response = client.postForEntity("/customers?loggedInUsername=guest", testedCreatedAcount, CustomerResponseDto.class);
 
 		// assert
@@ -87,39 +98,48 @@ public class UserAccountIntegrationTests {
 		assertEquals(validEmail, response.getBody().getEmail());
 		assertEquals(validPhoneNumber, response.getBody().getPhoneNumber());
 		assertEquals(1, response.getBody().getPermissionLevel());
-		// assertNull(response.g) <- wanna check that logged in username is null or non existent
-
-		// should I include creation date?
+		//assertEquals("guest", response);
+		assertEquals(LocalDate.now(), response.getBody().getCreationDate());
     }
 
 	// expect an exception
     @Test
 	@Order(2)
-	public void testCreateValidCustomerAccountWhenNotAGuest() {
+	public void testCreateValidCustomerAccountWhenNotAGuestException() {
 		// arrange
 		UserAccountRequestDto testedCreatedAcount = new UserAccountRequestDto(validUsername, validName, validEmail, validPhoneNumber, validPassword);
 
+
 		// act
 		// WHAT TO DO ABOUT RREQUEST PARAM IF NOT LOGGED IN
-		ResponseEntity<CustomerResponseDto> response = client.postForEntity("/customers?loggedInUsername=FakeUsername", testedCreatedAcount, CustomerResponseDto.class);
+		ResponseEntity<String> response = client.postForEntity("/customers?loggedInUsername=FakeUsername", testedCreatedAcount, String.class);
 
 		// assert
-		assertNotNull(response);
-		assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-		
-		// these would not be checked because response would be denied since logged in account is trying to create an account
-		assertEquals(validName, response.getBody().getName());
-		assertEquals(validUsername, response.getBody().getUsername());
-		assertEquals(validEmail, response.getBody().getEmail());
-		assertEquals(validPhoneNumber, response.getBody().getPhoneNumber());
-		assertEquals(1, response.getBody().getPermissionLevel());
-		// assertNull(response.g) <- wanna check that logged in username is null or non existent
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be logged out to create a customer account", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
     }
 
 	@Test
 	@Order(3)
-	public void testFindAllCustomersAsEmployee(){
+	public void testFindAllCustomersAsEmployee() {
+		// Arrange
+		System.out.println("URL: /customers?loggedInUsername=EmployeeUsername");
 
+		// act
+		ResponseEntity<CustomerListDto> response = client.getForEntity("/customers?loggedInUsername=EmployeeUsername", CustomerListDto.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(2, response.getBody().customers().size());
+		//assertEquals();
+		
 	}
 
 	@Test
