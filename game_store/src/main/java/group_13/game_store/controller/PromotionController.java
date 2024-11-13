@@ -1,6 +1,7 @@
 package group_13.game_store.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.dto.PromotionListResponseDto;
 import group_13.game_store.dto.PromotionRequestDto;
@@ -39,7 +41,7 @@ public class PromotionController {
     public PromotionListResponseDto getPromotions(@RequestParam String loggedInUsername) {
         // Check if the user has permission to see all promotions
         if (!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to see all promotions.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"User does not have permission to view promotions.");
         }
 
         // Return a list of all promotions via the PromotionListResponseDto
@@ -52,7 +54,7 @@ public class PromotionController {
 
         // Check if the user has permission to create a promotion
         if (!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to create promotions.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to create promotions.");
         }
 
         // Create a promotion with the information from the request
@@ -90,7 +92,7 @@ public class PromotionController {
             @RequestBody PromotionRequestDto request) {
         // Check if the user has permission to add a promotion to a game
         if (!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to add promotions to a game.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to add promotions to a game.");
         }
 
         // Add a promotion to a game by its unique ID
@@ -123,7 +125,7 @@ public class PromotionController {
 
         // Check if the user has permission to update promotions 
         if (!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to add promotions to a game.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to update promotions.");
         }
 
         // Update a promotion by its unique ID if it does not exist we get an error
@@ -144,7 +146,7 @@ public class PromotionController {
     ){
         // Check if the user has permission to delete promotions 
         if (!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to delete promotions.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to delete promotions.");
         }
 
         //Delete a promotion by its unique ID

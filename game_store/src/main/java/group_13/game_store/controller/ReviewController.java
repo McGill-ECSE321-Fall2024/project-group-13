@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.service.annotation.DeleteExchange;
 
 import group_13.game_store.dto.ReplyRequestDto;
@@ -48,7 +51,7 @@ public class ReviewController {
     public ReviewListResponseDto getReviews(@RequestParam boolean isPendingReply,
     @RequestParam String loggedInUsername) {
         if(!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to see all reviews.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to view reviews.");
         }
 
         if (!isPendingReply) {
@@ -92,7 +95,7 @@ public class ReviewController {
             @RequestBody ReviewRequestDto request) {
         // Check if the user has permission to create a review
         if (!accountService.hasPermission(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User does not have permission to create/update reviews.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to create/update reviews.");
         }
 
         // Create a base review with the information from the request. It takes in the
@@ -125,7 +128,7 @@ public class ReviewController {
             @RequestBody ReviewRequestDto request) {
         // Check if the user has permission to update a review
         if (!accountService.hasPermission(loggedInUsername, 1)) {
-            throw new IllegalArgumentException("User does not have permission to create/update reviews.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to create/update reviews.");
         }
 
         Review updatedReview = reviewService.updateReview(reviewID, request.getDescription(), request.getScore(), loggedInUsername);
@@ -142,7 +145,7 @@ public class ReviewController {
         ) {
         // Check if the user has permission to like a review
         if (!accountService.hasPermission(loggedInUsername, 2)) {
-            throw new IllegalArgumentException("User does not have permission to like a review.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to like a review.");
         }
 
         reviewService.addLike(reviewID, loggedInUsername);
@@ -155,7 +158,7 @@ public class ReviewController {
             @RequestParam String loggedInUsername) {
         // Check if the user has permission to like a review
         if (!accountService.hasPermission(loggedInUsername, 2)) {
-            throw new IllegalArgumentException("User does not have permission to like a review.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to like a review.");
         }
 
         reviewService.removeLike(reviewID, loggedInUsername);  
@@ -182,7 +185,7 @@ public class ReviewController {
 
         // Check if the user has permission to reply to reviews
         if (!accountService.hasPermission(loggedInUsername, 3)) {
-            throw new IllegalArgumentException("User does not have permission to reply to a reviews.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to reply to reviews.");
         }
 
         // Reply to a review by its unique ID and return the review as a response

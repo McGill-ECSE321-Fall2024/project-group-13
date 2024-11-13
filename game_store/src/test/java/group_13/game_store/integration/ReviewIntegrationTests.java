@@ -170,7 +170,7 @@ public class ReviewIntegrationTests {
 
     @Test
     @org.junit.jupiter.api.Order(1)
-    public void testCreateReview() {
+    public void testCreateReview_Success() {
         int gameId1 = game1.getGameID();
 
         // Create a review
@@ -195,7 +195,7 @@ public class ReviewIntegrationTests {
 
     @Test
     @org.junit.jupiter.api.Order(2)
-    public void testGetReviewByID() {
+    public void testGetReviewByID_Success() {
         // Get a review by its ID
         ResponseEntity<ReviewResponseDto> response = client.getForEntity("/games/reviews/" + review1ID, ReviewResponseDto.class);
         
@@ -217,7 +217,7 @@ public class ReviewIntegrationTests {
 
     @Test
     @org.junit.jupiter.api.Order(3)
-    public void testGetReviewsByGame() {
+    public void testGetReviewsByGame_Success() {
         Integer savedGameId = game2.getGameID();
 
         // Now perform the GET request to get all reviews
@@ -248,6 +248,29 @@ public class ReviewIntegrationTests {
         assertEquals(1, review2.getScore(), "Review score should be 1");
         assertEquals("jane_doe", review2.getReviewerUsername(), "Reviewer username should be 'tim_roma'");
     }
+
+    @Test 
+    @org.junit.jupiter.api.Order(4)
+    public void testUpdateReview_Success() {
+        // Update a review
+        ReviewRequestDto reviewRequestDto = new ReviewRequestDto("Great game! I love it!", 4);
+
+        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+            "/games/reviews/" + review1ID + "?loggedInUsername=john_doe",
+            reviewRequestDto,
+            ReviewResponseDto.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Great game! I love it!", response.getBody().getDescription());
+        assertEquals(4, response.getBody().getScore());
+        assertEquals("john_doe", response.getBody().getReviewerUsername());
+        assertNotNull(response.getBody().getDate());
+        assertEquals(LocalDate.now(), response.getBody().getDate());
+    } 
 
     // @Test
     // @org.junit.jupiter.api.Order(4)
