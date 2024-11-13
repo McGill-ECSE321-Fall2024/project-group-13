@@ -10,6 +10,28 @@ The second deliverable focuses on implementing backend services using Java Sprin
 
 Report available [here](https://github.com/McGill-ECSE321-Fall2024/project-group-13/wiki/Game-Store-App-Wiki)
 
+### Deployment Instructions
+
+To run the application:
+
+1. Navigate to the `game_store` directory in your terminal.
+2. Execute the following command to start the application:
+   ```bash
+   ./gradlew bootRun
+   ```
+
+The application will be deployed locally and accessible at:
+
+- **URL:** [http://localhost:8080](http://localhost:8080)
+
+For API documentation and endpoints, visit:
+
+- **Swagger UI:** [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
+
+Ensure that all dependencies are installed and the `PostgreSQL` database is configured correctly before starting the application.
+
+
+
 ---
 
 ## Team Members
