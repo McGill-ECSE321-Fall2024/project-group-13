@@ -235,8 +235,7 @@ public class GameStoreManagementService {
         }
 
         Promotion promotion = new Promotion(percentage, startDate, endDate, title, description);
-        promotionRepository.save(promotion);
-        return promotion;
+        return promotionRepository.save(promotion);
     }
 
     // Update an existing promotion

@@ -9,6 +9,10 @@ public class PromotionRequestDto {
     private Date endDate;
     private String title;
 
+    // Default constructor
+    public PromotionRequestDto() {
+    }
+
     public PromotionRequestDto(int percentage, String description, Date startDate, Date endDate, String title) {
         this.percentage = percentage;
         this.description = description;
