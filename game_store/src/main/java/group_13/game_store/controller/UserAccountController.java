@@ -1,5 +1,7 @@
 package group_13.game_store.controller;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,10 +167,12 @@ public class UserAccountController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to return their order");
         }
 
-        Order returnedOrder = orderManagementService.returnOrder(orderId, gameId);
-        if (returnedOrder == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " from " + username +  "for game " + gameId + "has not been made.");
-        }
+        // need to include date input to make tge service method returnOrder testable
+        Date dateToReturn = Date.valueOf(LocalDate.now());
+        Order returnedOrder = orderManagementService.returnOrder(orderId, gameId, dateToReturn);
+        //if (returnedOrder == null) {
+          //  throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " from " + username +  "for game " + gameId + "has not been made.");
+        //}
 
         return new OrderResponseDto(returnedOrder);
     }

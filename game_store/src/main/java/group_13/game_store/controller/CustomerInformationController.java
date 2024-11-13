@@ -62,6 +62,8 @@ public class CustomerInformationController {
         return paymentInfoResponse;
     }
 
+    // Post method for logging into an account
+
     // Put method for a customer's delivery information
     @PutMapping("/customers/{loggedInUsername}/paymentInfo/{paymentInfoId}")
     public PaymentInformationResponseDto editPaymentInfo(@RequestBody PaymentInformationRequestDto paymentInfoRequestDto, @PathVariable String loggedInUsername, @PathVariable int paymentInfoId) {

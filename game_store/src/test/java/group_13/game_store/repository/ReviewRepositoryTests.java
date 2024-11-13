@@ -2,10 +2,8 @@ package group_13.game_store.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -17,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
-import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
 
 @SpringBootTest

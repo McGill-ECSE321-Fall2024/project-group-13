@@ -82,6 +82,10 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found.");
         }
 
+        if (aScore <= 1 || aScore > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score must be between 1 and 5.");
+        }
+
         // Get the list of games associated to the customer
         List<Game> games = gameRepository.findGamesByCustomer(aReviewer);
 
@@ -124,8 +128,11 @@ public class ReviewService {
         if (aScore == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score cannot be zero.");
         }
-        if (reviewID <= 0 || aScore <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID and score must be greater than 0.");
+        if (reviewID <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID must be greater than 0.");
+        }
+        if (aScore <= 1 || aScore > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score must be between 1 and 5.");
         }
 
         Review review = reviewRepository.findByReviewID(reviewID);
@@ -226,11 +233,6 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
         }
 
-        // Create a reply with the inputed parameters and the current date
-        Date today = Date.valueOf(LocalDate.now());
-        Reply replyToReview = new Reply(reply, today);
-        replyRepo.save(replyToReview);
-
         // Find the review based on the reviewID
         Review review = reviewRepository.findByReviewID(reviewID);
 
@@ -243,6 +245,11 @@ public class ReviewService {
         if (review.hasReply()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Review already has a reply.");
         }
+
+        // Create a reply with the inputed parameters and the current date
+        Date today = Date.valueOf(LocalDate.now());
+        Reply replyToReview = new Reply(reply, today);
+        replyRepo.save(replyToReview);
 
         // Set the reply to the review and save it
         review.setReply(replyToReview);
@@ -266,13 +273,17 @@ public class ReviewService {
 
         // If scores could not be found return -1 to indicate an error
         if (reviews == null) {
-            return -1;
+            return 0;
         }
 
         // Calculate the total sum of scores by iterating through the scores list
         Integer sum = 0;
         for (Review review : reviews) {
             sum += review.getScore();
+        }
+
+        if(reviews.size() == 0){
+            return 0;
         }
 
         // Return the average score

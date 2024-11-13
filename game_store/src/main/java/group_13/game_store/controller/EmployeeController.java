@@ -53,22 +53,32 @@ public class EmployeeController {
     }
 
 
-    @PutMapping("/employees")
-    public EmployeeResponseDto createEmployee(@RequestBody UserAccountRequestDto userAccountRequestDto, @RequestParam String loggedInUsername)
+    @PutMapping("/employees/{username}")
+    public EmployeeResponseDto createEmployee(@RequestBody UserAccountRequestDto userAccountRequestDto, @PathVariable String username, @RequestParam String loggedInUsername, @RequestParam boolean isUpdate)
     {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
 
         // If the user is not the owner, throw a permission denied exception
         if (!isOwner) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view employees.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to update employees.");
         }
 
-        gameStoreService.addEmployee(userAccountRequestDto.getName(), userAccountRequestDto.getUsername(), 
+        if (isUpdate)
+        {
+            gameStoreService.updateEmployee(userAccountRequestDto.getName(), username,
+                                            userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(),
+                                            userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
+        }
+
+        else
+        {
+            gameStoreService.addEmployee(userAccountRequestDto.getName(), username, 
                                     userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(), 
                                     userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
+        }
         
-        Employee employee = gameStoreService.getEmployeeByUsername(userAccountRequestDto.getUsername());
+        Employee employee = gameStoreService.getEmployeeByUsername(username);
 
         EmployeeResponseDto employeeResponseDto = new EmployeeResponseDto(employee);
 

@@ -7,9 +7,8 @@ import java.sql.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.server.ResponseStatusException;
 
-import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.PaymentInformation;
@@ -35,26 +34,40 @@ public class AccountService {
     @Autowired
     private AddressRepository addressRepo;
 
-
+    // Method to get a UserAccount by their username
     public UserAccount findUserByUsername(String username) {
 		UserAccount anAccount = userAccountRepo.findByUsername(username);
 		if (anAccount == null) {
-			throw new IllegalArgumentException("No user with username with " + username + " exists.");
+			// Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
 		}
 		return anAccount;
 	}
 
+    // Method to get a customer by their username
     public Customer findCustomerByUsername(String username) {
 		Customer anAccount = customerRepo.findByUsername(username);
 		if (anAccount == null) {
-			throw new IllegalArgumentException("No customer username with " + username + " exists.");
+			// Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
 		}
 		return anAccount;
 	}
 
     // Method to get the permission level of a user based on their username
     public int findPermissionLevelByUsername(String username) {
-        return userAccountRepo.findByUsername(username).getPermissionLevel();
+        if (username.equals("guest")) {
+            return 0;
+        }
+        
+        UserAccount user = userAccountRepo.findByUsername(username);
+
+        if (user == null) {
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
+        }
+
+        return user.getPermissionLevel();
     }
 
     // Method to check if a user has permission to perform a certain action
@@ -67,69 +80,67 @@ public class AccountService {
         return (findPermissionLevelByUsername(username) >= permissionLevel);
     }
 
-    // method to allow user to change phone number
+    // Method to allow user to change phone number
     @Transactional
     public boolean changePhoneNumber(String newPhoneNumber, String username) {
-       // validate new phone number
+    // validate new phone number
         String regex = "^\\d{3}-\\d{3}-\\d{4}$";
         if (newPhoneNumber == null || !newPhoneNumber.matches(regex)) {
-            System.out.println("Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
-            return false;
+            // Indicate that the phone number is invalid
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
         }
 
         // Now check that the user with the given username exists
         UserAccount person = userAccountRepo.findByUsername(username);
         if (person == null) {
-            System.out.println("No user exists with the given username.");
-            return false;
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
 
         person.setPhoneNumber(newPhoneNumber);
         person = userAccountRepo.save(person);
         return true;
     }
- 
 
     // Method to allow user to change password
     @Transactional
-    public boolean changePassword(String newPassword, String username) {
+    public void changePassword(String newPassword, String username) {
         // Check if the password is at least 8 characters long
         if (newPassword.length() < 8) {
-            System.out.println("Password must be at least 8 characters long.");
-            return false;
+            // Indicate that the password was not long enough
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must be at least 8 characters long");
         }
         
         // Check if the password contains at least one uppercase letter
         if (!newPassword.matches(".*[A-Z].*")) {
-            System.out.println("Password must contain at least one uppercase letter.");
-            return false;
+            // Indicate that the password needs 1 uppercase letter
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must contain at least 1 uppercase letter");
         }
         
         // Check if the password contains at least one lowercase letter
         if (!newPassword.matches(".*[a-z].*")) {
-            System.out.println("Password must contain at least one lowercase letter.");
-            return false;
+            // Indicate that the password needs 1 lowercase letter
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must contain at least 1 lowercase letter");
         }
         
         // Check if the password contains at least one number
         if (!newPassword.matches(".*[0-9].*")) {
-            System.out.println("Password must contain at least one number.");
-            return false;
+            // Indicate that the password needs 1 number
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must contain at least 1 number");
         }
         
         // If all checks pass, then the password is valid
         // Now check that the user with the given username exists
         UserAccount person = userAccountRepo.findByUsername(username);
         if (person == null) {
-            System.out.println("No user exists with the given username.");
-            return false;
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
 
         // Now we can change their password
         String newHashedPassword = hashPassword(newPassword);
         person.setPassword(newHashedPassword);
         person = userAccountRepo.save(person);
-        return true;
     }
 
     // Method to allow guests to create an account
@@ -138,47 +149,56 @@ public class AccountService {
         // Validate that the username is unique
         UserAccount usernameCheck = userAccountRepo.findByUsername(username);
         if (usernameCheck != null) {
-            System.out.println("An account already exists with this username, please select a different username");
-            return null;
+            // Indicate that there is already an account with this username
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "An account already exists with this username, please select a different username");
         }
         
         // Validate that the email is unique
         UserAccount emailCheck = userAccountRepo.findByEmail(email);
         if (emailCheck != null) {
-            System.out.println("An account already exists with this email address, please select a different email");
-            return null;
+            // Indicate that there is already an account with this email
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "An account already exists with this email, please enter a different email");
         }
 
         // Validate the phone number
         String regex = "^\\d{3}-\\d{3}-\\d{4}$";
         if (phoneNumber == null || !phoneNumber.matches(regex)) {
-            System.out.println("Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
-            return null;
+            // Indicate that the phone number is invalid
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number is invalid, please enter a valid phone number: xxx-xxx-xxxx");
         }
+
+        // Validate the email
+        // Regex to check that there is text before and after the `@` symbol
+        String emailRegex = "^[^@\\s]+@[^@\\s]+$";
+        if (!email.matches(emailRegex)) {
+            // Indicate that the email is invalid
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is invalid, please enter a valid email with an @ symbol");
+        }
+        
 
         // Validate the password (MANY STEPS)
         // Check if the password is at least 8 characters long
         if (password.length() < 8) {
-            System.out.println("Password must be at least 8 characters long.");
-            return null;
+            // Indicate that the password was not long enough
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must be at least 8 characters long");
         }
         
         // Check if the password contains at least one uppercase letter
         if (!password.matches(".*[A-Z].*")) {
-            System.out.println("Password must contain at least one uppercase letter.");
-            return null;
+            // Indicate that the password needs 1 uppercase letter
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must contain at least 1 uppercase letter");
         }
         
         // Check if the password contains at least one lowercase letter
         if (!password.matches(".*[a-z].*")) {
-            System.out.println("Password must contain at least one lowercase letter.");
-            return null;
+            // Indicate that the password needs 1 lowercase letter
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must contain at least 1 lowercase letter");
         }
         
         // Check if the password contains at least one number
         if (!password.matches(".*[0-9].*")) {
-            System.out.println("Password must contain at least one number.");
-            return null;
+            // Indicate that the password needs 1 number
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must contain at least 1 number");
         }
         
         // Hash the password before we save it
@@ -194,31 +214,30 @@ public class AccountService {
 
     // Method to login to an account
     @Transactional
-    public boolean loginToAccount(String username, String password) {
+    public String loginToAccount(String username, String password) {
         // Check that account with input username exists
         UserAccount user = userAccountRepo.findByUsername(username);
         if (user == null) {
-            System.out.println("There are no users with the given username.");
-            return false;
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
 
         // Check that the password matches with the encrypted account password
         String hashedPassword = hashPassword(password);
-        if (hashedPassword != user.getPassword()) {
-            System.out.println("Password does not match the account with the given username.");
-            return false;
+        System.out.println(hashedPassword);
+        if (!hashedPassword.equals(user.getPassword())) {
+            // Indicate that the passwords do not match
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match the account with the given username");
         }
 
-        // Make the 'currently logged in' account this one somehow...
-        // TODO AFTER DISCUSSION
-
-        return true;
+        // Set the loggedInUsername to be this username to be used by other controllers
+        return username;
     }
 
 
     // Method to encrypt a password
     @Transactional
-    public static String hashPassword(String password) {
+    public String hashPassword(String password) {
         // Create a MessageDigest instance to use SHA-256 hashing
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -251,13 +270,13 @@ public class AccountService {
         UserAccount user = userAccountRepo.findByUsername(username);
         
         if (user == null) {
-            System.out.println("No such user with the given username exists");
-            return false;
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
         // Ensures that the given user is a customer
-        if (!(user instanceof Customer)) {
-            System.out.println("The given user is not a Customer");
-            return false;
+        if (!hasPermission(username, 1)) {
+            // Indicate that the user is not a customer
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is not a Customer, and therefore does not have payment information");
         }
 
         // Typecasts to a customer and checks if they have a PaymentInfo or not.
@@ -267,12 +286,8 @@ public class AccountService {
 
         // Validates input payment information
         boolean valid = validatePaymentInfo(cardNumber, expiryDate, cvvCode, billingAddress, billingName);
-        if (!valid) {
-            // Calling the validate method will print something if there is a problem
-            return false;
-        }
 
-        if (paymentInfo == null) {
+        if (paymentInfo == null && valid) {
             PaymentInformation newPaymentInfo = new PaymentInformation(cardNumber, billingName, expiryDate, cvvCode, billingAddress);
             paymentInfoRepo.save(newPaymentInfo); // save the new PaymentInfo into the database
             customer.setPaymentInformation(newPaymentInfo);
@@ -294,13 +309,15 @@ public class AccountService {
         Customer customer = customerRepo.findByUsername(username);
         
         if (customer == null) {
-            System.out.println("Ur mom hehehe! Also the customer is null");
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A customer with given username not found");
         }
 
-        PaymentInformation paymentInfo = paymentInfoRepo.findByPaymentInfoID(customer.getPaymentInformation().getPaymentInfoID());
+        PaymentInformation paymentInfo = customer.getPaymentInformation();
 
         if (paymentInfo == null) {
-            System.out.println("Payment info is null btw for this customer");
+            // Indicate that there is no payment info associated with this customer
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This customer has not set any payment information");
         }
 
         return paymentInfo;
@@ -313,13 +330,15 @@ public class AccountService {
         Customer customer = customerRepo.findByUsername(username);
 
         if (customer == null) {
-            System.out.println("This customer is null");
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A customer with given username not found");
         }
 
-        PaymentInformation paymentInfo = paymentInfoRepo.findByPaymentInfoID(customer.getPaymentInformation().getPaymentInfoID());
+        PaymentInformation paymentInfo = customer.getPaymentInformation();
 
         if (paymentInfo == null) {
-            System.out.println("Payment info is null for this customer");
+            // Indicate that there is no payment info associated with this customer
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This customer has not set any payment information");
         }
 
         return paymentInfo.getPaymentInfoID();
@@ -331,41 +350,44 @@ public class AccountService {
         Address address = addressRepo.findByAddressID(addressId);
 
         if (address == null) {
-            System.out.println("The address is null");
+            // Indicate that there is no such address with the given id
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no address with the given id");
         }
 
         return address;
     }
 
-
+    // Method to validate payment into
+    @Transactional
     public boolean validatePaymentInfo(String cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
         // Validate given information
         // Check the card number length
-        if ((cardNumber).length() != 16)
+        if (cardNumber.length() != 16)
+
         {
-            System.out.print("Customer does not have valid credit card number");
-            return false;
+            // Indicate that the length of the card number is invalid
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid credit card number");
         }
 
         // Ensure that they give a 3 digit CVV code
         if (Integer.toString(cvvCode).length() != 3)
         {
-            System.out.print("Customer does not have valid CVV code");
-            return false;
+            // Indicate that the length of the cvv code is invalid
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid cvv code");
         }
 
         // Ensure that the card is not expired
         Date currentDate = new Date(System.currentTimeMillis());
         if (expiryDate.before(currentDate))
         {
-            System.out.print("Customer credit card is expired");
-            return false;
+            // Indicate that the card is expired
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The credit card with the following information is expired");
         }
 
         // Ensure that they enter a cardholder name
         if (billingName == null) {
-            System.out.print("Please enter the cardholder name");
-            return false;
+            // Indicate that a billing name is missing
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a cardholder name");
         }
 
         return true;
@@ -376,43 +398,43 @@ public class AccountService {
         // Validate that the user exists
         UserAccount user = userAccountRepo.findByUsername(username);
         if (user == null) {
-            System.out.println("No user exists with the given username.");
-            return false;
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
-        // Ensure the user is a customer
-        if (!(user instanceof Customer)) {
-            System.out.println("The given user is not a Customer");
-            return false;
+        // Ensures that the given user is a customer
+        if (!hasPermission(username, 1)) {
+            // Indicate that the user is not a customer
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is not a Customer, so you cannot add an address");
         }
-
         // Validate the address fields
         if (street == null || street.trim().isEmpty()) {
-            System.out.println("Street cannot be empty.");
-            return false;
+            // Indicate that the street must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a street name");
         }
-        if (postalCode == null || postalCode.trim().isEmpty()) {
-            System.out.println("Postal code cannot be empty.");
-            return false;
+        String regex = "^[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]\\d$";
+        if (!postalCode.matches(regex)) {
+            // Indicate that the postal code must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a valid postal code: A#A#A#");
         }
         if (number <= 0) {
-            System.out.println("House/building number must be a positive integer.");
-            return false;
+            // Indicate that the house number must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a valid house number");
         }
         if (city == null || city.trim().isEmpty()) {
-            System.out.println("City cannot be empty.");
-            return false;
+            // Indicate that the city must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a city");
         }
         if (stateOrProvince == null || stateOrProvince.trim().isEmpty()) {
-            System.out.println("State/Province cannot be empty.");
-            return false;
+            // Indicate that the state/province must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a state/province");
         }
         if (country == null || country.trim().isEmpty()) {
-            System.out.println("Country cannot be empty.");
-            return false;
+            // Indicate that country must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a country");
         }
-        if (apartmentNo != null && apartmentNo <= 0) {
-            System.out.println("Apartment number must be a positive integer if specified.");
-            return false;
+        if (apartmentNo < 0) {
+            // Indicate that the apartment number must be greater than 0 or null
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a valid apartment number");
         }
 
         // Create and save the new address
@@ -424,8 +446,6 @@ public class AccountService {
         Customer customer = (Customer) user;
         customer.setAddress(newAddress);
         customerRepo.save(customer); // Save the updated customer with the new address
-
-        System.out.println("Address added successfully.");
         return true;
     }
     
@@ -435,50 +455,51 @@ public class AccountService {
         // Validate that the user exists
         UserAccount user = userAccountRepo.findByUsername(username);
         if (user == null) {
-            System.out.println("No user exists with the given username.");
-            return false;
+           // Indicate that the user does not exist
+           throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
-        // Ensure the user is a customer
-        if (!(user instanceof Customer)) {
-            System.out.println("The given user is not a Customer.");
-            return false;
+        // Ensures that the given user is a customer
+        if (!hasPermission(username, 1)) {
+            // Indicate that the user is not a customer
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is not a Customer, and therefore does not have an address to update");
         }
 
         // Retrieve the address and validate it exists
         Address address = addressRepo.findByAddressID(addressId);
         if (address == null) {
-            System.out.println("No address exists with the given address ID.");
-            return false;
+            // Indicate that no such address exists
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No address exists with the given address ID");
         }
 
         // Validate the address fields
         if (street == null || street.trim().isEmpty()) {
-            System.out.println("Street cannot be empty.");
-            return false;
+            // Indicate that the street must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a street name");
         }
-        if (postalCode == null || postalCode.trim().isEmpty()) {
-            System.out.println("Postal code cannot be empty.");
-            return false;
+        String regex = "^[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]\\d$";
+        if (!postalCode.matches(regex)) {
+            // Indicate that the postal code must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a valid postal code: A#A#A#");
         }
         if (number <= 0) {
-            System.out.println("House/building number must be a positive integer.");
-            return false;
+            // Indicate that the house number must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a valid house number");
         }
         if (city == null || city.trim().isEmpty()) {
-            System.out.println("City cannot be empty.");
-            return false;
+            // Indicate that the city must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a city");
         }
         if (stateOrProvince == null || stateOrProvince.trim().isEmpty()) {
-            System.out.println("State/Province cannot be empty.");
-            return false;
+            // Indicate that the state/province must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a state/province");
         }
         if (country == null || country.trim().isEmpty()) {
-            System.out.println("Country cannot be empty.");
-            return false;
+            // Indicate that country must be entered
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a country");
         }
-        if (apartmentNo != null && apartmentNo <= 0) {
-            System.out.println("Apartment number must be a positive integer if specified.");
-            return false;
+        if (apartmentNo < 0) {
+            // Indicate that the apartment number must be greater than 0 or null
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a valid apartment number");
         }
 
         // Update the address fields
@@ -491,8 +512,6 @@ public class AccountService {
         address.setApartmentNo(apartmentNo != null ? apartmentNo : 0); // Set apartment number or 0 if null
 
         addressRepo.save(address); // Save the updated address in the database
-
-        System.out.println("Address updated successfully.");
         return true;
     }
 
@@ -503,22 +522,22 @@ public class AccountService {
         // Retrieve the user by their username
         UserAccount user = userAccountRepo.findByUsername(username);
         if (user == null) {
-            System.out.println("No user exists with the given username.");
-            return null; // Or throw a custom exception if preferred
+            // Indicate that the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found");
         }
 
-        // Ensure the user is a customer
-        if (!(user instanceof Customer)) {
-            System.out.println("The given user is not a Customer.");
-            return null; // Or throw a custom exception if preferred
+        // Ensures that the given user is a customer
+        if (!hasPermission(username, 1)) {
+            // Indicate that the user is not a customer
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given user is not a Customer, and therefore does not have an address to get");
         }
 
         // Retrieve the customer's address
         Customer customer = (Customer) user;
         Address address = customer.getAddress(); //Need to add function to model
         if (address == null) {
-            System.out.println("No address found for the given user.");
-            return null; // Or throw a custom exception if preferred
+            // Indicate that there is no such address with the given id
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The customer does not have an address on their account");
         }
 
         return address;

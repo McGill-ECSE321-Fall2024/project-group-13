@@ -33,6 +33,7 @@ public class Employee extends UserAccount
   {
     super(aName, aUsername, aEmail, aPassword, aPhoneNumber);
     isActive = aIsActive;
+    setPermissionLevel(2);
   }
 
   //------------------------
