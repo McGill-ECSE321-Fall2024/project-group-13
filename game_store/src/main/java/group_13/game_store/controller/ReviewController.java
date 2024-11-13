@@ -170,11 +170,16 @@ public class ReviewController {
     /*
      * /games/{id}/reviews/{reviewID}/reply [GET, POST]
      */
-    @GetMapping("/games//reviews/{reviewID}/replies")
+    @GetMapping("/games/reviews/{reviewID}/replies")
     public ReplyResponseDto getReplyToReview(@PathVariable int reviewID) {
         // Reply to a review by its unique ID and return the review as a response object
 
         Reply reply = reviewService.getReplyByReview(reviewID);
+
+        // If no reply is found, return a NOT_FOUND status code
+        if (reply == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No reply found for review with ID " + reviewID);
+        }
 
         return new ReplyResponseDto(reply);
     }

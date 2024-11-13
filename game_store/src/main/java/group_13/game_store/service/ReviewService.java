@@ -248,13 +248,22 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Review already has a reply.");
         }
 
+        if (reply == null || reply.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reply cannot be null or empty.");
+        }
+
         // Create a reply with the inputed parameters and the current date
         Date today = Date.valueOf(LocalDate.now());
         Reply replyToReview = new Reply(reply, today);
-        replyRepo.save(replyToReview);
+
+        // Set the association on the owning side
+        replyToReview.setReview(review);
 
         // Set the reply to the review and save it
+        replyRepo.save(replyToReview);
+
         review.setReply(replyToReview);
+        
         return reviewRepository.save(review).getReply();
     }
 

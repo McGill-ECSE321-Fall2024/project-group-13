@@ -28,6 +28,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import group_13.game_store.dto.ReplyRequestDto;
+import group_13.game_store.dto.ReplyResponseDto;
 import group_13.game_store.dto.ReviewListResponseDto;
 import group_13.game_store.dto.ReviewRequestDto;
 import group_13.game_store.dto.ReviewResponseDto;
@@ -47,6 +49,7 @@ import group_13.game_store.repository.GameCopyRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.OwnerRepository;
+import group_13.game_store.repository.ReplyRepository;
 import group_13.game_store.repository.ReviewRepository;
 import group_13.game_store.service.ReviewService;
 
@@ -84,8 +87,12 @@ public class ReviewIntegrationTests {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private ReplyRepository replyRepository;
+
     @AfterAll
 	public void clearDatabase() {
+        replyRepository.deleteAll();
 		reviewRepository.deleteAll();
         gameCopyRepository.deleteAll();
         orderRepository.deleteAll();
@@ -93,6 +100,7 @@ public class ReviewIntegrationTests {
         customerRepository.deleteAll();
         gameCategoryRepository.deleteAll();
         ownerRepository.deleteAll();
+        employeeRepository.deleteAll();
 	}
 
     // Declare instance variables
@@ -582,6 +590,7 @@ public class ReviewIntegrationTests {
         // Assert the response
         assertNotNull(response2);
         assertEquals(HttpStatus.FORBIDDEN, response2.getStatusCode());
+        assertNotNull(response2.getBody());
         assertTrue(response2.getBody().contains("User does not have permission to unlike a review."));
 
         // Verify that the likes count has not changed in the database
@@ -613,113 +622,224 @@ public class ReviewIntegrationTests {
         assertTrue(response.getBody().contains("Customer has not liked the review."));
     }
 
+    @Test
+    @org.junit.jupiter.api.Order(16)
+    public void testReplyToReview_Success(){
+        // Create a reply
+        String replyContent = "Thank you for your review!";
+        String loggedInUsername = "owner";
+        
+        ReplyRequestDto replyRequestDto = new ReplyRequestDto(replyContent);
 
+        ResponseEntity<ReplyResponseDto> response = client.postForEntity(
+            "/games/reviews/" + review1ID + "/replies?loggedInUsername=" + loggedInUsername,
+            replyRequestDto,
+            ReplyResponseDto.class
+        );
 
-    // @Test
-    // @org.junit.jupiter.api.Order(4)
-    // public void testGetReviewsEndpoint() {
-    //     // Save entities
-    //     gameCategoryRepository.save(gameCategory1);
-    //     customerRepository.save(customer1);
-    //     gameRepository.save(game1);
-    //     orderRepository.save(order1);
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
 
-    //     // Create and save GameCopy
-    //     gameCopy1 = new GameCopy(order1, game1);
-    //     gameCopyRepository.save(gameCopy1);
+        assertEquals(replyContent, response.getBody().getText());
+        
+        // Verify that the reply has been saved in the database
+        Reply savedReply = replyRepository.findByReview_ReviewID(review1ID);
+        assertNotNull(savedReply);
+        assertEquals(replyContent, savedReply.getText());
+    }
 
-    //     // Create reviews
-    //     ReviewRequestDto reviewRequestDto1 = new ReviewRequestDto("Great game!", 5);
-    //     ResponseEntity<ReviewResponseDto> response1 = client.postForEntity(
-    //         "/games/" + game1.getGameID() + "/reviews?loggedInUsername=" + customer1.getUsername(),
-    //         reviewRequestDto1,
-    //         ReviewResponseDto.class
-    //     );
+    @Test
+    @org.junit.jupiter.api.Order(17)
+    public void testReplyToReview_UserLacksPermission(){
+        // Create a reply
+        String replyContent = "Thank you for your review!";
+        String loggedInUsername = "guest";
 
-    //     assertEquals(HttpStatus.OK, response1.getStatusCode());
-    //     assertNotNull(response1.getBody());
-    //     Integer reviewId1 = response1.getBody().getReviewID();
+        ReplyRequestDto replyRequestDto = new ReplyRequestDto(replyContent);
+        
+        ResponseEntity<String> response = client.postForEntity(
+            "/games/reviews/" + review1ID + "/replies?loggedInUsername=" + loggedInUsername,
+            replyRequestDto,
+            String.class
+        );
 
-    //     // Create another review
-    //     ReviewRequestDto reviewRequestDto2 = new ReviewRequestDto("Needs improvement.", 3);
-    //     ResponseEntity<ReviewResponseDto> response2 = client.postForEntity(
-    //         "/games/" + game1.getGameID() + "/reviews?loggedInUsername=" + customer1.getUsername(),
-    //         reviewRequestDto2,
-    //         ReviewResponseDto.class
-    //     );
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to reply to reviews."));
+    }
 
-    //     assertEquals(HttpStatus.OK, response2.getStatusCode());
-    //     assertNotNull(response2.getBody());
-    //     Integer reviewId2 = response2.getBody().getReviewID();
+    @Test
+    @org.junit.jupiter.api.Order(18)
+    public void testGetReplyToReview_Success(){
+        // Create a reply
+        String replyContent = "Thank you for your review!";
+        String loggedInUsername = "owner";
+        
+        ReplyRequestDto replyRequestDto = new ReplyRequestDto(replyContent);
 
-    //     // Add a reply to the first review
-    //     Optional<Review> optionalReview1 = reviewRepository.findById(reviewId1);
-    //     assertTrue(optionalReview1.isPresent());
-    //     Review review1 = optionalReview1.get();
+        ResponseEntity<ReplyResponseDto> response = client.postForEntity(
+            "/games/reviews/" + review1ID + "/replies?loggedInUsername=" + loggedInUsername,
+            replyRequestDto,
+            ReplyResponseDto.class
+        );
 
-    //     // Test getting all reviews as admin
-    //     ResponseEntity<ReviewListResponseDto> responseAllReviews = client.getForEntity(
-    //         "/games/reviews?isPendingReply=false&loggedInUsername=owner",
-    //         ReviewListResponseDto.class
-    //     );
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
 
-    //     // Assert
-    //     assertNotNull(responseAllReviews);
-    //     assertEquals(HttpStatus.OK, responseAllReviews.getStatusCode());
-    //     assertNotNull(responseAllReviews.getBody());
-    //     List<ReviewResponseDto> allReviews = responseAllReviews.getBody().getReviews();
-    //     assertNotNull(allReviews);
-    //     assertEquals(4, allReviews.size(), "Should return all reviews");
+        // Get a reply by its review ID
+        ResponseEntity<ReplyResponseDto> response2 = client.getForEntity(
+            "/games/reviews/" + review1ID + "/replies",
+            ReplyResponseDto.class
+        );
 
-    //     // Test getting unanswered reviews as admin
-    //     ResponseEntity<ReviewListResponseDto> responsePendingReviews = client.getForEntity(
-    //         "/games/reviews?isPendingReply=true&loggedInUsername=owner",
-    //         ReviewListResponseDto.class
-    //     );
+        // Assert
+        assertNotNull(response2);
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+        assertNotNull(response2.getBody());
 
-    //     // Assert
-    //     assertNotNull(responsePendingReviews);
-    //     assertEquals(HttpStatus.OK, responsePendingReviews.getStatusCode());
-    //     assertNotNull(responsePendingReviews.getBody());
-    //     List<ReviewResponseDto> pendingReviews = responsePendingReviews.getBody().getReviews();
-    //     assertNotNull(pendingReviews);
-    //     assertEquals(1, pendingReviews.size(), "Should return only unanswered reviews");
+        assertEquals("Thank you for your review!", response2.getBody().getText());
+    }
 
-    //     // Verify that the unanswered review is the one without a reply
-    //     ReviewResponseDto pendingReview = pendingReviews.get(0);
-    //     assertEquals("Needs improvement.", pendingReview.getDescription());
+    @Test
+    @org.junit.jupiter.api.Order(18)
+    public void testGetReplyToReview_ReplyNotFound(){
+        // Get a reply by its review ID
+        ResponseEntity<String> response = client.getForEntity(
+            "/games/reviews/" + review1ID + "/replies",
+            String.class
+        );
 
-    //     // Test unauthorized access by a customer
-    //     ResponseEntity<String> unauthorizedResponse = client.getForEntity(
-    //         "/games/reviews?isPendingReply=false&loggedInUsername=" + customer1.getUsername(),
-    //         String.class
-    //     );
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("No reply found for review with ID " + review1ID));
+    }
 
-    //     // Since the controller throws IllegalArgumentException, it will result in HTTP 400 Bad Request
-    //     assertEquals(HttpStatus.BAD_REQUEST, unauthorizedResponse.getStatusCode());
-    //     assertTrue(unauthorizedResponse.getBody().contains("User does not have permission to see all reviews."));
-    // }
+    @Test
+    @org.junit.jupiter.api.Order(19)
+    public void testGetAllReviewsNoPendingReply_Success() {
+        //Get rid of all the reviews and replies so we can accurately test the get all reviews endpoint
+        replyRepository.deleteAll();
+		reviewRepository.deleteAll();
 
+        //Repopulate the database with 2 reviews
+        setup();
 
-    // @Test
-    // @org.junit.jupiter.api.Order(3)
-    // public void UpdateReview() {
-    //     // Update a review
+        String loggedInUsername = "owner"; //Only owner can see all reviews
+        boolean isPendingReply = false; //Not looking for reviews with pending replies just all reviews in general
 
-    // }
+        ResponseEntity<ReviewListResponseDto> response = client.getForEntity(
+            "/games/reviews?isPendingReply=" + isPendingReply + "&loggedInUsername=" + loggedInUsername,
+            ReviewListResponseDto.class
+        );
 
-    // @Test
-    // @org.junit.jupiter.api.Order(4)
-    // public void DeleteReview() {
-    //     // Delete a review
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
 
-    // }
+        ReviewListResponseDto responseBody = response.getBody();
+        List<ReviewResponseDto> reviews = responseBody.getReviews();
 
-    // @Test
-    // @org.junit.jupiter.api.Order(5)
-    // public void GetReviews() {
-    //     // Get all reviews
+        assertNotNull(reviews);
+        assertEquals(2, reviews.size()); // Expecting 2 reviews from setup
 
-    // }
+        // Check that both reviews are present
+        boolean foundReview1 = false;
+        boolean foundReview2 = false;
+        for (ReviewResponseDto review : reviews) {
+            if (review.getReviewID() == review1ID) {
+                assertEquals("Great game!", review.getDescription());
+                assertEquals(5, review.getScore());
+                assertEquals("john_doe", review.getReviewerUsername());
+                foundReview1 = true;
+            } else if (review.getReviewID() == review2ID) {
+                assertEquals("Bad game.", review.getDescription());
+                assertEquals(1, review.getScore());
+                assertEquals("jane_doe", review.getReviewerUsername());
+                foundReview2 = true;
+            }
+        }
+        assertTrue(foundReview1, "Review 1 should be in the list");
+        assertTrue(foundReview2, "Review 2 should be in the list");
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(20)
+    public void testGetAllReviewsWithPendingReply_Success() {
+        //Get rid of all the reviews and replies so we can accurately test the get all reviews endpoint
+        replyRepository.deleteAll();
+        reviewRepository.deleteAll();
+
+        //Repopulate the database with 2 reviews
+        setup();
+
+        // Create a reply that we will write to review 1 so only review 2 is pending reply
+        String replyContent = "Thank you for your review!";
+        String loggedInUsername = "owner";
+        
+        ReplyRequestDto replyRequestDto = new ReplyRequestDto(replyContent);
+
+        // Create a reply for review 1
+        ResponseEntity<ReplyResponseDto> response = client.postForEntity(
+            "/games/reviews/" + review1ID + "/replies?loggedInUsername=" + loggedInUsername,
+            replyRequestDto,
+            ReplyResponseDto.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        boolean isPendingReply = true; //Looking for reviews with pending replies only
+
+        ResponseEntity<ReviewListResponseDto> responseForReviews = client.getForEntity(
+            "/games/reviews?isPendingReply=" + isPendingReply + "&loggedInUsername=" + loggedInUsername,
+            ReviewListResponseDto.class
+        );
+
+        // Assert
+        assertNotNull(responseForReviews);
+        assertEquals(HttpStatus.OK, responseForReviews.getStatusCode());
+        assertNotNull(responseForReviews.getBody());
+
+        ReviewListResponseDto responseBody = responseForReviews.getBody();
+        List<ReviewResponseDto> reviews = responseBody.getReviews();
+
+        assertNotNull(reviews);
+        assertEquals(1, reviews.size()); // Expecting 2 reviews from setup
+
+        Review expectedReview = reviewRepository.findByReviewID(review2ID);
+
+        assertEquals(expectedReview.getDescription(), reviews.get(0).getDescription());
+        assertEquals(expectedReview.getScore(), reviews.get(0).getScore());
+
+        assertNotNull(expectedReview.getReviewer());
+        assertEquals(expectedReview.getReviewer().getUsername(), reviews.get(0).getReviewerUsername());
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(21)
+    public void testGetAllReviews_UserLacksPermission() {
+        String loggedInUsername = "guest"; //Only owner can see all reviews
+        boolean isPendingReply = false; //Not looking for reviews with pending replies just all reviews in general
+
+        ResponseEntity<String> response = client.getForEntity(
+            "/games/reviews?isPendingReply=" + isPendingReply + "&loggedInUsername=" + loggedInUsername,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to view reviews."));
+    }
     
 }
