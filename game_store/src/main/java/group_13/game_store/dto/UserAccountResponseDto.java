@@ -1,6 +1,9 @@
 package group_13.game_store.dto;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Employee;
+
+import java.time.LocalDate;
+
 import group_13.game_store.model.Customer;
 public class UserAccountResponseDto {
     
@@ -10,6 +13,7 @@ public class UserAccountResponseDto {
     // including password compromises security
     private String phoneNumber;
     private int permissionLevel;
+    private LocalDate creationDate;
     public UserAccountResponseDto(UserAccount aUserAccount) {
 		this.username = aUserAccount.getUsername();
 		this.name = aUserAccount.getName();
@@ -43,4 +47,8 @@ public class UserAccountResponseDto {
     public int getPermissionLevel() {
         return permissionLevel;
     }
+
+    public LocalDate getCreationDate() {
+		return creationDate;
+	}
 }
