@@ -29,6 +29,7 @@ public class Owner extends UserAccount
   public Owner(String aName, String aUsername, String aEmail, String aPassword, String aPhoneNumber)
   {
     super(aName, aUsername, aEmail, aPassword, aPhoneNumber);
+    setPermissionLevel(3);
   }
 
   //------------------------
