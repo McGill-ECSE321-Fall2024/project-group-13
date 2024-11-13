@@ -32,6 +32,7 @@ import group_13.game_store.dto.ReviewListResponseDto;
 import group_13.game_store.dto.ReviewRequestDto;
 import group_13.game_store.dto.ReviewResponseDto;
 import group_13.game_store.model.Customer;
+import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.GameCopy;
@@ -40,6 +41,7 @@ import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
 import group_13.game_store.model.Order;
 import group_13.game_store.repository.CustomerRepository;
+import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameCopyRepository;
 import group_13.game_store.repository.GameRepository;
@@ -79,6 +81,9 @@ public class ReviewIntegrationTests {
     @Autowired
     private OwnerRepository ownerRepository;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
     @AfterAll
 	public void clearDatabase() {
 		reviewRepository.deleteAll();
@@ -98,6 +103,8 @@ public class ReviewIntegrationTests {
     private Customer customer3;
     private Customer customer4;
     private Customer customer5;
+
+    private Employee employee1;
 
     private Game game1;
     private Game game2;
@@ -122,6 +129,8 @@ public class ReviewIntegrationTests {
         customer3 = new Customer("Jane", "jane_doe", "jane_does@mail,cou", "jane123", "456-789-0123");
         customer4 = new Customer("Alice", "alice_wonderland", "alice@mail.com", "alice123", "789-012-3456");
 
+        employee1 = new Employee("Tom","tom_holland", "tom@mail.com", "tom123", "123-456-7890", true);
+
         Owner owner = new Owner("bob", "owner", "owner@mail.com,", "owner123", "123-456-7890");
         ownerRepository.save(owner);
 
@@ -143,6 +152,8 @@ public class ReviewIntegrationTests {
         customerRepository.save(customer2);
         customerRepository.save(customer3);
         customerRepository.save(customer4);
+
+        employeeRepository.save(employee1);
 
         gameRepository.save(game1); // game1 now has a generated ID
         gameRepository.save(game2); // game2 now has a generated ID
@@ -318,7 +329,7 @@ public class ReviewIntegrationTests {
 
         int gameId = game2.getGameID();
         int reviewId = review1ID;
-        String loggedInUsername = "guest"; // Assuming this user lacks permission
+        String loggedInUsername = "tom_holland"; //Emplyees dont have permission to like stuff
 
         // Perform the POST request to like the review
         ResponseEntity<String> response = client.postForEntity(
@@ -332,6 +343,68 @@ public class ReviewIntegrationTests {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertTrue(response.getBody().contains("User does not have permission to like a review."));
     }
+
+    @Test
+    @org.junit.jupiter.api.Order(8)
+    public void testAddLike_UserAlreadyLikedReview() {
+        int gameId = game2.getGameID();
+        int reviewId = review1ID;
+        String loggedInUsername = "alice_wonderland";
+
+        // First, like the review
+        ResponseEntity<ReviewResponseDto> firstLikeResponse = client.postForEntity(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                null,
+                ReviewResponseDto.class
+        );
+
+        assertEquals(HttpStatus.OK, firstLikeResponse.getStatusCode());
+
+        // Attempt to like the same review again
+        ResponseEntity<String> secondLikeResponse = client.postForEntity(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                null,
+                String.class
+        );
+
+        // Assert the response
+        assertNotNull(secondLikeResponse);
+        assertEquals(HttpStatus.FORBIDDEN, secondLikeResponse.getStatusCode());
+        assertTrue(secondLikeResponse.getBody().contains("Customer has already liked the review."));
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(9)
+    public void testRemoveLike_Success() {
+        Review review1 = reviewRepository.findById(review1ID).get();
+        assertEquals(0, review1.getLikes());
+
+        int gameId = game2.getGameID();
+        int reviewId = review1ID; // Use the review created in setup
+        String loggedInUsername = "alice_wonderland";
+
+        // Perform the POST request to like the review
+        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+                "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
+                null,
+                ReviewResponseDto.class
+        );
+
+        // Assert the response
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        // Verify that the likes count has increased
+        ReviewResponseDto responseBody = response.getBody();
+        assertEquals(reviewId, responseBody.getReviewID());
+        assertEquals("Great game!", responseBody.getDescription());
+        assertEquals(5, responseBody.getScore());
+        assertEquals("john_doe", responseBody.getReviewerUsername());
+        assertEquals(1, responseBody.getLikes()); // Should be 1 after the like
+    }
+
+
 
     // @Test
     // @org.junit.jupiter.api.Order(4)
