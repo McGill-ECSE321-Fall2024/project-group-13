@@ -5,8 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.server.ResponseStatusException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -15,7 +13,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -35,6 +32,8 @@ import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.repository.EmployeeRepository;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,6 +62,8 @@ public class GameIntegrationTests {
     private GameResponseDto expectedGame7;
 
     private GameCategory gameCategory1;
+    private Game game1;
+    private Game game2;
 
     @BeforeAll
     public void setup() {
@@ -88,12 +89,12 @@ public class GameIntegrationTests {
         // ***** Games *****
 
         // Game 1: In stock and visible --> Available
-        Game game1 = new Game("Game 1", "Description 1", "Image 1", 10, 9.99, "18+", Game.VisibilityStatus.Visible,
+        game1 = new Game("Game 1", "Description 1", "Image 1", 10, 9.99, "18+", Game.VisibilityStatus.Visible,
                 gameCategory1);
         gameRepo.save(game1);
 
         // Game 2: Out of stock and visible
-        Game game2 = new Game("Game 2", "Description 2", "Image 2", 0, 19.99, "18+", Game.VisibilityStatus.Visible,
+        game2 = new Game("Game 2", "Description 2", "Image 2", 0, 19.99, "18+", Game.VisibilityStatus.Visible,
                 gameCategory1);
         gameRepo.save(game2);
 
@@ -234,7 +235,7 @@ public class GameIntegrationTests {
         employeeRepo.deleteAll();
     }
 
-    // **** GET /games Tests ****
+    // **** GET /games Tests (Gets All Games Depending On Permission and Filters) ****
     @Test
     @Order(1)
     public void testGetGamesAsCustomer() {
@@ -467,7 +468,7 @@ public class GameIntegrationTests {
         }
 
 
-        // **** GET /games{gameID} Tests ****
+        // **** GET /games{gameID} Tests (Gets Game By Id and By Permission Level) ****
     @Test
     @Order(10)
     public void testGetGameByIdAsCustomerOrGuest() {
@@ -533,7 +534,7 @@ public class GameIntegrationTests {
 
         }
 
-                // **** POST /games Tests ****
+                // **** POST /games Tests (Creates a game only Owner) ****
 
         @Test
         @Order(13) 
@@ -573,7 +574,281 @@ public class GameIntegrationTests {
 
         }
 
+        @Test
+        @Order(14) 
+        public void testAddGamePermissionDenied() {
+                // Arrange
+                String url = "/games?loggedInUsername=Customer1Username";
+                GameRequestDto gameToAdd = new GameRequestDto(
+                        "Game 9",
+                        "Description 9",
+                        "Image 9",
+                        10,
+                        9.99,
+                        "18+",
+                        "Visible",
+                        gameCategory1.getCategoryID()
+                        
+                );
 
+                // Act
+                ResponseEntity<String> response = client.postForEntity(url, gameToAdd, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(403, json.getInt("status"));
+                assertEquals("Forbidden", json.getString("error"));
+                assertEquals("You do not have permission to add games.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+
+        }
+
+        @Test
+        @Order(15)
+        public void testAddGameInvalidCategory() {
+                // Arrange
+                String url = "/games?loggedInUsername=owner";
+                GameRequestDto gameToAdd = new GameRequestDto(
+                        "Game 10",
+                        "Description 10",
+                        "Image 10",
+                        10,
+                        9.99,
+                        "18+",
+                        "Visible",
+                        1000
+                );
+
+                // Act
+                ResponseEntity<String> response = client.postForEntity(url, gameToAdd, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(404, json.getInt("status"));
+                assertEquals("Not Found", json.getString("error"));
+                assertEquals("Invalid category ID.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+
+        }
+
+        // **** PUT /games{gameID} Tests (Updates a game only Owner) ****
+
+        @Test
+        @Order(16)
+        public void testUpdateGameAsOwner() {
+                // Arrange
+                int gameID = game1.getGameID();
+                String url = String.format("/games/%d?loggedInUsername=owner", gameID);
+                GameRequestDto gameToUpdate = new GameRequestDto(
+                        "Game 1 Updated",
+                        "Description 1 Updated",
+                        "Image 1 Updated",
+                        20,
+                        19.99,
+                        "18+",
+                        "Visible",
+                        gameCategory1.getCategoryID()
+                );
+
+               // Set up the request entity with headers
+               HttpHeaders headers = new HttpHeaders();
+               headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+               HttpEntity<GameRequestDto> requestEntity = new HttpEntity<>(gameToUpdate, headers);
+
+                // Act --> PUT request does not return a response body
+                ResponseEntity<GameResponseDto> response = client.exchange(url, org.springframework.http.HttpMethod.PUT, requestEntity, GameResponseDto.class);
+
+                // Assert (compare ressponse dto with updated game) FRONTEND
+                assertEquals(HttpStatus.OK, response.getStatusCode());
+                GameResponseDto updatedGame = response.getBody();
+                assertNotNull(updatedGame);
+                assertNotNull(response.getBody());
+                assertEquals(gameToUpdate.getTitle(), response.getBody().getTitle());
+                assertEquals(gameToUpdate.getDescription(), response.getBody().getDescription());
+                assertEquals(gameToUpdate.getImg(), response.getBody().getImg());
+                assertEquals(gameToUpdate.getStock(), response.getBody().getStock());
+                assertEquals(gameToUpdate.getPrice(), response.getBody().getPrice());
+                assertEquals(gameToUpdate.getParentalRating(), response.getBody().getParentalRating());
+                assertEquals(gameToUpdate.getStatus(), response.getBody().getStatus());
+                assertEquals(gameToUpdate.getCategoryId(), response.getBody().getCategoryId());
+
+                // Assert (compare updated game with game in the database) BACKEND
+                Game updatedGameInDB = gameRepo.findById(gameID).get();
+                assertEquals(gameToUpdate.getTitle(), updatedGameInDB.getTitle());
+                assertEquals(gameToUpdate.getDescription(), updatedGameInDB.getDescription());
+                assertEquals(gameToUpdate.getImg(), updatedGameInDB.getImg());
+                assertEquals(gameToUpdate.getStock(), updatedGameInDB.getStock());
+                assertEquals(gameToUpdate.getPrice(), updatedGameInDB.getPrice());
+                assertEquals(gameToUpdate.getParentalRating(), updatedGameInDB.getParentalRating());
+                assertEquals(gameToUpdate.getStatus(), updatedGameInDB.getStatus().toString());
+                assertEquals(gameToUpdate.getCategoryId(), updatedGameInDB.getCategory().getCategoryID());
+
+        }
+
+        @Test
+        @Order(17)
+        public void testUpdateGamePermissionDenied() {
+                // Arrange
+                int gameID = game1.getGameID();
+                String url = String.format("/games/%d?loggedInUsername=Customer1Username", gameID);
+                GameRequestDto gameToUpdate = new GameRequestDto(
+                        "Game 1 Updated",
+                        "Description 1 Updated",
+                        "Image 1 Updated",
+                        20,
+                        19.99,
+                        "18+",
+                        "Visible",
+                        gameCategory1.getCategoryID()
+                );
+
+               // Set up the request entity with headers
+               HttpHeaders headers = new HttpHeaders();
+               headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+               HttpEntity<GameRequestDto> requestEntity = new HttpEntity<>(gameToUpdate, headers);
+
+                // Act
+                ResponseEntity<String> response = client.exchange(url, org.springframework.http.HttpMethod.PUT, requestEntity, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(403, json.getInt("status"));
+                assertEquals("Forbidden", json.getString("error"));
+                assertEquals("You do not have permission to update games.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+
+        }
+
+        @Test
+        @Order(18)
+        public void testUpdateGamePermissionInvalidId() {
+                // Arrange
+                int gameID = 1000;
+                String url = String.format("/games/%d?loggedInUsername=owner", gameID);
+                GameRequestDto gameToUpdate = new GameRequestDto(
+                        "Game 1 Updated",
+                        "Description 1 Updated",
+                        "Image 1 Updated",
+                        20,
+                        19.99,
+                        "18+",
+                        "Visible",
+                        gameCategory1.getCategoryID()
+                );
+
+               // Set up the request entity with headers
+               HttpHeaders headers = new HttpHeaders();
+               headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+               HttpEntity<GameRequestDto> requestEntity = new HttpEntity<>(gameToUpdate, headers);
+
+                // Act
+                ResponseEntity<String> response = client.exchange(url, org.springframework.http.HttpMethod.PUT, requestEntity, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(404, json.getInt("status"));
+                assertEquals("Not Found", json.getString("error"));
+                assertEquals("Game with ID 1000 not found.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+        }
+
+        // **** DELETE /games{gameID} Tests Archives or Requests an Archive for a Game ****
+
+        @Test
+        @Order(19)
+        public void testArchiveGameAsOwner() {
+                // Arrange
+                int gameID = game1.getGameID();
+                String url = String.format("/games/%d?loggedInUsername=owner", gameID);
+                System.out.println(String.format("URL: %s", url));
+
+                // Act
+                ResponseEntity<Void> response = client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, Void.class);
+
+                // Compare the request to the database
+                Game archivedGame = gameRepo.findByGameID(gameID);
+                assertEquals(Game.VisibilityStatus.Archived, archivedGame.getStatus());
+                assertEquals(gameID, archivedGame.getGameID());
+        }
+
+        @Test
+        @Order(20)
+        public void testArchiveGameAsEmployee() {
+                // Arrange
+                int gameID = game2.getGameID();
+                String url = String.format("/games/%d?loggedInUsername=Employee1Username", gameID);
+                System.out.println(String.format("URL: %s", url));
+
+                // Act
+                ResponseEntity<Void> response = client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, Void.class);
+
+                // Compare the request to the database
+                Game archivedGame = gameRepo.findByGameID(gameID);
+                assertEquals(Game.VisibilityStatus.PendingArchive, archivedGame.getStatus());
+                assertEquals(gameID, archivedGame.getGameID());
+        }
+
+        @Test
+        @Order(21)
+        public void testArchiveGamePermissionDenied() {
+                // Arrange
+                int gameID = game1.getGameID();
+                String url = String.format("/games/%d?loggedInUsername=Customer1Username", gameID);
+                System.out.println(String.format("URL: %s", url));
+
+                // Act
+                ResponseEntity<String> response = client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(403, json.getInt("status"));
+                assertEquals("Forbidden", json.getString("error"));
+                assertEquals("You do not have permission to archive games.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+        }
+
+        @Test
+        @Order(22)
+        public void testArchiveGameThatDoesNotExist() {
+                // Arrange
+                int gameID = 1000;
+                String url = String.format("/games/%d?loggedInUsername=owner", gameID);
+                System.out.println(String.format("URL: %s", url));
+
+                // Act
+                ResponseEntity<String> response = client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(404, json.getInt("status"));
+                assertEquals("Not Found", json.getString("error"));
+                assertEquals("Game with ID 1000 not found.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+        }
 
 
 }

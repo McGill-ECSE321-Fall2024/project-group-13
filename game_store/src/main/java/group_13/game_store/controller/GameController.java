@@ -212,26 +212,18 @@ public class GameController {
 
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
-        if (!isOwner) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to archive games.");
-        }
-
-        gameStoreManagementService.archiveGame(gameID);
-    }
-
-    // Request to archive a game (Employee only)
-    @PostMapping("/games/{gameID}/archive-requests")
-    public void requestArchiveGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
-
         boolean isEmployee = accountService.hasPermission(loggedInUsername, 2);
 
-        if (!isEmployee) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to request archiving games.");
+        if (!isOwner && !isEmployee) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive games.");
         }
 
-        gameStoreManagementService.archiveGameRequest(gameID);
+        if (isOwner) {
+            gameStoreManagementService.archiveGame(gameID);
+        } else {
+            gameStoreManagementService.archiveGameRequest(gameID);
+        }
+
     }
 
     // Get pending game archive requests (Owner only)
