@@ -5,21 +5,16 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import group_13.game_store.service.AccountService;
-import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.dto.EmployeeListResponseDto;
 import group_13.game_store.dto.EmployeeResponseDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.model.Employee;
+import group_13.game_store.service.AccountService;
+import group_13.game_store.service.GameStoreManagementService;
+import jakarta.validation.Valid;
 
 @RestController
 public class EmployeeController {
@@ -30,9 +25,14 @@ public class EmployeeController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * Retrieves all employees.
+     *
+     * @param loggedInUsername The username of the logged-in user.
+     * @return A list of all employees.
+     */
     @GetMapping("/employees")
-    public EmployeeListResponseDto getAllEmployee(@RequestParam String loggedInUsername)
-    {
+    public EmployeeListResponseDto getAllEmployee(@RequestParam String loggedInUsername) {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
 
@@ -43,10 +43,9 @@ public class EmployeeController {
 
         Iterable<Employee> employees = gameStoreService.getAllEmployees();
 
-        List<EmployeeResponseDto> employeeResponseDtos = new ArrayList<EmployeeResponseDto>();
+        List<EmployeeResponseDto> employeeResponseDtos = new ArrayList<>();
 
-        for (Employee employee : employees)
-        {
+        for (Employee employee : employees) {
             EmployeeResponseDto employeeResponseDto = new EmployeeResponseDto(employee);
             employeeResponseDtos.add(employeeResponseDto);
         }
@@ -54,10 +53,20 @@ public class EmployeeController {
         return new EmployeeListResponseDto(employeeResponseDtos);
     }
 
-
+    /**
+     * Creates or updates an employee.
+     *
+     * @param userAccountRequestDto The employee data.
+     * @param username              The username of the employee.
+     * @param loggedInUsername      The username of the logged-in user.
+     * @param isUpdate              True if updating an existing employee; false if creating a new one.
+     * @return The created or updated employee.
+     */
     @PutMapping("/employees/{username}")
-    public EmployeeResponseDto createEmployee(@RequestBody UserAccountRequestDto userAccountRequestDto, @PathVariable String username, @RequestParam String loggedInUsername, @RequestParam boolean isUpdate)
-    {
+    public EmployeeResponseDto createEmployee(@RequestBody UserAccountRequestDto userAccountRequestDto,
+                                              @PathVariable String username,
+                                              @RequestParam String loggedInUsername,
+                                              @RequestParam boolean isUpdate) {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
 
@@ -66,20 +75,16 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to update employees.");
         }
 
-        if (isUpdate)
-        {
+        if (isUpdate) {
             gameStoreService.updateEmployee(userAccountRequestDto.getName(), username,
-                                            userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(),
-                                            userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
+                    userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(),
+                    userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
+        } else {
+            gameStoreService.addEmployee(userAccountRequestDto.getName(), username,
+                    userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(),
+                    userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
         }
 
-        else
-        {
-            gameStoreService.addEmployee(userAccountRequestDto.getName(), username, 
-                                    userAccountRequestDto.getEmail(), userAccountRequestDto.getPassword(), 
-                                    userAccountRequestDto.getPhoneNumber(), userAccountRequestDto.getIsActive());
-        }
-        
         Employee employee = gameStoreService.getEmployeeByUsername(username);
 
         EmployeeResponseDto employeeResponseDto = new EmployeeResponseDto(employee);
@@ -87,9 +92,16 @@ public class EmployeeController {
         return employeeResponseDto;
     }
 
+    /**
+     * Retrieves an employee by username.
+     *
+     * @param username         The username of the employee.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The employee with the given username.
+     */
     @GetMapping("/employees/{username}")
-    public EmployeeResponseDto getEmployeeByUsername(@PathVariable String username, @RequestParam String loggedInUsername)
-    {
+    public EmployeeResponseDto getEmployeeByUsername(@PathVariable String username,
+                                                     @RequestParam String loggedInUsername) {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
 
@@ -97,7 +109,7 @@ public class EmployeeController {
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view employees.");
         }
-        
+
         Employee employee = gameStoreService.getEmployeeByUsername(username);
 
         EmployeeResponseDto employeeResponseDto = new EmployeeResponseDto(employee);
@@ -105,9 +117,16 @@ public class EmployeeController {
         return employeeResponseDto;
     }
 
+    /**
+     * Deletes (archives) an employee by username.
+     *
+     * @param username         The username of the employee to delete.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The archived employee.
+     */
     @DeleteMapping("/employees/{username}")
-    public EmployeeResponseDto deleteEmployeeByUsername(@PathVariable String username, @RequestParam String loggedInUsername)
-    {
+    public EmployeeResponseDto deleteEmployeeByUsername(@PathVariable String username,
+                                                        @RequestParam String loggedInUsername) {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
 
@@ -115,7 +134,7 @@ public class EmployeeController {
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete employees.");
         }
-        
+
         gameStoreService.archiveEmployeeAccount(username);
 
         Employee employee = gameStoreService.getEmployeeByUsername(username);
