@@ -39,7 +39,7 @@ import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.model.UserAccount;
-import group_13.game_store.model.Order;
+//import group_13.game_store.model.Order;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.OrderRepository;
@@ -72,6 +72,7 @@ public class UserAccountIntegrationTests {
 	private group_13.game_store.model.Order order2;
 	private Date randomDate1;
 	private Date randomDate2;
+	private Date randomDate3;
 
 	private String validName = "Bob";
 	private String validUsername = "Bob1234";
@@ -86,12 +87,15 @@ public class UserAccountIntegrationTests {
 		employee1 = new Employee("EmployeeName", "EmployeeUsername", "employeename@outlook.com", "444-553-444" ,"Passw0rd1234567890", true);
 		randomDate1 = Date.valueOf("2024-02-09");
 		randomDate2 = Date.valueOf("2023-12-10");
+		randomDate3 = Date.valueOf("2023-12-05");
 		// create some orders too
 		customerRepository.save(customer1);
 		customerRepository.save(customer2);
 		employeeRepository.save(employee1);
 		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);
+		order1.setOrderID(1);
         order2 = new group_13.game_store.model.Order(randomDate2, null, customer1);
+		order2.setOrderID(2);
 		orderRepository.save(order1);
 		orderRepository.save(order2);
 	}
@@ -100,6 +104,8 @@ public class UserAccountIntegrationTests {
 	public void clearDatabase() {
 		customerRepository.deleteAll();
 		employeeRepository.deleteAll();
+		orderRepository.deleteAll();
+		userRepository.deleteAll();
 	}
 
     @Test
@@ -326,24 +332,60 @@ public class UserAccountIntegrationTests {
 	@Test 
 	@org.junit.jupiter.api.Order(11)
 	public void testCreateOrderAsCustomer() {
+		// arrange
+		OrderRequestDto testedCreatedOrder = new OrderRequestDto(randomDate1, null, customer1);
 
-	}
+		// act
+		ResponseEntity<OrderResponseDto> response = client.postForEntity("/customers/FakeUsername1/orders?loggedInUsername=FakeUsername1", testedCreatedOrder, OrderResponseDto.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(randomDate3, response.getBody().getPurchaseDate());
+		assertNull(response.getBody().getReturnDate());
+		assertEquals(customer1.getUsername(), response.getBody().getCustomer().getUsername());
+		}
 
 	@Test 
 	@org.junit.jupiter.api.Order(12)
 	public void testCreateOrderAsNonCustomer() {
+		// arrange
+		OrderRequestDto testedCreatedOrder = new OrderRequestDto(randomDate1, null, customer1);
 
+		// act
+		ResponseEntity<String> response = client.postForEntity("/customers/EmployeeUsername/orders?loggedInUsername=EmployeeUsername", testedCreatedOrder, String.class);
+
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be a customer to make own orders", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
 	}
 
 	@Test 
 	@org.junit.jupiter.api.Order(13)
 	public void testFindOrderOfCustomerAsCustomer(){
+		// Arrange
+		System.out.println("URL: /customers/FakeUsername1/orders/1?loggedInUsername=FakeUsername1");
 
+		// act
+		ResponseEntity<OrderResponseDto> response = client.getForEntity("/customers/FakeUsername1/orders/1?loggedInUsername=FakeUsername1", OrderResponseDto.class);
+	
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(order1.getOrderID(), response.getBody().getOrderId());
+		assertNull(response.getBody().getReturnDate());
+		assertEquals(order1.getCustomer().getUsername(), response.getBody().getCustomer().getUsername());
 	}
 
 	@Test 
 	@org.junit.jupiter.api.Order(14)
-	public void testFindOrderOfCustomerAsNonCustomer(){
+	public void testFindOrderOfCustomerAsNonCustomerException(){
 		
 	}
 
