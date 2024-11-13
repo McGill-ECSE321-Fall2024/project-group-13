@@ -25,7 +25,7 @@ Report available [here](https://github.com/McGill-ECSE321-Fall2024/project-group
 
 ## Individual Effort Overview
 
-| Name                |  Deliverable           | Hours Committed | Team Roles                                        |
+| Name                |  Deliverable           | Total Hours Committed | Team Roles                                        |
 |---------------------|-----------------------|-----------------|-----------------------------------------------------|
 | William Blackmore   | Del. 1 - Model & DB Schema     | 25.5 hours         | Team Manager: Distributes tasks and manages deadlines of entire team |
 | Nicolas Dolgopolyy  | Del. 1 - Model & DB Schema     | 15.5 hours         | Documentation Lead: Ensures that the report is written correctly and follows all guidelines |
