@@ -34,6 +34,8 @@ import group_13.game_store.repository.EmployeeRepository;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpEntity;
+
+import java.nio.file.WatchEvent;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,6 +66,11 @@ public class GameIntegrationTests {
     private GameCategory gameCategory1;
     private Game game1;
     private Game game2;
+    private Game game3;
+    private Game game4;
+    private Game game5;
+    private Game game6;
+    private Game game7;
 
     @BeforeAll
     public void setup() {
@@ -99,27 +106,27 @@ public class GameIntegrationTests {
         gameRepo.save(game2);
 
         // Game 3: In stock and archived
-        Game game3 = new Game("Game 3", "Description 3", "Image 3", 5, 29.99, "18+", Game.VisibilityStatus.Archived,
+        game3 = new Game("Game 3", "Description 3", "Image 3", 5, 29.99, "18+", Game.VisibilityStatus.Archived,
                 gameCategory1);
         gameRepo.save(game3);
 
         // Game 4: Out of stock and archived
-        Game game4 = new Game("Game 4", "Description 4", "Image 4", 0, 39.99, "18+", Game.VisibilityStatus.Archived,
+        game4 = new Game("Game 4", "Description 4", "Image 4", 0, 39.99, "18+", Game.VisibilityStatus.Archived,
                 gameCategory1);
         gameRepo.save(game4);
 
         // Game 5: In stock and pending archive --> Available
-        Game game5 = new Game("Game 5", "Description 5", "Image 5", 3, 49.99, "18+",
+        game5 = new Game("Game 5", "Description 5", "Image 5", 3, 49.99, "18+",
                 Game.VisibilityStatus.PendingArchive, gameCategory1);
         gameRepo.save(game5);
 
         // Game 6: Out of stock and pending archive
-        Game game6 = new Game("Game 6", "Description 6", "Image 6", 0, 59.99, "18+",
+        game6 = new Game("Game 6", "Description 6", "Image 6", 0, 59.99, "18+",
                 Game.VisibilityStatus.PendingArchive, gameCategory1);
         gameRepo.save(game6);
 
         // Game 7: In stock and visible --> Available
-        Game game7 = new Game("TitleThatDoesNotStartWithGame", "Description 7", "Image 7", 10, 9.99, "18+",
+        game7 = new Game("TitleThatDoesNotStartWithGame", "Description 7", "Image 7", 10, 9.99, "18+",
                 Game.VisibilityStatus.Visible, gameCategory2);
         gameRepo.save(game7);
 
@@ -845,6 +852,78 @@ public class GameIntegrationTests {
                 assertEquals(404, json.getInt("status"));
                 assertEquals("Not Found", json.getString("error"));
                 assertEquals("Game with ID 1000 not found.", json.getString("message"));
+                } catch (org.json.JSONException e) {
+                        fail("Response body is not a valid JSON");
+                }
+        }
+
+
+        // **** GET /games/archive-requests Tests (Gets All Games with Pending Archive Status) only owner ****
+        @Test
+        @Order(23)
+        public void testGetAllGamesWithPendingArchiveAsOwner() {
+                // Arrange
+                String url = "/games/archive-requests?loggedInUsername=owner";
+                System.out.println(String.format("URL: %s", url));
+
+                // set all the games to pending archive except game 1 and game 2
+                game1.setStatus(Game.VisibilityStatus.Visible);
+                game2.setStatus(Game.VisibilityStatus.Archived);
+                game3.setStatus(Game.VisibilityStatus.PendingArchive);
+                game4.setStatus(Game.VisibilityStatus.PendingArchive);
+                game5.setStatus(Game.VisibilityStatus.PendingArchive);
+                game6.setStatus(Game.VisibilityStatus.PendingArchive);
+                game7.setStatus(Game.VisibilityStatus.PendingArchive);
+
+                // update the games in the database
+                gameRepo.save(game1);
+                gameRepo.save(game2);
+                gameRepo.save(game3);
+                gameRepo.save(game4);
+                gameRepo.save(game5);
+                gameRepo.save(game6);
+                gameRepo.save(game7);                
+
+                // Act
+                ResponseEntity<GameListResponseDto> response = client.getForEntity(url, GameListResponseDto.class);
+
+                // Assert
+                assertNotNull(response);
+                assertEquals(HttpStatus.OK, response.getStatusCode());
+                assertNotNull(response.getBody());
+                List<GameResponseDto> actualGames = response.getBody().getGames();
+                assertNotNull(actualGames);
+                assertEquals(5, actualGames.size());
+
+                // Assert the status of the games
+                for (GameResponseDto game : actualGames) {
+                        assertEquals(Game.VisibilityStatus.PendingArchive.toString(), game.getStatus());
+                }
+
+                // ASsert the game ids
+                List<Integer> gameIds = Arrays.asList(game3.getGameID(), game4.getGameID(), game5.getGameID(), game6.getGameID(), game7.getGameID());
+                for (GameResponseDto game : actualGames) {
+                        assertTrue(gameIds.contains(game.getGameID()));
+                }
+        }
+
+        @Test
+        @Order(24)
+        public void testGetAllGamesWithPendingArchivePermissionDenied() {
+                // Arrange
+                String url = "/games/archive-requests?loggedInUsername=Employee1Username";
+                System.out.println(String.format("URL: %s", url));
+
+                // Act
+                ResponseEntity<String> response = client.getForEntity(url, String.class);
+
+                // Assert
+                try {
+                        // Parse the response body as JSON
+                org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+                assertEquals(403, json.getInt("status"));
+                assertEquals("Forbidden", json.getString("error"));
+                assertEquals("You do not have permission to view pending archive requests.", json.getString("message"));
                 } catch (org.json.JSONException e) {
                         fail("Response body is not a valid JSON");
                 }

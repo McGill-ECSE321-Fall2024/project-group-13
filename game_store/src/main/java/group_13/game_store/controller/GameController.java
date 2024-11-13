@@ -259,6 +259,8 @@ public class GameController {
         return new GameListResponseDto(gameResponseDtos);
     }
 
+
+    // Helper method to convert a string to a Game.VisibilityStatus
     private static Game.VisibilityStatus stringToStatus(String status) {
         if (status.equals("Visible")) {
             return Game.VisibilityStatus.Visible;
