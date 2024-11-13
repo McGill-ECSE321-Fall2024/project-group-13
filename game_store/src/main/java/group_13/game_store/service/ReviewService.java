@@ -82,7 +82,7 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found.");
         }
 
-        if (aScore <= 1 || aScore > 5) {
+        if (aScore < 1 || aScore > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score must be between 1 and 5.");
         }
 
@@ -131,7 +131,7 @@ public class ReviewService {
         if (reviewID <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID must be greater than 0.");
         }
-        if (aScore <= 1 || aScore > 5) {
+        if (aScore < 1 || aScore > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score must be between 1 and 5.");
         }
 
@@ -217,6 +217,11 @@ public class ReviewService {
     // it
     @Transactional
     public Reply replyToReview(int reviewID, String replyerId, String reply) {
+        final String ANSI_RESET = "\u001B[0m";
+        final String ANSI_YELLOW = "\u001B[33m";
+
+        System.out.println(ANSI_YELLOW + "This text is yellow!" + ANSI_RESET);
+
         // Look for the user based on the replyerId
         Owner replyerOwner = ownerRepo.findByUsername(replyerId);
         Customer replyerCustomer = customerRepo.findByUsername(replyerId);
