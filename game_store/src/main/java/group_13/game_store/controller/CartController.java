@@ -39,15 +39,17 @@ public class CartController {
     public CartResponseDto getCart(@PathVariable String customerUsername) {
         // check if the customer exists and is logged in
 
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to access this user's cart");
+                    "Only customers can access their own cart");
         }
 
         // Get the users cart (list of games)
         List<CartItem> cartItems = browsingService.getCustomerCartByUsername(customerUsername);
+
+        System.out.println(cartItems);
 
         List<GameResponseDto> games = new ArrayList<>();
 
@@ -58,9 +60,10 @@ public class CartController {
             Game game = item.getKey().getGame();
 
             // create a GameResponseDto
+            String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle);
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -81,11 +84,11 @@ public class CartController {
     @DeleteMapping("/customers/{customerUsername}/cart")
     public CartResponseDto clearCart(@PathVariable String customerUsername) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to access this user's cart");
+                    "Only customers can clear their own cart");
         }
 
         // clear the cart
@@ -128,7 +131,7 @@ public class CartController {
     public GameResponseDto addToCart(@PathVariable String customerUsername, @PathVariable int gameID,
             @RequestParam int quantity) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -141,10 +144,12 @@ public class CartController {
         // get the game associated with the gameID
         Game game = browsingService.getGameById(gameID);
 
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
+
         // create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto;
 
