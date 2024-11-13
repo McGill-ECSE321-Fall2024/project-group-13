@@ -85,7 +85,7 @@ public class AddressController {
     }
 
     // PUT to update the existing address for a customer
-    @PutMapping("/address")
+    @PutMapping("/address/{addressID}")
     public AddressResponseDto updateAddress(
         @PathVariable("customerId") String customerId,
         @PathVariable int addressID,
@@ -195,7 +195,7 @@ public class AddressController {
     }
 
     // PUT to update the existing billing address for a customer's payment information
-    @PutMapping("/paymentinfo/address")
+    @PutMapping("/paymentinfo/address/{addressID}")
     public AddressResponseDto updateBillingAddress(
         @PathVariable("customerId") String customerId,
         @PathVariable int addressID,

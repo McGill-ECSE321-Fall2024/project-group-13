@@ -14,6 +14,10 @@ public class UserAccountResponseDto {
     private String phoneNumber;
     private int permissionLevel;
     private LocalDate creationDate;
+
+    public UserAccountResponseDto() {
+    }
+
     public UserAccountResponseDto(UserAccount aUserAccount) {
 		this.username = aUserAccount.getUsername();
 		this.name = aUserAccount.getName();
