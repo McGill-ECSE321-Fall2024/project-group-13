@@ -56,11 +56,6 @@ public class CartIntegrationTests {
      // Private fields for expected GameResponseDto instances
      private GameResponseDto expectedGame1;
      private GameResponseDto expectedGame2;
-     private GameResponseDto expectedGame3;
-     private GameResponseDto expectedGame4;
-     private GameResponseDto expectedGame5;
-     private GameResponseDto expectedGame6;
-     private GameResponseDto expectedGame7;
  
      private GameCategory gameCategory1;
      private Game game1;
@@ -163,65 +158,6 @@ public class CartIntegrationTests {
                  game2.getCategory().getCategoryID(),
                  "");
  
-         expectedGame3 = new GameResponseDto(
-                 game3.getGameID(),
-                 game3.getTitle(),
-                 game3.getDescription(),
-                 game3.getImg(),
-                 game3.getStock(),
-                 game3.getPrice(),
-                 game3.getParentalRating(),
-                 game3.getStatus().toString(),
-                 game3.getCategory().getCategoryID(),
-                 "");
- 
-         expectedGame4 = new GameResponseDto(
-                 game4.getGameID(),
-                 game4.getTitle(),
-                 game4.getDescription(),
-                 game4.getImg(),
-                 game4.getStock(),
-                 game4.getPrice(),
-                 game4.getParentalRating(),
-                 game4.getStatus().toString(),
-                 game4.getCategory().getCategoryID(),
-                 "");
- 
-         expectedGame5 = new GameResponseDto(
-                 game5.getGameID(),
-                 game5.getTitle(),
-                 game5.getDescription(),
-                 game5.getImg(),
-                 game5.getStock(),
-                 game5.getPrice(),
-                 game5.getParentalRating(),
-                 game5.getStatus().toString(),
-                 game5.getCategory().getCategoryID(),
-                 "");
- 
-         expectedGame6 = new GameResponseDto(
-                 game6.getGameID(),
-                 game6.getTitle(),
-                 game6.getDescription(),
-                 game6.getImg(),
-                 game6.getStock(),
-                 game6.getPrice(),
-                 game6.getParentalRating(),
-                 game6.getStatus().toString(),
-                 game6.getCategory().getCategoryID(),
-                 "");
- 
-         expectedGame7 = new GameResponseDto(
-                 game7.getGameID(),
-                 game7.getTitle(),
-                 game7.getDescription(),
-                 game7.getImg(),
-                 game7.getStock(),
-                 game7.getPrice(),
-                 game7.getParentalRating(),
-                 game7.getStatus().toString(),
-                 game7.getCategory().getCategoryID(),
-                 "");
  
          // ***** Users *****
  

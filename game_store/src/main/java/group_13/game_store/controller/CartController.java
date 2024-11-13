@@ -12,7 +12,6 @@ import group_13.game_store.service.BrowsingService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -34,7 +33,11 @@ public class CartController {
     @Autowired
     AccountService accountService;
 
-    // Get all items in the cart
+    /**
+     * Get the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @return the customer's cart ie. a list of games and the subtotal price
+     */
     @GetMapping("/customers/{customerUsername}/cart")
     public CartResponseDto getCart(@PathVariable String customerUsername) {
         // check if the customer exists and is logged in
@@ -80,7 +83,11 @@ public class CartController {
 
     }
 
-    // Clear the cart
+    /**
+     * Clear the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @return the customer's cart which should be empty and have a subtotal price of 0
+     */
     @DeleteMapping("/customers/{customerUsername}/cart")
     public CartResponseDto clearCart(@PathVariable String customerUsername) {
         // check if the customer exists and is logged in
@@ -126,7 +133,13 @@ public class CartController {
 
     }
 
-    // Add a game to the cart
+    /**
+     * Add a game to the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @param gameID the id of the game
+     * @param quantity the quantity of the game
+     * @return the game that was added to the cart
+     */
     @PutMapping("/customers/{customerUsername}/cart/{gameID}")
     public GameResponseDto addToCart(@PathVariable String customerUsername, @PathVariable int gameID,
             @RequestParam int quantity) {
@@ -155,7 +168,12 @@ public class CartController {
 
     }
 
-    // Remove a game from the cart
+    /**
+     * Remove a game from the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @param gameID the id of the game
+     * @return the game that was removed from the cart
+     */
     @DeleteMapping("/customers/{customerUsername}/cart/{gameID}")
     public GameResponseDto removeFromCart(@PathVariable String customerUsername, @PathVariable int gameID) {
         // check if the customer exists and is logged in
@@ -182,7 +200,13 @@ public class CartController {
 
     }
 
-    // Update the quantity of a game in the cart
+    /**
+     * Update the quantity of a game in the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @param gameID the id of the game
+     * @param quantity the quantity of the game
+     * @return the game that was updated in the cart
+     */
     @PutMapping("/customers/{customerUsername}/cart/{gameID}/quantity/{quantity}") 
                                                                  // double check
     public GameResponseDto updateQuantityInCart(@PathVariable String customerUsername, @PathVariable int gameID,
@@ -207,7 +231,7 @@ public class CartController {
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
                 game.getCategory().getCategoryID(), promotionTitle);
 
-        return gameResponseDto; // review if this is needed
+        return gameResponseDto; 
 
     }
 

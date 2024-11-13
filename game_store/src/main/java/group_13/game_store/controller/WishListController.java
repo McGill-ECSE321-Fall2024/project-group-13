@@ -39,6 +39,11 @@ public class WishListController {
     @Autowired
     AccountService accountService;
 
+    /**
+     * Get the wishlist for a customer (Customer only)
+     * @param customerID the username of the customer
+     * @return a list of games in the wishlist
+     */
     @GetMapping("/customers/{customerID}/wishlist")
     public GameListResponseDto getWishList(@PathVariable String customerID) {
 
@@ -72,7 +77,12 @@ public class WishListController {
         return new GameListResponseDto(games);
     }
 
-    // Add a game to the wishlist
+    /**
+     * Add a game to the wishlist (Customer only)
+     * @param customerID the username of the customer
+     * @param gameID the id of the game to add to the wishlist
+     * @return a GameResponseDto of the game added to the wishlist
+     */
     @PutMapping("/customers/{customerID}/wishlist/{gameID}")
     public GameResponseDto addGameToWishlist(@PathVariable String customerID, @PathVariable int gameID) {
 
@@ -98,7 +108,12 @@ public class WishListController {
         return gameResponseDto;
     }
 
-    // Remove a game from the wishlist
+     /**
+      * Remove a game from the wishlist (Customer only)
+      * @param customerID the username of the customer
+      * @param gameID the id of the game to remove from the wishlist
+      * @return the removed game from the wishlist
+      */
     @DeleteMapping("/customers/{customerID}/wishlist/{gameID}")
     public GameResponseDto removeGameFromWishlist(@PathVariable String customerID, @PathVariable int gameID) {
 
@@ -124,7 +139,11 @@ public class WishListController {
         return gameResponseDto;
     }
 
-    // Clear wishlist
+    /**
+     * Clear the wishlist (Customer only)
+     * @param customerID the username of the customer
+     * @return an empty list / an empty wishlist
+     */
     @DeleteMapping("/customers/{customerID}/wishlist")
     public GameListResponseDto clearWishlist(@PathVariable String customerID) {
 

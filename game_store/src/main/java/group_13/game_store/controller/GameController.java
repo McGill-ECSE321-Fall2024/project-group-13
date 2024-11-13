@@ -42,7 +42,15 @@ public class GameController {
     @Autowired
     AccountService accountService;
 
-    // Get all games with optional filters
+    /** 
+     * Gets all games with optional filtering by title prefix or category, customers can only see available games but employees can see all games
+     * 
+     * @param title the title prefix to filter by (for the search bar)
+     * @param category the category name to filter by
+     * @param loggedInUsername the username of the logged in user 
+     * 
+     * @return a list of games that match the filters
+     */
     @GetMapping("/games")
     public GameListResponseDto getGames(
             @RequestParam(required = false) String title,
@@ -96,7 +104,13 @@ public class GameController {
         return new GameListResponseDto(gameResponseDtos);
     }
 
-    // Get a game by its ID
+    /**
+     * Get a game by its ID, customers can only see available games but employees can see all games
+     * @param gameID the ID of the game
+     * @param loggedInUsername the username of the logged in user
+     * @return the game with the given ID
+     */
+
     @GetMapping("/games/{gameID}")
     public GameResponseDto getGameById(@PathVariable int gameID, @RequestParam String loggedInUsername) {
 
@@ -129,7 +143,12 @@ public class GameController {
         return gameResponseDto;
     }
 
-    // Add a game to the store (Owner only)
+    /**
+     * Add a game to the store (Owner only)
+     * @param gameRequestDto the game to add
+     * @param loggedInUsername the username of the logged in user
+     * @return the game that was added
+     */
     @PostMapping("/games")
     public GameResponseDto addGame(@RequestBody GameRequestDto gameRequestDto,
             @RequestParam String loggedInUsername) {
@@ -168,7 +187,13 @@ public class GameController {
         return gameResponseDto;
     }
 
-    // Update a game in the store (Owner only)
+    /**
+     * Update a game (Owner only)
+     * @param gameID the ID of the game to update
+     * @param gameRequestDto the updated game
+     * @param loggedInUsername the username of the logged in user
+     * @return the updated game
+     */
     @PutMapping("/games/{gameID}")
     public GameResponseDto updateGame(@PathVariable int gameID,
             @RequestBody GameRequestDto gameRequestDto,
@@ -206,7 +231,13 @@ public class GameController {
         return gameResponseDto;
     }
 
-    // Archive a game (Owner only)
+    /**
+     * Depending on the user's permission level, either archive a game (Owner) or request to archive a game (Employee)
+     * @param gameID the ID of the game to archive
+     * @param loggedInUsername the username of the logged in user
+     * 
+     * @return void
+    */
     @DeleteMapping("/games/{gameID}")
     public void archiveGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
 
@@ -226,7 +257,12 @@ public class GameController {
 
     }
 
-    // Get pending game archive requests (Owner only)
+    /**
+     * Get all games that have been requested to be archived by employees (Owner only)
+     * @param loggedInUsername the username of the logged in user
+     * 
+     * @return a list of games that have been requested to be archived by employees
+     */
     @GetMapping("/games/archive-requests")
     public GameListResponseDto getGameArchiveRequests(@RequestParam String loggedInUsername) {
 
