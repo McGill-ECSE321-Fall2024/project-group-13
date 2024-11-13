@@ -193,7 +193,7 @@ public class ReviewIntegrationTests {
     }
 
     @Test
-    @org.junit.jupiter.api.Order(1)
+    @org.junit.jupiter.api.Order(1) //Import conflicsts with order so necessary to do it like this
     public void testCreateReview_Success() {
         int gameId1 = game1.getGameID();
 

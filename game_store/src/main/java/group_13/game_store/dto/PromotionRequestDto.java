@@ -8,15 +8,13 @@ public class PromotionRequestDto {
     private Date startDate;
     private Date endDate;
     private String title;
-    private double discount;
 
-    public PromotionRequestDto(int percentage, String description, Date startDate, Date endDate, String title, double discount) {
+    public PromotionRequestDto(int percentage, String description, Date startDate, Date endDate, String title) {
         this.percentage = percentage;
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;
-        this.discount = discount;
     }
 
     public int getPercentage() {
@@ -39,10 +37,6 @@ public class PromotionRequestDto {
         return title;
     }
 
-    public double getDiscount() {
-        return discount;
-    }
-
     public void setPercentage(int percentage) {
         this.percentage = percentage;
     }
@@ -61,10 +55,6 @@ public class PromotionRequestDto {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setDiscount(double discount) {
-        this.discount = discount;
     }
     
 }
