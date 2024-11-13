@@ -110,7 +110,7 @@ public class UserAccountController {
         // validating that a logged in account is update the password or phone number
         // every user has permission to change their own password
         if (!accountService.hasPermissionAtLeast(checkLoggedInUser, 1)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Must be registered user to change phone number");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Must be registered user to change phone number or password");
         }
         
         

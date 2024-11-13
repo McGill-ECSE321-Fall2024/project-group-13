@@ -25,7 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import group_13.game_store.dto.CustomerListDto;
@@ -33,8 +37,10 @@ import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
+import group_13.game_store.model.UserAccount;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
+import group_13.game_store.repository.UserAccountRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -46,6 +52,9 @@ public class UserAccountIntegrationTests {
 
 	@Autowired
 	private CustomerRepository customerRepository;
+
+	@Autowired
+	private UserAccountRepository userRepository;
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
@@ -76,6 +85,7 @@ public class UserAccountIntegrationTests {
     @AfterAll
 	public void clearDatabase() {
 		customerRepository.deleteAll();
+		employeeRepository.deleteAll();
 	}
 
     @Test
@@ -195,7 +205,6 @@ public class UserAccountIntegrationTests {
 		ResponseEntity<String> response = client.getForEntity("/customers?username=FakeUsername2&loggedInUsername=FakeUsername1", String.class);
 	
 		// assert
-		// assert
 		try {
 			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
 			assertEquals(403, json.getInt("status"));
@@ -204,19 +213,58 @@ public class UserAccountIntegrationTests {
 		} catch (org.json.JSONException e){
 			fail("Response body is not a valid JSON");
 		}
-		
 	}
 
 	@Test
 	@Order(7)
-	public void testUpdateGeneralUserInformationWhenNotAguest(){
+	public void testUpdateGeneralUserInformationWhenNotAGuest(){
+		// arrange
+		String newValidPassword = "Br4ndN3wPassw0rd";
+		String newValidPhoneNumber = "111-111-1111";
+		UserAccountRequestDto testedUpdatedAccount = new UserAccountRequestDto(validName, validUsername, validEmail, newValidPhoneNumber, newValidPassword);
+		// creating the request entity
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<UserAccountRequestDto> requestEntity = new HttpEntity<>(testedUpdatedAccount, header);
+		
+		// act
+		ResponseEntity<UserAccountResponseDto> response = client.exchange("/users?username=FakeUsername&loggedInUsername=FakeUserName1", HttpMethod.PUT, requestEntity, UserAccountResponseDto.class);
+		// the information should be updated after the above line was executed
+		UserAccount updatedUser = userRepository.findByUsername(validName);
 
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(newValidPassword, updatedUser.getPassword());
+		assertEquals(newValidPhoneNumber, updatedUser.getPhoneNumber());
 	}
 
+	// dealing with guest again @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	@Test
 	@Order(8)
-	public void testUpdateGeneralUserInformationWhenAGuest(){
+	public void testUpdateGeneralUserInformationWhenAGuestException(){
+		// arrange
+		// arrange
+		String newValidPassword = "Br4ndN3wPassw0rd";
+		String newValidPhoneNumber = "111-111-1111";
+		UserAccountRequestDto testedUpdatedAccount = new UserAccountRequestDto(validName, validUsername, validEmail, newValidPhoneNumber, newValidPassword);
+		// creating the request entity
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<UserAccountRequestDto> requestEntity = new HttpEntity<>(testedUpdatedAccount, header);
 
+		// act
+		ResponseEntity<String> response = client.exchange("/users?username=guest&loggedInUsername=guest", HttpMethod.PUT, requestEntity, String.class);
+	
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("Must be registered user to change phone number or password", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
 	}
 
 	@Test 
