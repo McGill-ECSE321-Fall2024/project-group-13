@@ -192,11 +192,9 @@ public class GameStoreManagementService {
 
     // Retrieve category by id
     public GameCategory getCategoryById(int id){
-        System.out.println(String.format("id: %d", id));
         GameCategory gameCategory = gameCategoryRepository.findByCategoryID(id);
         if (gameCategory == null)
         {
-            System.out.println(String.format("Game category null"));
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with ID " + id + " not found.");
         }
         return gameCategory;
@@ -415,14 +413,11 @@ public class GameStoreManagementService {
     // Archive an employee account -- Permission req (Only Owner)
     @Transactional
     public void archiveEmployeeAccount(String employee_username) {
-        System.out.println("here 1");
         Employee employee = employeeRepository.findByUsername(employee_username);
         if (employee != null) {
-            System.out.println("here 2");
             employee.setIsActive(false);
             employeeRepository.save(employee);
         } else {
-            System.out.println("here 3");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee with username " + employee_username + " not found.");
         }
     }

@@ -3,10 +3,7 @@ package group_13.game_store.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.ArrayList;
-
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -125,7 +122,6 @@ public class GameCategoryIntegrationTests {
         // Arrange
         GameCategory category = gameCategoryRepo.findAll().iterator().next();
         int categoryId = category.getCategoryID();
-        System.out.println(String.format("category id: %d", categoryId));
 
         // Act
         ResponseEntity<GameCategoryResponseDto> response = client.getForEntity("/categories/" + String.valueOf(categoryId), GameCategoryResponseDto.class);
@@ -148,7 +144,7 @@ public class GameCategoryIntegrationTests {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(0, gameCategoryRepo.count());
+        assertEquals((gameCategoryRepo.findByCategoryID(categoryId)).getStatus(), VisibilityStatus.PendingArchive);
     }
 
     @Test
@@ -175,7 +171,7 @@ public class GameCategoryIntegrationTests {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody().getGameCategories());
-        assertEquals(new ArrayList<>(), response.getBody().getGameCategories()); // Should be empty at this point
+        assertEquals(1, response.getBody().getGameCategories().size()); 
     }
 
     @Test

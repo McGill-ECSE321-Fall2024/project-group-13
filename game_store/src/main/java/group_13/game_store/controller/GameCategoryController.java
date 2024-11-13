@@ -22,6 +22,7 @@ import group_13.game_store.service.GameStoreManagementService;
 
 import java.util.List;
 
+
 @RestController
 public class GameCategoryController 
 {
@@ -77,20 +78,18 @@ public class GameCategoryController
     }
 
     @GetMapping("/categories/{categoryID}")
-    public GameCategoryResponseDto getGameCategoryById(@PathVariable int gameCategoryID)
+    public GameCategoryResponseDto getGameCategoryById(@PathVariable int categoryID)
     {
-        System.out.println(String.format("getMapping: game categoryID: %d", gameCategoryID));
-        GameCategory category = gameStoreService.getCategoryById(gameCategoryID);
+        GameCategory category = gameStoreService.getCategoryById(categoryID);
 
         return new GameCategoryResponseDto(category);
     }
 
     @DeleteMapping("/categories/{categoryID}")
-    public void deleteGameCategoryById(@PathVariable int gameCategoryID, @RequestParam String loggedInUsername)
+    public void deleteGameCategoryById(@PathVariable int categoryID, @RequestParam String loggedInUsername)
     {
         // Check if the user is atleast employee
         boolean isStaff = accountService.hasPermissionAtLeast(loggedInUsername, 2);
-
         // If the user is not the owner, throw a permission denied exception
         if (!isStaff) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive game categories.");
@@ -99,7 +98,7 @@ public class GameCategoryController
         // Archive game if user is owner, request archive if employee
         else
         {
-            gameStoreService.archiveCategory(gameCategoryID, loggedInUsername);
+            gameStoreService.archiveCategory(categoryID, loggedInUsername);
         }
     }
 
