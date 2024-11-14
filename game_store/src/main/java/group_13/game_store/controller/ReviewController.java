@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.service.annotation.DeleteExchange;
 
 import group_13.game_store.dto.ReplyRequestDto;
 import group_13.game_store.dto.ReplyResponseDto;
@@ -47,6 +45,15 @@ public class ReviewController {
     /*
      * /games/reviews [GET]
      */
+
+     /**
+      * Get all reviews or all reviews that have not been replied to (Owner only)
+      *
+      * @param isPendingReply true if you want to get all reviews that have not been replied to and false if you want to get all reviews
+      * @param loggedInUsername the username of the user that is logged in
+      *
+      * @return a list of all reviews or a list of reviews that have not been replied to
+      */
     @GetMapping("/games/reviews")
     public ReviewListResponseDto getReviews(@RequestParam boolean isPendingReply,
     @RequestParam String loggedInUsername) {
@@ -78,6 +85,14 @@ public class ReviewController {
     /*
      * /games/{gameID}/reviews [GET, POST]
      */
+
+    /**
+     * Get all reviews for a specific game by gameID
+     * 
+     * @param gameID the ID of the game to get reviews for
+     * 
+     * @return a list of reviews for the game
+     */
     @GetMapping("/games/{gameID}/reviews")
     public ReviewListResponseDto getReviewsByGame(@PathVariable int gameID) {
         // Return a list of reviews associated with a game via the ReviewListResponseDto
@@ -89,6 +104,15 @@ public class ReviewController {
         return responseDto;
     }
 
+    /**
+     * Create a review for a specific game by gameID (Customer and above only)
+     * 
+     * @param gameID the ID of the game to create a review for
+     * @param loggedInUsername the username of the user that is logged in
+     * @param request the request object containing the review information. It should contain the description and score of the review
+     * 
+     * @return the review that was created
+     */
     @PostMapping("/games/{gameID}/reviews")
     public ReviewResponseDto createReview(@PathVariable int gameID,
             @RequestParam String loggedInUsername,
@@ -116,12 +140,29 @@ public class ReviewController {
     /*
      * /games/{id}/reviews/{reviewID} [GET, PUT]
      */
+
+    /**
+     * Get a review by its unique ID 
+     * 
+     * @param reviewID the ID of the review to get
+     * 
+     * @return the review with the given ID
+     */
     @GetMapping("/games/reviews/{reviewID}")
     public ReviewResponseDto getReview(@PathVariable int reviewID) {
         // Return a review by its unique ID via the ReviewResponseDto
         return new ReviewResponseDto(reviewService.getReview(reviewID));
     }
 
+    /**
+     * Update a review by its unique ID (Customer and above only)
+     * 
+     * @param reviewID the ID of the review to update
+     * @param loggedInUsername the username of the user that is logged in
+     * @param request the request object containing the updated review information. It should contain the description and score of the review
+     * 
+     * @return the updated review
+     */
     @PutMapping("/games/reviews/{reviewID}")
     public ReviewResponseDto updateReview(@PathVariable int reviewID,
             @RequestParam String loggedInUsername,
@@ -139,6 +180,15 @@ public class ReviewController {
     /*
      * /games/{gameID}/reviews/{reviewID}/likes [POST, DELETE]
      */
+
+    /**
+     * Add a like to a review by its unique ID (Customer and above only)
+     * 
+     * @param reviewID the ID of the review to add a like to
+     * @param loggedInUsername the username of the user that is logged in
+     * 
+     * @return the review with the like added
+     */
     @PostMapping("/games/{gameID}/reviews/{reviewID}/likes")
     public ReviewResponseDto addLike(@PathVariable int reviewID,
             @RequestParam String loggedInUsername
@@ -153,6 +203,14 @@ public class ReviewController {
         return new ReviewResponseDto(reviewService.getReview(reviewID));
     }
 
+    /**
+     * Remove a like from a review by its unique ID (Customer and above only)
+     * 
+     * @param reviewID the ID of the review to remove a like from
+     * @param loggedInUsername the username of the user that is logged in
+     * 
+     * @return the review with the like removed
+     */
     @DeleteMapping("/games/{gameID}/reviews/{reviewID}/likes")
     public ReviewResponseDto removeLike(@PathVariable int reviewID,
             @RequestParam String loggedInUsername) {
@@ -170,6 +228,14 @@ public class ReviewController {
     /*
      * /games/{id}/reviews/{reviewID}/reply [GET, POST]
      */
+
+    /**
+     * Get a reply to a review by its unique ID 
+     * 
+     * @param reviewID the ID of the review to get the reply for
+     * 
+     * @return the reply to the review
+     */
     @GetMapping("/games/reviews/{reviewID}/replies")
     public ReplyResponseDto getReplyToReview(@PathVariable int reviewID) {
         // Reply to a review by its unique ID and return the review as a response object
@@ -184,6 +250,15 @@ public class ReviewController {
         return new ReplyResponseDto(reply);
     }
 
+    /**
+     * Reply to a review by its unique ID (Owner only)
+     * 
+     * @param reviewID the ID of the review to reply to
+     * @param loggedInUsername the username of the user that is logged in
+     * @param request the request object containing the reply information. It should contain the text of the reply
+     * 
+     * @return the reply to the review
+     */
     @PostMapping("/games/reviews/{reviewID}/replies")
     public ReplyResponseDto replyToReview(@PathVariable int reviewID, @RequestParam String loggedInUsername,
             @RequestBody ReplyRequestDto request) {

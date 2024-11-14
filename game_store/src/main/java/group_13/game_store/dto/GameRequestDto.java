@@ -1,7 +1,5 @@
 package group_13.game_store.dto;
 
-import group_13.game_store.model.Game.VisibilityStatus;
-
 public class GameRequestDto {
     private String title;
     private String description;
