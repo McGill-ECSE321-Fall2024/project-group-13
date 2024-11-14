@@ -71,6 +71,7 @@ public class UserAccountController {
         }
 
         Iterable<Customer> customers = gameStoreManagementService.getAllCustomers();
+        //List<Customer> customers = gameStoreManagementService.getAllCustomers();
         List<CustomerResponseDto> allCustomers = new ArrayList<>();
         for (Customer customer : customers) {
             allCustomers.add(new CustomerResponseDto(customer));
