@@ -38,6 +38,38 @@ tasks.named('test') {
 
 }
 
+// Define the integrationTest task using tasks.register
+tasks.register('integrationTest', Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+
+    // Filter to include only tests in the integration package
+    filter {
+        includeTestsMatching 'group_13.game_store.integration.*'
+    }
+
+    // Use the same classpath and test classes as the main test task
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    // Ensure integration tests run after unit tests
+    shouldRunAfter test
+
+    // Use JUnit Platform (suitable for JUnit 5)
+    useJUnitPlatform()
+
+    // Configure test logging
+    testLogging {
+        exceptionFormat = 'full'
+        events 'passed', 'failed', 'skipped'
+    }
+}
+
+// Make the check task depend on integrationTest
+tasks.named('check') {
+    dependsOn tasks.named('integrationTest')
+}
+
 tasks.named('jacocoTestReport') {
     dependsOn test // tests are required to run before generating the report
 }
