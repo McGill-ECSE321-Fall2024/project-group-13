@@ -12,7 +12,7 @@ public class OrderListDto {
         this.orders = orders;
     }
 
-    public List<OrderResponseDto> orders() {
+    public List<OrderResponseDto> getOrders() {
         return orders;
     }
 

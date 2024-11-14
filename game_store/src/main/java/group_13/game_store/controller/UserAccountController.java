@@ -105,19 +105,19 @@ public class UserAccountController {
     @PutMapping("/users/{username}")
     public UserAccountResponseDto updateGeneralUserInformation(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
         
         // validating that a logged in account is update the password or phone number
         // every user has permission to change their own password
-        if (!accountService.hasPermissionAtLeast(checkLoggedInUser, 1)) {
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Must be registered user to change phone number or password");
         }
         
         
         UserAccount aUser = accountService.findUserByUsername(username);
         if (aUser == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User accound " + username + " has not been made.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User account " + username + " has not been made.");
         }
         // changing phone number of user whether it is owner, employee, or customer
         accountService.changePhoneNumber(request.getPhoneNumber(), request.getUsername());
@@ -132,11 +132,11 @@ public class UserAccountController {
     @GetMapping("/customers/{username}/orders")
     public OrderListDto findAllOrdersOfCustomer(@RequestParam String loggedInUsername, @PathVariable String username) {
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
        
         // only customer should be able to see their order history
-        if (!accountService.hasPermission(checkLoggedInUser, 1) & !loggedInUsername.equals(username)) {
+        if (!accountService.hasPermission(loggedInUsername, 1) || !loggedInUsername.equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to view their own orders");
         }
 

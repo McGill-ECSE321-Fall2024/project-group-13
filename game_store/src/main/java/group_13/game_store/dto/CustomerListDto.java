@@ -12,7 +12,7 @@ public class CustomerListDto {
         this.customers = customers;
     }
 
-    public List<CustomerResponseDto> customers() {
+    public List<CustomerResponseDto> getCustomers() {
         return customers;
     }
 
