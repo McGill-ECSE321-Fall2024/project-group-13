@@ -28,6 +28,10 @@ import group_13.game_store.dto.PromotionResponseDto;
 import group_13.game_store.dto.ReviewRequestDto;
 import group_13.game_store.dto.ReviewResponseDto;
 import group_13.game_store.model.Promotion;
+import group_13.game_store.model.Game;
+import group_13.game_store.model.GameCategory;
+import group_13.game_store.repository.GameCategoryRepository;
+import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.repository.ReviewRepository;
 
@@ -46,15 +50,26 @@ public class PromotionIntegrationTests {
     @Autowired
     private PromotionRepository promotionRepository;
 
+    @Autowired
+    private GameRepository gameRepository;
+
+    @Autowired
+    private GameCategoryRepository gameCategoryRepository;
+
     @AfterAll
     public void clearDatabase() {
         promotionRepository.deleteAll();
+        gameRepository.deleteAll();
+        gameCategoryRepository.deleteAll();
     }
 
     private int promotion1ID;
     private int promotion2ID;
     private int promotion3ID;
     private int promotion4ID;
+
+    private GameCategory gameCategory;
+    private Game game1;
 
     @BeforeEach
     public void setup() {
@@ -73,6 +88,15 @@ public class PromotionIntegrationTests {
         promotion2ID = promotion2.getPromotionID();
         promotion3ID = promotion3.getPromotionID();
         promotion4ID = promotion4.getPromotionID();
+
+        //Create a template game categort
+        gameCategory = new GameCategory("Shooter game in the first person", GameCategory.VisibilityStatus.Visible, "FPS");
+        game1 = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
+
+        gameCategory = gameCategoryRepository.save(gameCategory);
+        game1 = gameRepository.save(game1);
+        
+
     }
 
     @Test
@@ -306,6 +330,50 @@ public class PromotionIntegrationTests {
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertTrue(response.getBody().contains("Promotion not found."));
+    }
+
+    @Test
+    @Order(9)
+    public void testAddPromotionToGame_Success(){
+        int gameID = game1.getGameID();
+
+        String loggedInUsername = "owner";
+
+        int percentage = 10;
+        String description = "Fall sale!";
+        Date startDate = Date.valueOf(LocalDate.of(2024, 9, 14));
+        Date endDate = Date.valueOf(LocalDate.of(2025, 1, 14)); //Make it a valid promotion
+        String title = "Fall Sale";
+
+        // Create a promotion request
+        PromotionRequestDto promotionRequest = new PromotionRequestDto(percentage, description, startDate, endDate, title);
+
+        ResponseEntity<PromotionResponseDto> response = client.postForEntity(
+            "/games/" + gameID + "/promotions?loggedInUsername=" + loggedInUsername, 
+            promotionRequest, 
+            PromotionResponseDto.class
+        );
+
+        // Assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        // Check if the response matches the request
+        PromotionResponseDto promotionResponse = response.getBody();
+        assertEquals(percentage, promotionResponse.getPercentage());
+        assertEquals(description, promotionResponse.getDescription());
+        assertEquals(title, promotionResponse.getTitle());
+
+        // Check if the promotion was properly saved in the database
+        int promotionID = promotionResponse.getPromotionID();
+
+        // Check if the promotion was properly saved in the database
+        Promotion savedPromotion = promotionRepository.findById(promotionID).get();
+        assertNotNull(savedPromotion);
+        assertEquals(percentage, savedPromotion.getPercentage());
+        assertEquals(description, savedPromotion.getDescription());
+        assertEquals(title, savedPromotion.getTitle());  
     }
 
     

@@ -82,9 +82,6 @@ public class ReviewIntegrationTests {
     private GameCategoryRepository gameCategoryRepository;
 
     @Autowired
-    private OwnerRepository ownerRepository;
-
-    @Autowired
     private EmployeeRepository employeeRepository;
 
     @Autowired
@@ -99,7 +96,6 @@ public class ReviewIntegrationTests {
         gameRepository.deleteAll();
         customerRepository.deleteAll();
         gameCategoryRepository.deleteAll();
-        ownerRepository.deleteAll();
         employeeRepository.deleteAll();
 	}
 
@@ -138,9 +134,6 @@ public class ReviewIntegrationTests {
         customer4 = new Customer("Alice", "alice_wonderland", "alice@mail.com", "alice123", "789-012-3456");
 
         employee1 = new Employee("Tom","tom_holland", "tom@mail.com", "tom123", "123-456-7890", true);
-
-        Owner owner = new Owner("bob", "owner", "owner@mail.com,", "owner123", "123-456-7890");
-        ownerRepository.save(owner);
 
         //Create some template games
         game1 = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory);
