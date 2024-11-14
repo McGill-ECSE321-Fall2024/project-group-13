@@ -930,7 +930,7 @@ public class AccountServiceTests {
         () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf(tomorrow), 12, address1, "Marrec"));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("The customer does not have a valid cvv code", exception.getReason());
+        assertEquals("The customer does not have a valid CVV code", exception.getReason());
     }
 
     @Test
