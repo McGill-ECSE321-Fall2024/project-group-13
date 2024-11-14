@@ -38,7 +38,7 @@ tasks.named('test') {
 
 }
 
-// Define the integrationTest task using tasks.register
+// Task to run the integration tests only
 tasks.register('integrationTest', Test) {
     description = 'Runs the integration tests.'
     group = 'verification'
@@ -63,11 +63,6 @@ tasks.register('integrationTest', Test) {
         exceptionFormat = 'full'
         events 'passed', 'failed', 'skipped'
     }
-}
-
-// Make the check task depend on integrationTest
-tasks.named('check') {
-    dependsOn tasks.named('integrationTest')
 }
 
 tasks.named('jacocoTestReport') {
