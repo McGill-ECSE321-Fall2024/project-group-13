@@ -498,4 +498,84 @@ public class PromotionIntegrationTests {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertTrue(response.getBody().contains("User does not have permission to view promotions."));
     }
+
+    @Test
+    @Order(15)
+    public void testRemovePromotionFromGame_Success() {
+        setup();
+        int gameID = game1.getGameID();
+
+        String loggedInUsername = "owner";
+
+        //Add promotion 1 to game 1
+        ResponseEntity<String> response = client.postForEntity(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            null, 
+            String.class
+        );
+
+        // Make sure the promotion was added
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        
+        //Remove the promotion from the game
+        response = client.exchange(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            HttpMethod.DELETE,
+            null,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        
+        // Check if the promotion was properly removed from the database
+        Game savedGame = gameRepository.findById(gameID).get();
+        assertEquals(null, savedGame.getPromotion());
+    }
+
+    @Test
+    @Order(16)
+    public void testRemovePromotionFromGame_UserLacksPermission() {
+        setup();
+        int gameID = game1.getGameID();
+
+        String loggedInUsername = "guest";
+
+        //Remove the promotion from the game
+        ResponseEntity<String> response = client.exchange(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            HttpMethod.DELETE,
+            null,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to remove promotions from a game."));
+    }
+
+    @Test
+    @Order(17)
+    public void testRemovePromotionFromGame_GameDoesNotExist() {
+        int gameID = 9999;
+
+        String loggedInUsername = "owner";
+
+        //Remove the promotion from the game
+        ResponseEntity<String> response = client.exchange(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            HttpMethod.DELETE,
+            null,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody().contains("Game with ID " + gameID + " not found."));
+    }
 }

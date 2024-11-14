@@ -254,16 +254,21 @@ public class GameStoreManagementService {
     }
 
     @Transactional
-    public Promotion removePromotionFromGame(int gameID) {
+    public Promotion removePromotionFromGame(int gameID, int promotionID) {
         Game game = gameRepository.findByGameID(gameID);
-        Promotion promotion = game.getPromotion();
-
-        if (game == null) {
+        
+        if(game == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " not found.");
         }
 
+        Promotion promotion = game.getPromotion();
+
         if(promotion == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " does not have a promotion.");
+        }
+
+        if (game.getPromotion() == null || game.getPromotion().getPromotionID() != promotionID) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found in game.");
         }
 
         game.setPromotion(null);

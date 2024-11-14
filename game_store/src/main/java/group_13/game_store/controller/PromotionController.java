@@ -109,18 +109,9 @@ public class PromotionController {
         if (!accountService.hasPermission(loggedInUsername, 3)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to remove promotions from a game.");
         }
-        Game game = browsingService.getGameById(gameID);
-
-        if(game == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found.");
-        }
-
-        if (game.getPromotion() == null || game.getPromotion().getPromotionID() != promotionID) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found in game.");
-        }
-
+        
         // Remove a promotion from a game by their unique IDs
-        gameStoreManagementService.removePromotionFromGame(gameID);
+        gameStoreManagementService.removePromotionFromGame(gameID, promotionID);
     }
 
     /*

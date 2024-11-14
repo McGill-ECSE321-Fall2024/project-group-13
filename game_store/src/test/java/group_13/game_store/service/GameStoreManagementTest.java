@@ -1325,7 +1325,7 @@ public class GameStoreManagementTest {
         when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Promotion result = gameStoreManagementService.removePromotionFromGame(1);
+        Promotion result = gameStoreManagementService.removePromotionFromGame(1, 1);
 
         // Assert
         assertNull(result, "The returned Promotion should be null after removal.");
@@ -1349,7 +1349,7 @@ public class GameStoreManagementTest {
 
         // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            gameStoreManagementService.removePromotionFromGame(1);
+            gameStoreManagementService.removePromotionFromGame(1, 1);
         }, "Expected removePromotionFromGame to throw, but it didn't");
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
