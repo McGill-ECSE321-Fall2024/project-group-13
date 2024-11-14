@@ -5,11 +5,14 @@ import java.util.List;
 public class CustomerListDto {
     private List<CustomerResponseDto> customers;
 
+    protected CustomerListDto(){
+        
+    }
     public CustomerListDto(List<CustomerResponseDto> customers) {
         this.customers = customers;
     }
 
-    public List<CustomerResponseDto> customers() {
+    public List<CustomerResponseDto> getCustomers() {
         return customers;
     }
 

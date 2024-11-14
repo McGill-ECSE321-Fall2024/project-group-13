@@ -47,26 +47,33 @@ public class UserAccountController {
     @PostMapping("/customers")
     public CustomerResponseDto createCustomer(@RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
         // validate that user is neither employee, owner, or customer (will need to figure that out)
+        
+        // COULD POTENTIALLY REMOVE THIS LINE NOW THAT WE HAVE ACCOUNTSERVICE.LOGINTOACCOUNT
         if (accountService.hasPermission(loggedInUsername, 1) || accountService.hasPermission(loggedInUsername, 2) || accountService.hasPermission(loggedInUsername, 3)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be logged out to create a customer account");
         }
+
         // check if the account can be created at all
         Customer createdCustomerAccount = accountService.createCustomerAccount(request.getName(), request.getUsername(), request.getEmail(), request.getPassword(), request.getPhoneNumber());
-        if (createdCustomerAccount == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account creation has not been made.");
-        }
         return new CustomerResponseDto(createdCustomerAccount);
     }
 
     @GetMapping("/customers")
     public CustomerListDto findAllCustomers(@RequestParam String loggedInUsername) {
+
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+
         // validate that user is either employee or owner
-        if (accountService.hasPermission(loggedInUsername, 2)) {
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee to view all customers");
         }
 
-        List<CustomerResponseDto> allCustomers = new ArrayList<CustomerResponseDto>();
-        for (Customer customer : gameStoreManagementService.getAllCustomers()) {
+        Iterable<Customer> customers = gameStoreManagementService.getAllCustomers();
+        //List<Customer> customers = gameStoreManagementService.getAllCustomers();
+        List<CustomerResponseDto> allCustomers = new ArrayList<>();
+        for (Customer customer : customers) {
             allCustomers.add(new CustomerResponseDto(customer));
         }
 
@@ -77,6 +84,11 @@ public class UserAccountController {
     // get a specific customer
     @GetMapping("/customers/{username}")
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
+
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+
         // validate that it is an employee or owner who is searching for customer
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee");
@@ -93,16 +105,20 @@ public class UserAccountController {
     // updating a user's phone number or password
     @PutMapping("/users/{username}")
     public UserAccountResponseDto updateGeneralUserInformation(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        
         // validating that a logged in account is update the password or phone number
         // every user has permission to change their own password
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Must be registered user to change phone number");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Must be registered user to change phone number or password");
         }
         
         
         UserAccount aUser = accountService.findUserByUsername(username);
         if (aUser == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User accound " + username + " has not been made.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User account " + username + " has not been made.");
         }
         // changing phone number of user whether it is owner, employee, or customer
         accountService.changePhoneNumber(request.getPhoneNumber(), request.getUsername());
@@ -116,8 +132,12 @@ public class UserAccountController {
 
     @GetMapping("/customers/{username}/orders")
     public OrderListDto findAllOrdersOfCustomer(@RequestParam String loggedInUsername, @PathVariable String username) {
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+       
         // only customer should be able to see their order history
-        if (!accountService.hasPermission(loggedInUsername, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1) || !loggedInUsername.equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to view their own orders");
         }
 
@@ -131,6 +151,10 @@ public class UserAccountController {
 
     @PostMapping("/customers/{username}/orders") 
     public OrderResponseDto createOrder(@PathVariable String username, @RequestBody OrderRequestDto request, @RequestParam String loggedInUsername) {
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        
         // only customer should be able to add orders to their order history
         if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to make own orders");
@@ -148,6 +172,10 @@ public class UserAccountController {
 
     @GetMapping("/customers/{username}/orders/{orderId}")
     public OrderResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        
         // only customer should be able to check their own order
         if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to check their own order");
@@ -162,6 +190,10 @@ public class UserAccountController {
 
     @PutMapping("/customers/{username}/orders/{orderId}/games/{gameId}")
     public OrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @PathVariable int gameId, @RequestParam String loggedInUsername) {
+        // need to check if user is logged in first
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        
         // only customer should be able to return their own order
         if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to return their order");

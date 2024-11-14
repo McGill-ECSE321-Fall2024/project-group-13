@@ -15,6 +15,10 @@ public class UserAccountRequestDto {
     // for customer account
     private PaymentInformation paymentInformation;
 
+    protected UserAccountRequestDto() {
+        
+    }
+
     public UserAccountRequestDto(String username, String name, String email, String phoneNumber, String password) {
         this.username = username;
 		this.name = name;

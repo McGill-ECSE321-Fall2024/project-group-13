@@ -19,12 +19,14 @@ public class UserAccountResponseDto {
     protected UserAccountResponseDto(){}
 
     public UserAccountResponseDto(UserAccount aUserAccount) {
+
 		this.username = aUserAccount.getUsername();
 		this.name = aUserAccount.getName();
 		this.email = aUserAccount.getEmail();
         this.phoneNumber = aUserAccount.getPhoneNumber();
         // need this, because otherwise getPermissionLevel will not return permission level any other way
         this.permissionLevel = aUserAccount.getPermissionLevel();
+        this.creationDate = LocalDate.now();
 	}
     
     public static UserAccountResponseDto create(UserAccount aUserAccount) {
