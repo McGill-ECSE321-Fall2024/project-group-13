@@ -23,7 +23,8 @@ import org.springframework.http.ResponseEntity;
 import group_13.game_store.dto.LoginRequestDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
-import group_13.game_store.repository.UserAccountRepository;
+import group_13.game_store.repository.CustomerRepository;
+import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.service.AccountService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -35,7 +36,10 @@ public class LoginIntegrationTests {
     private TestRestTemplate client;
 
     @Autowired
-    private UserAccountRepository userAccountRepo;
+    private CustomerRepository customerRepo;
+
+    @Autowired
+    private EmployeeRepository employeeRepo;
 
     @Autowired
     private AccountService accountService;
@@ -52,16 +56,17 @@ public class LoginIntegrationTests {
         Customer customer = new Customer ("Marrec", "marrec8", "marrec@mail", "GreatPassword8", "123-456-7890");
         String hashedPassword = accountService.hashPassword(customer.getPassword());
         customer.setPassword(hashedPassword);
-        userAccountRepo.save(customer);
+        customerRepo.save(customer);
 
         Employee employee = new Employee ("Will", "william1", "william@mail", "GreatPassword7", "098-765-4321", true);
-        userAccountRepo.save(employee);
+        employeeRepo.save(employee);
     }
 
 
     @AfterAll
     public void deleteAll() {
-        userAccountRepo.deleteAll();
+        customerRepo.deleteAll();
+        employeeRepo.deleteAll();
     }
 
     // ************************** LOGIN TEST ************************************************
