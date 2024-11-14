@@ -7,6 +7,10 @@ import group_13.game_store.model.Promotion;
 public class PromotionListResponseDto {
     private List<Promotion> promotions;
 
+    //No-args constructor
+    public PromotionListResponseDto() {
+    }
+
     public PromotionListResponseDto(List<Promotion> promotions) {
         this.promotions = promotions;
     }

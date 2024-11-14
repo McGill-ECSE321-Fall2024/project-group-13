@@ -7,9 +7,9 @@ import group_13.game_store.model.PaymentInformation;
 public class CustomerResponseDto extends UserAccountResponseDto {
     private PaymentInformation paymentInformation;
 
-    protected CustomerResponseDto() {
+
+    protected CustomerResponseDto() {}
         
-    }
 
     public CustomerResponseDto(Customer aCustomerAccount) {
         super(aCustomerAccount);

@@ -3,6 +3,7 @@ package group_13.game_store.service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
+import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -359,39 +360,38 @@ public class AccountService {
 
     // Method to validate payment into
     @Transactional
-    public boolean validatePaymentInfo(String cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
-        // Validate given information
-        // Check the card number length
-        if (cardNumber.length() != 16)
+public boolean validatePaymentInfo(String cardNumber, Date expiryDate, int cvvCode, Address billingAddress, String billingName) {
+    // Validate given information
 
-        {
-            // Indicate that the length of the card number is invalid
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid credit card number");
-        }
-
-        // Ensure that they give a 3 digit CVV code
-        if (Integer.toString(cvvCode).length() != 3)
-        {
-            // Indicate that the length of the cvv code is invalid
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid cvv code");
-        }
-
-        // Ensure that the card is not expired
-        Date currentDate = new Date(System.currentTimeMillis());
-        if (expiryDate.before(currentDate))
-        {
-            // Indicate that the card is expired
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The credit card with the following information is expired");
-        }
-
-        // Ensure that they enter a cardholder name
-        if (billingName == null) {
-            // Indicate that a billing name is missing
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a cardholder name");
-        }
-
-        return true;
+    // Check if card number is exactly 16 digits and numeric
+    if (cardNumber == null || !cardNumber.matches("\\d{16}")) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid credit card number");
     }
+
+    // Ensure that they give a 3-digit CVV code
+    if (Integer.toString(cvvCode).length() != 3) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The customer does not have a valid CVV code");
+    }
+
+    // Ensure that the card is not expired
+    LocalDate currentDate = LocalDate.now();
+    LocalDate expiryLocalDate = expiryDate.toLocalDate();
+    if (expiryLocalDate.isBefore(currentDate)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The credit card with the following information is expired");
+    }
+
+    // Ensure that they enter a cardholder name
+    if (billingName == null || billingName.trim().isEmpty()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must enter a cardholder name");
+    }
+
+    // Ensure that billing address is not null
+    if (billingAddress == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Billing address is required");
+    }
+
+    return true;
+}
 
     @Transactional
     public boolean addAddressToUser(String username, String street, String postalCode, int number, String city, String stateOrProvince, String country, Integer apartmentNo) {

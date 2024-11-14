@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,10 @@ public class AccountServiceTests {
     private String invalidPhoneNumber = "1234567890";
     private String validPhoneNumber = "987-654-3210";
 
+    private LocalDate today = LocalDate.now();
+    private LocalDate tomorrow = today.plusDays(1);
+    private LocalDate yesterday = today.minusDays(1);
+
     private Customer customer1 = new Customer("customer1", "cust1", "cust1@mail", pass1, "123-456-7890");
 
     private Employee employee1 = new Employee("employee1", "emp1", "emp1@mail", "pass1", "123-456-7890", true);
@@ -67,7 +72,10 @@ public class AccountServiceTests {
 
     private Address address1 = new Address("Pine", "H3G1B1", 1400, "Montreal", "Quebec", "Canada", 1005);
 
-    private PaymentInformation paymentInfo1 = new PaymentInformation("1234567890123456", "Marrec", Date.valueOf("2024-12-25"), 123, address1);
+    private PaymentInformation paymentInfo1 = new PaymentInformation("1234567890123456", "Marrec", Date.valueOf(tomorrow), 123, address1);
+
+
+
 
 
 
@@ -632,23 +640,21 @@ public class AccountServiceTests {
         // Verify that the repository method was called
         verify(userAccountRepo, times(1)).findByUsername(validUsername1);
     } 
-    /* 
+
     @Test
     public void testLoginToAccountSuccess() {
         // Arrange
         String validUsername1 = "cust1";
         when(userAccountRepo.findByUsername(validUsername1)).thenReturn(customer1);
-        when(accountService.hashPassword(pass1)).thenReturn(pass1);
 
         // Act
-        boolean loggedIn = accountService.loginToAccount(validUsername1, pass1);
+        customer1.setPassword(accountService.hashPassword(customer1.getPassword()));
+        System.out.println(customer1.getPassword());
+        String loggedInUsername = accountService.loginToAccount(validUsername1, pass1);
 
         // Assert
-        assertTrue(loggedIn);
+        assertEquals(validUsername1, loggedInUsername);
     }
-    */
-    // ********************************* hashPassword test ***********************************************************
-    // ASK LE TEAM
 
     // *************************************    changePaymentInfoTests ********************************************
     @Test
@@ -659,7 +665,7 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-            () -> accountService.changePaymentInfo(invalidUsername, "1234567890", "Marrec", Date.valueOf("2024-12-25"), 123, address1));
+            () -> accountService.changePaymentInfo(invalidUsername, "1234567890", "Marrec", Date.valueOf(tomorrow), 123, address1));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("User with given username not found", exception.getReason());
@@ -676,7 +682,7 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-            () -> accountService.changePaymentInfo(validUsername, "1234567890", "Marrec", Date.valueOf("2024-12-25"), 123, address1));
+            () -> accountService.changePaymentInfo(validUsername, "1234567890", "Marrec", Date.valueOf(tomorrow), 123, address1));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("The given user is not a Customer, and therefore does not have payment information", exception.getReason());
@@ -693,7 +699,7 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-            () -> accountService.changePaymentInfo(validUsername, "1234567890123456", null, Date.valueOf("2024-12-25"), 123, address1));
+            () -> accountService.changePaymentInfo(validUsername, "1234567890123456", null, Date.valueOf(tomorrow), 123, address1));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         // We don't know which specific error it is so don't check it
@@ -709,7 +715,7 @@ public class AccountServiceTests {
         when(userAccountRepo.findByUsername(validUsername)).thenReturn(customer1);
 
         // Act
-        boolean changed = accountService.changePaymentInfo(validUsername, "1234567890123456", "Marrec", Date.valueOf("2024-12-25"), 123, address1);
+        boolean changed = accountService.changePaymentInfo(validUsername, "1234567890123456", "Marrec", Date.valueOf(tomorrow), 123, address1);
 
         // Assert
         assertTrue(changed);
@@ -718,7 +724,7 @@ public class AccountServiceTests {
         assertEquals(customer1.getPaymentInformation().getBillingName(), "Marrec");
         assertEquals(customer1.getPaymentInformation().getCardNumber(), "1234567890123456");
         assertEquals(customer1.getPaymentInformation().getCvvCode(), 123);
-        assertEquals(customer1.getPaymentInformation().getExpiryDate(), Date.valueOf("2024-12-25"));
+        assertEquals(customer1.getPaymentInformation().getExpiryDate(), Date.valueOf(tomorrow));
 
         // Verify that the repository method was called
         verify(userAccountRepo, times(2)).findByUsername(validUsername);        
@@ -732,7 +738,7 @@ public class AccountServiceTests {
         customer1.setPaymentInformation(paymentInfo1);
 
         // Act
-        boolean changed = accountService.changePaymentInfo(validUsername, "1234567890123456", "Marrec", Date.valueOf("2024-12-25"), 123, address1);
+        boolean changed = accountService.changePaymentInfo(validUsername, "1234567890123456", "Marrec", Date.valueOf(tomorrow), 123, address1);
     
         // Assert
         assertTrue(changed);
@@ -741,7 +747,7 @@ public class AccountServiceTests {
         assertEquals(customer1.getPaymentInformation().getBillingName(), "Marrec");
         assertEquals(customer1.getPaymentInformation().getCardNumber(), "1234567890123456");
         assertEquals(customer1.getPaymentInformation().getCvvCode(), 123);
-        assertEquals(customer1.getPaymentInformation().getExpiryDate(), Date.valueOf("2024-12-25"));
+        assertEquals(customer1.getPaymentInformation().getExpiryDate(), Date.valueOf(tomorrow));
 
         // Verify that the repository method was called
         verify(userAccountRepo, times(2)).findByUsername(validUsername);     
@@ -908,7 +914,7 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-        () -> accountService.validatePaymentInfo("123", Date.valueOf("2024-12-25"), 123, address1, "Marrec"));
+        () -> accountService.validatePaymentInfo("123", Date.valueOf(tomorrow), 123, address1, "Marrec"));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("The customer does not have a valid credit card number", exception.getReason());
@@ -921,10 +927,10 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-        () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf("2024-12-25"), 12, address1, "Marrec"));
+        () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf(tomorrow), 12, address1, "Marrec"));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("The customer does not have a valid cvv code", exception.getReason());
+        assertEquals("The customer does not have a valid CVV code", exception.getReason());
     }
 
     @Test
@@ -933,7 +939,7 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-        () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf("2023-12-25"), 123, address1, "Marrec"));
+        () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf(yesterday), 123, address1, "Marrec"));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("The credit card with the following information is expired", exception.getReason());
@@ -945,7 +951,7 @@ public class AccountServiceTests {
 
         // Act and Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-        () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf("2024-12-25"), 123, address1, null));
+        () -> accountService.validatePaymentInfo("1234567890123456", Date.valueOf(tomorrow), 123, address1, null));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("You must enter a cardholder name", exception.getReason());
@@ -956,7 +962,7 @@ public class AccountServiceTests {
         // Arrange (NOTHING IN THIS CASE)
 
         // Act
-        boolean valid = accountService.validatePaymentInfo("1234567890123456", Date.valueOf("2024-12-25"), 123, address1, "Marrec");
+        boolean valid = accountService.validatePaymentInfo("1234567890123456", Date.valueOf(tomorrow), 123, address1, "Marrec");
    
         // Assert
         assertTrue(valid);

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.ArgumentCaptor;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -29,10 +28,8 @@ import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Owner;
-import group_13.game_store.model.Promotion;
 import group_13.game_store.model.Review;
 import group_13.game_store.model.Reply;
-import group_13.game_store.model.ReviewLike;
 import group_13.game_store.model.ReviewLike;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.GameCategoryRepository;
@@ -76,7 +73,6 @@ public class ReviewServiceTest {
     private GameCategory gameCategory1;
     private GameCategory gameCategory2;
     private GameCategory gameCategory3;
-    private GameCategory gameCategory4;
     private GameCategory gameCategory5;
 
     private Customer customer1;
@@ -89,7 +85,6 @@ public class ReviewServiceTest {
     private Game game1;
     private Game game2;
     private Game game3;
-    private Game game4;
     private Game game5;
 
     @BeforeEach
@@ -98,7 +93,6 @@ public class ReviewServiceTest {
         gameCategory1 = new GameCategory("Shooter game in the first person", GameCategory.VisibilityStatus.Visible, "FPS");
         gameCategory2 = new GameCategory("Strategy game,", GameCategory.VisibilityStatus.Visible, "Strat");
         gameCategory3 = new GameCategory("Adventure game", GameCategory.VisibilityStatus.Visible, "Adv");
-        gameCategory4 = new GameCategory("Racing game", GameCategory.VisibilityStatus.Visible, "Race");
         gameCategory5 = new GameCategory("Puzzle game", GameCategory.VisibilityStatus.Visible, "Puz");
 
         customer1 = new Customer("Tim", "tim_roma", "tim@roma.ca", "tim123", "123-456-7890");
@@ -112,7 +106,6 @@ public class ReviewServiceTest {
         game1 = new Game("Call of Duty", "Shoot 'em Up", "GameImg", 100, 80, "14+", Game.VisibilityStatus.Visible, gameCategory1);
         game2 = new Game("Age of Empires", "Build and Conquer", "GameImg", 50, 40, "10+", Game.VisibilityStatus.Visible, gameCategory2);
         game3 = new Game("Uncharted", "Adventure", "GameImg", 60, 50, "12+", Game.VisibilityStatus.Visible, gameCategory3);
-        game4 = new Game("Need for Speed", "Racing", "GameImg", 70, 60, "10+", Game.VisibilityStatus.Visible, gameCategory4);
         game5 = new Game("Tetris", "Puzzle", "GameImg", 20, 10, "E", Game.VisibilityStatus.Visible, gameCategory5);
 
     }

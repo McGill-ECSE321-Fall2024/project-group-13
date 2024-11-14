@@ -82,7 +82,7 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found.");
         }
 
-        if (aScore <= 1 || aScore > 5) {
+        if (aScore < 1 || aScore > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score must be between 1 and 5.");
         }
 
@@ -131,7 +131,7 @@ public class ReviewService {
         if (reviewID <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review ID must be greater than 0.");
         }
-        if (aScore <= 1 || aScore > 5) {
+        if (aScore < 1 || aScore > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Score must be between 1 and 5.");
         }
 
@@ -217,6 +217,8 @@ public class ReviewService {
     // it
     @Transactional
     public Reply replyToReview(int reviewID, String replyerId, String reply) {
+        
+
         // Look for the user based on the replyerId
         Owner replyerOwner = ownerRepo.findByUsername(replyerId);
         Customer replyerCustomer = customerRepo.findByUsername(replyerId);
@@ -246,13 +248,22 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Review already has a reply.");
         }
 
+        if (reply == null || reply.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reply cannot be null or empty.");
+        }
+
         // Create a reply with the inputed parameters and the current date
         Date today = Date.valueOf(LocalDate.now());
         Reply replyToReview = new Reply(reply, today);
-        replyRepo.save(replyToReview);
+
+        // Set the association on the owning side
+        replyToReview.setReview(review);
 
         // Set the reply to the review and save it
+        replyRepo.save(replyToReview);
+
         review.setReply(replyToReview);
+        
         return reviewRepository.save(review).getReply();
     }
 

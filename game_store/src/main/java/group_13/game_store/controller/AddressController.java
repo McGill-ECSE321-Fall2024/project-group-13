@@ -16,7 +16,13 @@ public class AddressController {
     @Autowired
     AccountService accountService;
 
-    // GET the address for a customer
+    /**
+     * Retrieves the address for a given customer.
+     *
+     * @param customerId The ID of the customer.
+     * @param loggedInUsername The username of the logged-in user, used for security verification.
+     * @return The address details for the customer.
+     */
     @GetMapping("/address")
     public AddressResponseDto getAddress(
         @PathVariable("customerId") String customerId,
@@ -44,7 +50,14 @@ public class AddressController {
         );
     }
 
-    // POST to add a new address for a customer
+    /**
+     * Adds a new address for a given customer.
+     *
+     * @param customerId The ID of the customer.
+     * @param loggedInUsername The username of the logged-in user, used for security verification.
+     * @param request The address request details.
+     * @return The added address details.
+     */
     @PostMapping("/address")
     public AddressResponseDto addAddress(
         @PathVariable("customerId") String customerId,
@@ -84,8 +97,16 @@ public class AddressController {
         );
     }
 
-    // PUT to update the existing address for a customer
-    @PutMapping("/address")
+    /**
+     * Updates an existing address for a given customer.
+     *
+     * @param customerId The ID of the customer.
+     * @param addressID The ID of the address to update.
+     * @param loggedInUsername The username of the logged-in user, used for security verification.
+     * @param request The address request details.
+     * @return The updated address details.
+     */
+    @PutMapping("/address/{addressID}")
     public AddressResponseDto updateAddress(
         @PathVariable("customerId") String customerId,
         @PathVariable int addressID,
@@ -125,8 +146,14 @@ public class AddressController {
             updatedAddress.getApartmentNo()
         );
     }
-        
-    // GET the billing address for a customer's payment information
+
+    /**
+     * Retrieves the billing address for a customer's payment information.
+     *
+     * @param customerId The ID of the customer.
+     * @param loggedInUsername The username of the logged-in user, used for security verification.
+     * @return The billing address details for the customer.
+     */
     @GetMapping("/paymentinfo/address")
     public AddressResponseDto getBillingAddress(
         @PathVariable("customerId") String customerId,
@@ -154,7 +181,14 @@ public class AddressController {
         );
     }
 
-    // POST to add a new billing address for a customer's payment information
+    /**
+     * Adds a new billing address for a customer's payment information.
+     *
+     * @param customerId The ID of the customer.
+     * @param loggedInUsername The username of the logged-in user, used for security verification.
+     * @param request The address request details.
+     * @return The added billing address details.
+     */
     @PostMapping("/paymentinfo/address")
     public AddressResponseDto addBillingAddress(
         @PathVariable("customerId") String customerId,
@@ -194,8 +228,16 @@ public class AddressController {
         );
     }
 
-    // PUT to update the existing billing address for a customer's payment information
-    @PutMapping("/paymentinfo/address")
+    /**
+     * Updates an existing billing address for a customer's payment information.
+     *
+     * @param customerId The ID of the customer.
+     * @param addressID The ID of the billing address to update.
+     * @param loggedInUsername The username of the logged-in user, used for security verification.
+     * @param request The address request details.
+     * @return The updated billing address details.
+     */
+    @PutMapping("/paymentinfo/address/{addressID}")
     public AddressResponseDto updateBillingAddress(
         @PathVariable("customerId") String customerId,
         @PathVariable int addressID,
@@ -235,6 +277,5 @@ public class AddressController {
             updatedAddress.getApartmentNo()
         );
     }
-
 
 }
