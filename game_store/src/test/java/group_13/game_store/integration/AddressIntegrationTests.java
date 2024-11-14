@@ -366,6 +366,25 @@ public class AddressIntegrationTests {
             fail("Response body is not a valid JSON");
         }
     }
-
-
+    @Test
+    @Order(19)
+    public void testGetBillingAddressAccessDenied() {
+        // Arrange
+        String url = "/customers/" + createdCustomerUsername + "/paymentinfo/address?loggedInUsername=unauthorizedUser";
+    
+        // Act
+        ResponseEntity<String> response = client.getForEntity(url, String.class);
+    
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        try {
+            JSONObject json = new JSONObject(response.getBody());
+            assertEquals(403, json.getInt("status"));
+            assertEquals("Forbidden", json.getString("error"));
+            assertEquals("Access denied.", json.getString("message"));
+        } catch (org.json.JSONException e) {
+            fail("Response body is not a valid JSON");
+        }
+    }
 }
