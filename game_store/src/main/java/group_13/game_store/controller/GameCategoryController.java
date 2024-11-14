@@ -14,7 +14,6 @@ import group_13.game_store.dto.GameCategoryResponseDto;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
-import jakarta.validation.Valid;
 
 @RestController
 public class GameCategoryController {
@@ -33,7 +32,7 @@ public class GameCategoryController {
      * @return The created game category.
      */
     @PostMapping("/categories")
-    public GameCategoryResponseDto createGameCategory(@Valid @RequestBody GameCategoryRequestDto categoryToCreate,
+    public GameCategoryResponseDto createGameCategory(@RequestBody GameCategoryRequestDto categoryToCreate,
                                                       @RequestParam String loggedInUsername) {
         // Check if the user is at least an owner
         boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
