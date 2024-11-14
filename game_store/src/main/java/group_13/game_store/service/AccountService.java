@@ -56,6 +56,10 @@ public class AccountService {
 
     // Method to get the permission level of a user based on their username
     public int findPermissionLevelByUsername(String username) {
+        if (username.equals("guest")) {
+            return 0;
+        }
+        
         UserAccount user = userAccountRepo.findByUsername(username);
 
         if (user == null) {
