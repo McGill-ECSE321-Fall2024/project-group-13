@@ -62,16 +62,17 @@ public class UserAccountController {
     public CustomerListDto findAllCustomers(@RequestParam String loggedInUsername) {
 
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
 
         // validate that user is either employee or owner
-        if (accountService.hasPermissionAtLeast(checkLoggedInUser, 2)) {
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee to view all customers");
         }
 
-        List<CustomerResponseDto> allCustomers = new ArrayList<CustomerResponseDto>();
-        for (Customer customer : gameStoreManagementService.getAllCustomers()) {
+        Iterable<Customer> customers = gameStoreManagementService.getAllCustomers();
+        List<CustomerResponseDto> allCustomers = new ArrayList<>();
+        for (Customer customer : customers) {
             allCustomers.add(new CustomerResponseDto(customer));
         }
 
@@ -84,11 +85,11 @@ public class UserAccountController {
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
 
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
 
         // validate that it is an employee or owner who is searching for customer
-        if (!accountService.hasPermissionAtLeast(checkLoggedInUser, 2)) {
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee");
         }
 

@@ -11,6 +11,10 @@ public class OrderRequestDto {
     private boolean isReturned;
     private Customer customer;
     
+    protected OrderRequestDto() {
+
+    }
+
     public OrderRequestDto(Date purchaseDate, Date returnDate, Customer customer) {
         this.purchaseDate = purchaseDate;
         this.customer = customer;

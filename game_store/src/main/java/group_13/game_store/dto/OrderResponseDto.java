@@ -13,6 +13,9 @@ public class OrderResponseDto {
     private Customer customer;
     private int orderId;
     
+    protected OrderResponseDto() {
+
+    }
     public OrderResponseDto(Order order) {
         this.purchaseDate = order.getPurchaseDate();
         this.totalPrice = order.getTotalPrice();

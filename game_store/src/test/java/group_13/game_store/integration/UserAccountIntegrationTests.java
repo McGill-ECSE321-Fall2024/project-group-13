@@ -202,7 +202,7 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(4)
 	public void testFindAllCustomersAsCustomerException(){
 		// Arrange
-		System.out.println("URL: /customers?loggedInUsername=FakeUserName1");
+		System.out.println("URL: /customers?loggedInUsername=FakeUsername1");
 
 		// act
 		ResponseEntity<String> response = client.getForEntity("/customers?loggedInUsername=EmployeeUsername", String.class);
@@ -222,10 +222,10 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(5)
 	public void testFindCustomerAsEmployee(){
 		// Arrange
-		System.out.println("URL: /customers?username=FakeUsername1&loggedInUsername=EmployeeUserName");
+		System.out.println("URL: /customers/FakeUsername1?loggedInUsername=EmployeeUsername");
 
 		// act
-		ResponseEntity<CustomerResponseDto> response = client.getForEntity("/customers?username=FakeUsername1&loggedInUsername=EmployeeUserName", CustomerResponseDto.class);
+		ResponseEntity<CustomerResponseDto> response = client.getForEntity("/customers/FakeUsername1?loggedInUsername=EmployeeUsername", CustomerResponseDto.class);
 	
 		// assert
 		assertNotNull(response);
@@ -233,7 +233,7 @@ public class UserAccountIntegrationTests {
 		assertEquals(customer1.getName(), response.getBody().getName());
 		assertEquals(customer1.getUsername(), response.getBody().getUsername());
 		assertEquals(customer1.getEmail(), response.getBody().getEmail());
-		assertEquals(customer1.getPhoneNumber(), response.getBody().getName());
+		assertEquals(customer1.getPhoneNumber(), response.getBody().getPhoneNumber());
 		assertEquals(LocalDate.now(), response.getBody().getCreationDate());
 	}
 
@@ -241,10 +241,10 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(6)
 	public void testFindCustomerAsCustomerException(){
 		// Arrange
-		System.out.println("URL: /customers?username=FakeUsername2&loggedInUsername=FakeUsername1");
+		System.out.println("URL: /customers/FakeUsername2?loggedInUsername=FakeUsername1");
 
 		// act
-		ResponseEntity<String> response = client.getForEntity("/customers?username=FakeUsername2&loggedInUsername=FakeUsername1", String.class);
+		ResponseEntity<String> response = client.getForEntity("/customers/FakeUsername2?loggedInUsername=FakeUsername1", String.class);
 	
 		// assert
 		try {
@@ -270,7 +270,7 @@ public class UserAccountIntegrationTests {
 		HttpEntity<UserAccountRequestDto> requestEntity = new HttpEntity<>(testedUpdatedAccount, header);
 		
 		// act
-		ResponseEntity<UserAccountResponseDto> response = client.exchange("/users?username=FakeUsername&loggedInUsername=FakeUserName1", HttpMethod.PUT, requestEntity, UserAccountResponseDto.class);
+		ResponseEntity<UserAccountResponseDto> response = client.exchange("/users/FakeUsername/loggedInUsername=FakeUsername1", HttpMethod.PUT, requestEntity, UserAccountResponseDto.class);
 		// the information should be updated after the above line was executed
 		UserAccount updatedUser = userRepository.findByUsername(validName);
 
@@ -295,7 +295,7 @@ public class UserAccountIntegrationTests {
 		HttpEntity<UserAccountRequestDto> requestEntity = new HttpEntity<>(testedUpdatedAccount, header);
 
 		// act
-		ResponseEntity<String> response = client.exchange("/users?username=guest&loggedInUsername=guest", HttpMethod.PUT, requestEntity, String.class);
+		ResponseEntity<String> response = client.exchange("/users/guest?loggedInUsername=guest", HttpMethod.PUT, requestEntity, String.class);
 	
 		// assert
 		try {
