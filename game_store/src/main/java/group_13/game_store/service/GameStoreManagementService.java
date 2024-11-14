@@ -235,6 +235,48 @@ public class GameStoreManagementService {
         return promotion;
     }
 
+    @Transactional
+    public Promotion addPromotionToGame(int promotionID, int gameID) {
+        Promotion promotion = promotionRepository.findByPromotionID(promotionID);
+        Game game = gameRepository.findByGameID(gameID);
+
+        if (promotion == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion with ID " + promotionID + " not found.");
+        }
+        if (game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " not found.");
+        }
+
+        game.setPromotion(promotion);
+        game = gameRepository.save(game);
+
+        return game.getPromotion();
+    }
+
+    @Transactional
+    public Promotion removePromotionFromGame(int gameID, int promotionID) {
+        Game game = gameRepository.findByGameID(gameID);
+        
+        if(game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " not found.");
+        }
+
+        Promotion promotion = game.getPromotion();
+
+        if(promotion == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " does not have a promotion.");
+        }
+
+        if (game.getPromotion() == null || game.getPromotion().getPromotionID() != promotionID) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found in game.");
+        }
+
+        game.setPromotion(null);
+        game = gameRepository.save(game);
+
+        return game.getPromotion();
+    }
+
     // Update an existing promotion
     @Transactional
     public Promotion updatePromotion(int promotionID, int percentage, Date startDate, Date endDate,
@@ -374,19 +416,19 @@ public class GameStoreManagementService {
 
         // Validate fields
         if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name cannot be null or empty.");
         }
         if (username == null || username.isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be null or empty.");
         }
         if (email == null || email.isEmpty() || !email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email format.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format.");
         }
         if (password == null || password.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 8 characters long.");
         }
         if (phoneNumber == null || !phoneNumber.matches("^\\d{3}-\\d{3}-\\d{4}$")) {
-            throw new IllegalArgumentException("Phone number must be in the format xxx-xxx-xxxx.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number must be in the format xxx-xxx-xxxx.");
         }
 
         Employee employee = employeeRepository.findByUsername(username);

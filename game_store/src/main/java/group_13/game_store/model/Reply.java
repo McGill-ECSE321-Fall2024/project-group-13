@@ -88,6 +88,19 @@ public class Reply
     return date;
   }
 
+  public Review getReview()
+  {
+    return review;
+  }
+
+  public boolean setReview(Review aReview)
+  {
+    boolean wasSet = false;
+    review = aReview;
+    wasSet = true;
+    return wasSet;
+  }
+
   public void delete()
   {}
 

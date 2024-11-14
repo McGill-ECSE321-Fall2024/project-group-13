@@ -3,11 +3,15 @@ package group_13.game_store.dto;
 public class ReplyRequestDto {
     private String text;
 
+    // Default constructor
+    public ReplyRequestDto() {}
+
+    // Constructor
     public ReplyRequestDto(String text) {
         this.text = text;
     }
 
-    //Getters abd setters for the text
+    // Getter and Setter
     public String getText() {
         return text;
     }
