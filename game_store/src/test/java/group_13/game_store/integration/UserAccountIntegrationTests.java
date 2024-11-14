@@ -38,10 +38,14 @@ import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
+import group_13.game_store.model.Game;
+import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.UserAccount;
 //import group_13.game_store.model.Order;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
+import group_13.game_store.repository.GameCategoryRepository;
+import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.UserAccountRepository;
 
@@ -63,16 +67,25 @@ public class UserAccountIntegrationTests {
 	private EmployeeRepository employeeRepository;
 
 	@Autowired
+	private GameRepository gameRepository;
+
+	@Autowired
+	private GameCategoryRepository categoryRepository;
+
+	@Autowired
 	private OrderRepository orderRepository;
 
 	private Customer customer1;
 	private Customer customer2;
 	private Employee employee1;
+	private Game game1;
+	private GameCategory category1;
 	private group_13.game_store.model.Order order1;
 	private group_13.game_store.model.Order order2;
 	private Date randomDate1;
 	private Date randomDate2;
 	private Date randomDate3;
+	private Date randomDate4;
 
 	private String validName = "Bob";
 	private String validUsername = "Bob1234";
@@ -88,7 +101,16 @@ public class UserAccountIntegrationTests {
 		randomDate1 = Date.valueOf("2024-02-09");
 		randomDate2 = Date.valueOf("2023-12-10");
 		randomDate3 = Date.valueOf("2023-12-05");
-		// create some orders too
+		randomDate4 = Date.valueOf("2024-02-12");
+
+		category1 = new GameCategory("this type of game involves X", GameCategory.VisibilityStatus.Visible, "generic category");
+        game1 = new Game("Game1", "Description1", "img1", 10, 10.0, "PG", Game.VisibilityStatus.Visible, category1);
+
+		category1.setCategoryID(1);
+        game1.setGameID(1);
+		categoryRepository.save(category1);
+		gameRepository.save(game1);
+
 		customerRepository.save(customer1);
 		customerRepository.save(customer2);
 		employeeRepository.save(employee1);
@@ -102,10 +124,12 @@ public class UserAccountIntegrationTests {
 
     @AfterAll
 	public void clearDatabase() {
+		orderRepository.deleteAll();
 		customerRepository.deleteAll();
 		employeeRepository.deleteAll();
-		orderRepository.deleteAll();
 		userRepository.deleteAll();
+		gameRepository.deleteAll();
+		categoryRepository.deleteAll();
 	}
 
     @Test
@@ -264,7 +288,6 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(8)
 	public void testUpdateGeneralUserInformationWhenAGuestException(){
 		// arrange
-		// arrange
 		String newValidPassword = "Br4ndN3wPassw0rd";
 		String newValidPhoneNumber = "111-111-1111";
 		UserAccountRequestDto testedUpdatedAccount = new UserAccountRequestDto(validName, validUsername, validEmail, newValidPhoneNumber, newValidPassword);
@@ -386,19 +409,64 @@ public class UserAccountIntegrationTests {
 	@Test 
 	@org.junit.jupiter.api.Order(14)
 	public void testFindOrderOfCustomerAsNonCustomerException(){
-		
+		// Arrange
+		System.out.println("URL: /customers/FakeUsername1/orders/1?loggedInUsername=EmployeeUsername");
+
+		// act
+		ResponseEntity<String> response = client.getForEntity("/customers/FakeUsername1/orders/1?loggedInUsername=FakeUsername1", String.class);
+	
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be a customer to check their own order", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("Response body is not a valid JSON");
+		}
 	}
 
 	@Test 
 	@org.junit.jupiter.api.Order(15)
 	public void testReturnOrderAsCustomer() {
+		OrderRequestDto testedUpdatedOrder = new OrderRequestDto(randomDate1, randomDate4, customer1);
+		// creating the request entity
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<OrderRequestDto> requestEntity = new HttpEntity<>(testedUpdatedOrder, header);
 
+		// act
+		ResponseEntity<OrderResponseDto> response = client.exchange("/users/FakeUsername1/orders/1/games/1&loggedInUsername=FakeUsername1", HttpMethod.PUT, requestEntity, OrderResponseDto.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(randomDate4, response.getBody().getReturnDate());
+		assertEquals(customer1.getUsername(), response.getBody().getCustomer().getUsername());
+		assertEquals(randomDate1, response.getBody().getPurchaseDate());
 	}
 
 	@Test 
 	@org.junit.jupiter.api.Order(16)
 	public void testReturnOrderAsNonCustomer() {
-		
+		OrderRequestDto testedUpdatedOrder = new OrderRequestDto(randomDate1, randomDate4, customer1);
+		// creating the request entity
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<OrderRequestDto> requestEntity = new HttpEntity<>(testedUpdatedOrder, header);
+
+		// act
+		ResponseEntity<String> response = client.exchange("/users/FakeUsername1/orders/1/games/1&loggedInUsername=EmployeeUsername", HttpMethod.PUT, requestEntity, String.class);
+
+		// assert
+		try {
+			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
+			assertEquals(403, json.getInt("status"));
+			assertEquals("Forbidden", json.getString("error"));
+			assertEquals("User must be a customer to check their own order", json.getString("message"));
+		} catch (org.json.JSONException e){
+			fail("User must be a customer to return their order");
+		}
 	}
 
 
