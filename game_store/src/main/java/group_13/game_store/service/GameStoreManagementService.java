@@ -367,38 +367,38 @@ public class GameStoreManagementService {
     }
 
 
- // Add a new employee account -- Permission req (Only Owner)
- @Transactional
- public void updateEmployee(String name, String username, String email, String password,
-         String phoneNumber, boolean isActive) {
+    // Add a new employee account -- Permission req (Only Owner)
+    @Transactional
+    public void updateEmployee(String name, String username, String email, String password,
+            String phoneNumber, boolean isActive) {
 
-     // Validate fields
-     if (name == null || name.isEmpty()) {
-         throw new IllegalArgumentException("Name cannot be null or empty.");
-     }
-     if (username == null || username.isEmpty()) {
-         throw new IllegalArgumentException("Username cannot be null or empty.");
-     }
-     if (email == null || email.isEmpty() || !email.contains("@")) {
-         throw new IllegalArgumentException("Invalid email format.");
-     }
-     if (password == null || password.length() < 8) {
-         throw new IllegalArgumentException("Password must be at least 8 characters long.");
-     }
-     if (phoneNumber == null || !phoneNumber.matches("^\\d{3}-\\d{3}-\\d{4}$")) {
-         throw new IllegalArgumentException("Phone number must be in the format xxx-xxx-xxxx.");
-     }
+        // Validate fields
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty.");
+        }
+        if (email == null || email.isEmpty() || !email.contains("@")) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long.");
+        }
+        if (phoneNumber == null || !phoneNumber.matches("^\\d{3}-\\d{3}-\\d{4}$")) {
+            throw new IllegalArgumentException("Phone number must be in the format xxx-xxx-xxxx.");
+        }
 
-     Employee employee = employeeRepository.findByUsername(username);
-     if (employee != null)
-     {
-        employee.setName(name);
-        employee.setEmail(email);
-        employee.setPassword(password);
-        employee.setPhoneNumber(phoneNumber);
-     }
-     employeeRepository.save(employee);
- }
+        Employee employee = employeeRepository.findByUsername(username);
+        if (employee != null)
+        {
+            employee.setName(name);
+            employee.setEmail(email);
+            employee.setPassword(password);
+            employee.setPhoneNumber(phoneNumber);
+        }
+        employeeRepository.save(employee);
+    }
 
 
     // Retrieve employee by username

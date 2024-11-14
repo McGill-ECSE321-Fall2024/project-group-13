@@ -16,7 +16,6 @@ public class UserAccountResponseDto {
 
     private LocalDate creationDate;
 
-
     protected UserAccountResponseDto(){}
 
     public UserAccountResponseDto(UserAccount aUserAccount) {
