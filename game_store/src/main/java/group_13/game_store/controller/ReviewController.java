@@ -105,7 +105,7 @@ public class ReviewController {
     }
 
     /**
-     * Create a review for a specific game by gameID
+     * Create a review for a specific game by gameID (Customer and above only)
      * 
      * @param gameID the ID of the game to create a review for
      * @param loggedInUsername the username of the user that is logged in
@@ -142,7 +142,7 @@ public class ReviewController {
      */
 
     /**
-     * Get a review by its unique ID
+     * Get a review by its unique ID 
      * 
      * @param reviewID the ID of the review to get
      * 
@@ -155,7 +155,7 @@ public class ReviewController {
     }
 
     /**
-     * Update a review by its unique ID
+     * Update a review by its unique ID (Customer and above only)
      * 
      * @param reviewID the ID of the review to update
      * @param loggedInUsername the username of the user that is logged in
@@ -182,7 +182,7 @@ public class ReviewController {
      */
 
     /**
-     * Add a like to a review by its unique ID
+     * Add a like to a review by its unique ID (Customer and above only)
      * 
      * @param reviewID the ID of the review to add a like to
      * @param loggedInUsername the username of the user that is logged in
@@ -204,7 +204,7 @@ public class ReviewController {
     }
 
     /**
-     * Remove a like from a review by its unique ID
+     * Remove a like from a review by its unique ID (Customer and above only)
      * 
      * @param reviewID the ID of the review to remove a like from
      * @param loggedInUsername the username of the user that is logged in
@@ -230,7 +230,7 @@ public class ReviewController {
      */
 
     /**
-     * Get a reply to a review by its unique ID
+     * Get a reply to a review by its unique ID 
      * 
      * @param reviewID the ID of the review to get the reply for
      * 
@@ -251,7 +251,7 @@ public class ReviewController {
     }
 
     /**
-     * Reply to a review by its unique ID
+     * Reply to a review by its unique ID (Owner only)
      * 
      * @param reviewID the ID of the review to reply to
      * @param loggedInUsername the username of the user that is logged in
