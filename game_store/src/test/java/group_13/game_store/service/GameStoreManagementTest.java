@@ -1255,6 +1255,91 @@ public class GameStoreManagementTest {
         assertEquals("Category with ID 999 not found.", exception.getReason());
         verify(gameCategoryRepository, never()).save(any(GameCategory.class));
     }
+
+    @Test
+    public void testAddPromotionToGame_Success() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
+        // Mock the save method to return the game object passed to it
+        when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Promotion result = gameStoreManagementService.addPromotionToGame(1, 1);
+
+        // Assert
+        assertNotNull(result, "The returned Promotion should not be null.");
+        assertEquals(promotion1, result, "The returned Promotion should match the promotion1.");
+
+        // Capture the Game object passed to save
+        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
+        verify(gameRepository, times(1)).save(gameCaptor.capture());
+        Game savedGame = gameCaptor.getValue();
+
+        // Verify that the promotion was set correctly
+        assertEquals(promotion1, savedGame.getPromotion(), "The promotion should be set correctly on the game.");
+    }
+
+    @Test
+    public void testAddPromotionToGame_PromotionNotFound() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        when(promotionRepository.findByPromotionID(999)).thenReturn(null); // Non-existent promotion
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            gameStoreManagementService.addPromotionToGame(999, 1);
+        }, "Expected addPromotionToGame to throw, but it didn't");
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
+        assertEquals("Promotion with ID 999 not found.", exception.getReason(), "Exception reason message mismatch");
+
+        // Verify that save was never called
+        verify(gameRepository, never()).save(any(Game.class));
+    }
+
+    @Test
+    public void testAddPromotionToGame_GameNotFound() {
+        // Arrange
+        when(gameRepository.findByGameID(999)).thenReturn(null); // Non-existent game
+        when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            gameStoreManagementService.addPromotionToGame(1, 999);
+        }, "Expected addPromotionToGame to throw, but it didn't");
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
+        assertEquals("Game with ID 999 not found.", exception.getReason(), "Exception reason message mismatch");
+
+        // Verify that save was never called
+        verify(gameRepository, never()).save(any(Game.class));
+    }
+
+    @Test
+    public void removePromotionFromGame_Success() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        // Associate promotion with game
+        game1.setPromotion(promotion1);
+        when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Promotion result = gameStoreManagementService.removePromotionFromGame(1);
+
+        // Assert
+        assertNull(result, "The returned Promotion should be null after removal.");
+        assertNull(game1.getPromotion(), "The game's promotion should be set to null.");
+
+        // Capture the Game object passed to save
+        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
+        verify(gameRepository, times(1)).save(gameCaptor.capture());
+        Game savedGame = gameCaptor.getValue();
+
+        // Verify that the promotion was removed
+        assertNull(savedGame.getPromotion(), "The saved game should have no promotion associated.");
+    }
+
     
 
 }

@@ -262,6 +262,10 @@ public class GameStoreManagementService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " not found.");
         }
 
+        if(promotion == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game with ID " + gameID + " does not have a promotion.");
+        }
+
         game.setPromotion(null);
         game = gameRepository.save(game);
 
