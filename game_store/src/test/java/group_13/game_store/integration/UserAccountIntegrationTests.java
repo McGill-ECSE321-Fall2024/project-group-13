@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.Order;
+//import org.junit.jupiter.api.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -41,7 +41,7 @@ import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.UserAccount;
-//import group_13.game_store.model.Order;
+import group_13.game_store.model.Order;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameCategoryRepository;
@@ -82,10 +82,12 @@ public class UserAccountIntegrationTests {
 	private GameCategory category1;
 	private group_13.game_store.model.Order order1;
 	private group_13.game_store.model.Order order2;
-	private Date randomDate1;
-	private Date randomDate2;
-	private Date randomDate3;
-	private Date randomDate4;
+
+
+	private Date randomDate1 = Date.valueOf("2024-02-09");
+	private Date randomDate2 = Date.valueOf("2023-12-10");
+	private Date randomDate3 = Date.valueOf("2023-12-05");
+	private Date randomDate4 = Date.valueOf("2024-02-12");
 
 	private String validName = "Bob";
 	private String validUsername = "Bob1234";
@@ -98,26 +100,21 @@ public class UserAccountIntegrationTests {
 		customer1 = new Customer("RealNameOne", "FakeUsername1", "name1@outlook.com", "555-553-111" ,"Passw0rd1");
 		customer2 = new Customer("RealNameTwo", "FakeUsername2", "name2@outlook.com", "555-553-222" ,"Passw0rd2");
 		employee1 = new Employee("EmployeeName", "EmployeeUsername", "employeename@outlook.com", "444-553-444" ,"Passw0rd1234567890", true);
-		randomDate1 = Date.valueOf("2024-02-09");
-		randomDate2 = Date.valueOf("2023-12-10");
-		randomDate3 = Date.valueOf("2023-12-05");
-		randomDate4 = Date.valueOf("2024-02-12");
-
 		category1 = new GameCategory("this type of game involves X", GameCategory.VisibilityStatus.Visible, "generic category");
         game1 = new Game("Game1", "Description1", "img1", 10, 10.0, "PG", Game.VisibilityStatus.Visible, category1);
 
-		category1.setCategoryID(1);
-        game1.setGameID(1);
+		//category1.setCategoryID(1);
+       // game1.setGameID(1);
+		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);
+		//order1.setOrderID(1);
+        order2 = new group_13.game_store.model.Order(randomDate2, null, customer1);
+		//order2.setOrderID(2);
+
 		categoryRepository.save(category1);
 		gameRepository.save(game1);
-
 		customerRepository.save(customer1);
 		customerRepository.save(customer2);
 		employeeRepository.save(employee1);
-		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);
-		order1.setOrderID(1);
-        order2 = new group_13.game_store.model.Order(randomDate2, null, customer1);
-		order2.setOrderID(2);
 		orderRepository.save(order1);
 		orderRepository.save(order2);
 	}
@@ -134,12 +131,13 @@ public class UserAccountIntegrationTests {
 
     @Test
 	@org.junit.jupiter.api.Order(1)
-	public void testCreateValidCustomerAccountAsAguest() {
+	public void testCreateValidCustomerAccountAsAGuest() {
 		// arrange
 		UserAccountRequestDto testedCreatedAcount = new UserAccountRequestDto(validUsername, validName, validEmail, validPhoneNumber, validPassword);
 
 		// act
-		// WHAT TO DO ABOUT RREQUEST PARAM IF NOT LOGGED IN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		// WHAT TO DO ABOUT REQUESTPARAM IF NOT LOGGED IN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 		ResponseEntity<CustomerResponseDto> response = client.postForEntity("/customers?loggedInUsername=guest", testedCreatedAcount, CustomerResponseDto.class);
 
 		// assert
