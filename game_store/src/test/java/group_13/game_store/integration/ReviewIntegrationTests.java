@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +37,6 @@ import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.GameCopy;
-import group_13.game_store.model.Owner;
 import group_13.game_store.model.Reply;
 import group_13.game_store.model.Review;
 import group_13.game_store.model.Order;
@@ -48,7 +46,6 @@ import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameCopyRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OrderRepository;
-import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.ReplyRepository;
 import group_13.game_store.repository.ReviewRepository;
 import group_13.game_store.service.ReviewService;
@@ -106,15 +103,12 @@ public class ReviewIntegrationTests {
     private Customer customer2;
     private Customer customer3;
     private Customer customer4;
-    private Customer customer5;
 
     private Employee employee1;
 
     private Game game1;
     private Game game2;
     private Game game3;
-    private Game game4;
-    private Game game5;
 
     private int review1ID;
     private int review2ID;
@@ -515,7 +509,7 @@ public class ReviewIntegrationTests {
         String loggedInUsername = "alice_wonderland";
 
         // Perform the POST request to like the review
-        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+        client.postForEntity(
                 "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + loggedInUsername,
                 null,
                 ReviewResponseDto.class
@@ -562,7 +556,7 @@ public class ReviewIntegrationTests {
         String loggedInUsername = "guest"; //Guests dont have permission to like stuff
 
         // Perform the POST request to like the review
-        ResponseEntity<ReviewResponseDto> response = client.postForEntity(
+        client.postForEntity(
                 "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + "alice_wonderland",
                 null,
                 ReviewResponseDto.class

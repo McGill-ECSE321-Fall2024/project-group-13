@@ -13,7 +13,6 @@ import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.GameCopy;
 import group_13.game_store.model.Order;
 import group_13.game_store.model.PaymentInformation;
-import group_13.game_store.model.UserAccount;
 import group_13.game_store.repository.AddressRepository;
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;

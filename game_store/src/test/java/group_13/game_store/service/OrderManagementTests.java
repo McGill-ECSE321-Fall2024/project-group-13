@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import org.mockito.invocation.InvocationOnMock;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,14 +23,12 @@ import java.util.List;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
 import group_13.game_store.model.Game;
-import group_13.game_store.model.Game.VisibilityStatus;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.GameRepository;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
 
 @SpringBootTest
 public class OrderManagementTests {

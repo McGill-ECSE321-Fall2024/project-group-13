@@ -1,7 +1,6 @@
 package group_13.game_store.controller;
 
 import java.sql.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import group_13.game_store.service.AccountService;
 import group_13.game_store.service.BrowsingService;
 import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.service.ReviewService;
-import jakarta.websocket.server.PathParam;
 
 @RestController
 public class PromotionController {

@@ -785,7 +785,7 @@ public class GameIntegrationTests {
                 System.out.println(String.format("URL: %s", url));
 
                 // Act
-                ResponseEntity<Void> response = client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, Void.class);
+                client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, Void.class);
 
                 // Compare the request to the database
                 Game archivedGame = gameRepo.findByGameID(gameID);
@@ -802,7 +802,7 @@ public class GameIntegrationTests {
                 System.out.println(String.format("URL: %s", url));
 
                 // Act
-                ResponseEntity<Void> response = client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, Void.class);
+                client.exchange(url, org.springframework.http.HttpMethod.DELETE, null, Void.class);
 
                 // Compare the request to the database
                 Game archivedGame = gameRepo.findByGameID(gameID);

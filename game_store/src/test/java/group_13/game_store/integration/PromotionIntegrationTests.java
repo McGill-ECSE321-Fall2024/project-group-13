@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -28,15 +26,13 @@ import org.springframework.http.ResponseEntity;
 import group_13.game_store.dto.PromotionListResponseDto;
 import group_13.game_store.dto.PromotionRequestDto;
 import group_13.game_store.dto.PromotionResponseDto;
-import group_13.game_store.dto.ReviewRequestDto;
-import group_13.game_store.dto.ReviewResponseDto;
+
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.PromotionRepository;
-import group_13.game_store.repository.ReviewRepository;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
