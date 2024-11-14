@@ -15,11 +15,13 @@ import org.springframework.web.server.ResponseStatusException;
 import group_13.game_store.dto.PromotionListResponseDto;
 import group_13.game_store.dto.PromotionRequestDto;
 import group_13.game_store.dto.PromotionResponseDto;
+import group_13.game_store.model.Game;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.BrowsingService;
 import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.service.ReviewService;
+import jakarta.websocket.server.PathParam;
 
 @RestController
 public class PromotionController {
@@ -89,24 +91,39 @@ public class PromotionController {
         }
     }
 
-    @PostMapping("/games/{gameID}/promotions")
-    public PromotionResponseDto addPromotionToGame(@PathVariable int gameID, @RequestParam String loggedInUsername,
+    @PostMapping("/games/{gameID}/promotions/{promotionID}")
+    public PromotionResponseDto addPromotionToGame(@PathVariable int gameID, @PathVariable int promotionID, @RequestParam String loggedInUsername,
             @RequestBody PromotionRequestDto request) {
         // Check if the user has permission to add a promotion to a game
         if (!accountService.hasPermission(loggedInUsername, 3)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to add promotions to a game.");
         }
 
-        // Add a promotion to a game by its unique ID
-        Promotion promotion = gameStoreManagementService.addPromotion(
-                request.getPercentage(),
-                request.getStartDate(),
-                request.getEndDate(),
-                request.getTitle(),
-                request.getDescription());
+        // Add a promotion to a game by their unique IDs
+        Promotion promotion = gameStoreManagementService.addPromotionToGame(gameID, promotionID);
 
         // Return the promotion as a response object
         return new PromotionResponseDto(promotion);
+    }
+
+    @DeleteMapping("/games/{gameID}/promotions/{promotionID}")
+    public void removePromotionFromGame(@PathVariable int gameID, @PathVariable int promotionID, @RequestParam String loggedInUsername) {
+        // Check if the user has permission to remove a promotion from a game
+        if (!accountService.hasPermission(loggedInUsername, 3)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to remove promotions from a game.");
+        }
+        Game game = browsingService.getGameById(gameID);
+
+        if(game == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found.");
+        }
+
+        if (game.getPromotion() == null || game.getPromotion().getPromotionID() != promotionID) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found in game.");
+        }
+        
+        // Remove a promotion from a game by their unique IDs
+        gameStoreManagementService.removePromotionFromGame(gameID);
     }
 
     /*
