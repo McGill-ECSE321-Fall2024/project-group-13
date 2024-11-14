@@ -151,11 +151,11 @@ public class UserAccountController {
     @PostMapping("/customers/{username}/orders") 
     public OrderResponseDto createOrder(@PathVariable String username, @RequestBody OrderRequestDto request, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
         
         // only customer should be able to add orders to their order history
-        if (!accountService.hasPermission(checkLoggedInUser, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to make own orders");
         }
 
@@ -172,11 +172,11 @@ public class UserAccountController {
     @GetMapping("/customers/{username}/orders/{orderId}")
     public OrderResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
         
         // only customer should be able to check their own order
-        if (!accountService.hasPermission(checkLoggedInUser, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to check their own order");
         }
 
@@ -190,11 +190,11 @@ public class UserAccountController {
     @PutMapping("/customers/{username}/orders/{orderId}/games/{gameId}")
     public OrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @PathVariable int gameId, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
-        UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
+        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
+        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
         
         // only customer should be able to return their own order
-        if (!accountService.hasPermission(checkLoggedInUser, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to return their order");
         }
 

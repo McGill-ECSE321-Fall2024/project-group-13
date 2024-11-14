@@ -36,17 +36,21 @@ import org.springframework.http.ResponseEntity;
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
+import group_13.game_store.model.Address;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Order;
+import group_13.game_store.model.PaymentInformation;
+import group_13.game_store.repository.AddressRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OrderRepository;
+import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -68,6 +72,13 @@ public class UserAccountIntegrationTests {
 
 	@Autowired
 	private GameRepository gameRepository;
+
+	@Autowired
+	private AddressRepository addressRepository;
+
+	@Autowired
+	private PaymentInformationRepository paymentinfoRepository;
+
 
 	@Autowired
 	private GameCategoryRepository categoryRepository;
@@ -103,6 +114,11 @@ public class UserAccountIntegrationTests {
 		category1 = new GameCategory("this type of game involves X", GameCategory.VisibilityStatus.Visible, "generic category");
         game1 = new Game("Game1", "Description1", "img1", 10, 10.0, "PG", Game.VisibilityStatus.Visible, category1);
 
+		Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
+		PaymentInformation savedPaymentInformation = new PaymentInformation("123456789", "John Cena",
+                Date.valueOf("2022-10-11"), 000, savedAddress);
+		customer1.setPaymentInformation(savedPaymentInformation);
+
 		//category1.setCategoryID(1);
        // game1.setGameID(1);
 		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);
@@ -110,6 +126,8 @@ public class UserAccountIntegrationTests {
         order2 = new group_13.game_store.model.Order(randomDate2, null, customer1);
 		//order2.setOrderID(2);
 
+		addressRepository.save(savedAddress);
+		paymentinfoRepository.save(savedPaymentInformation);
 		categoryRepository.save(category1);
 		gameRepository.save(game1);
 		customerRepository.save(customer1);
@@ -121,12 +139,13 @@ public class UserAccountIntegrationTests {
 
     @AfterAll
 	public void clearDatabase() {
+		employeeRepository.deleteAll();
 		orderRepository.deleteAll();
 		customerRepository.deleteAll();
-		employeeRepository.deleteAll();
-		userRepository.deleteAll();
-		gameRepository.deleteAll();
 		categoryRepository.deleteAll();
+		gameRepository.deleteAll();
+		paymentinfoRepository.deleteAll();
+		addressRepository.deleteAll();
 	}
 
     @Test
@@ -368,7 +387,7 @@ public class UserAccountIntegrationTests {
 		// assert
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(randomDate3, response.getBody().getPurchaseDate());
+		assertEquals(randomDate1, response.getBody().getPurchaseDate());
 		assertNull(response.getBody().getReturnDate());
 		assertEquals(customer1.getUsername(), response.getBody().getCustomer().getUsername());
 		}
@@ -397,10 +416,10 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(13)
 	public void testFindOrderOfCustomerAsCustomer(){
 		// Arrange
-		System.out.println("URL: /customers/FakeUsername1/orders/1?loggedInUsername=FakeUsername1");
+		System.out.println("URL: /customers/FakeUsername1/orders/0?loggedInUsername=FakeUsername1");
 
 		// act
-		ResponseEntity<OrderResponseDto> response = client.getForEntity("/customers/FakeUsername1/orders/1?loggedInUsername=FakeUsername1", OrderResponseDto.class);
+		ResponseEntity<OrderResponseDto> response = client.getForEntity("/customers/FakeUsername1/orders/0?loggedInUsername=FakeUsername1", OrderResponseDto.class);
 	
 		// assert
 		assertNotNull(response);
