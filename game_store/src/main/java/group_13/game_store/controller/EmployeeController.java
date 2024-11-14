@@ -14,7 +14,6 @@ import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.model.Employee;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
-import jakarta.validation.Valid;
 
 @RestController
 public class EmployeeController {

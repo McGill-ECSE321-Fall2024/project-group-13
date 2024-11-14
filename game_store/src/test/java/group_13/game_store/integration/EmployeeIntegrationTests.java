@@ -25,7 +25,6 @@ import group_13.game_store.dto.EmployeeListResponseDto;
 import group_13.game_store.dto.EmployeeResponseDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.model.Employee;
-import group_13.game_store.repository.UserAccountRepository;
 import group_13.game_store.repository.EmployeeRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -35,8 +34,7 @@ public class EmployeeIntegrationTests {
 
     @Autowired
     private TestRestTemplate client;
-    @Autowired
-    private UserAccountRepository userAccountRepo;
+
     @Autowired
     private EmployeeRepository employeeRepo;
 
@@ -52,7 +50,6 @@ public class EmployeeIntegrationTests {
     @AfterAll
     public void clearDatabase() {
         employeeRepo.deleteAll();
-        userAccountRepo.deleteAll();
     }
 
     private void setupAccounts() {
