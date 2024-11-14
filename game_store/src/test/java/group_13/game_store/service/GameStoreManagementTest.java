@@ -1340,6 +1340,23 @@ public class GameStoreManagementTest {
         assertNull(savedGame.getPromotion(), "The saved game should have no promotion associated.");
     }
 
-    
+    @Test
+    public void removePromotionFromGame_GameHasNoPromotion() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        // Ensure the game has no promotion
+        game1.setPromotion(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            gameStoreManagementService.removePromotionFromGame(1);
+        }, "Expected removePromotionFromGame to throw, but it didn't");
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
+        assertEquals("Game with ID 1 does not have a promotion.", exception.getReason(), "Exception reason message mismatch");
+
+        // Verify that save was never called
+        verify(gameRepository, never()).save(any(Game.class));
+    }
 
 }
