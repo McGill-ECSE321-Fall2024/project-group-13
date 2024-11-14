@@ -13,7 +13,12 @@ public class UserAccountResponseDto {
     // including password compromises security
     private String phoneNumber;
     private int permissionLevel;
+
     private LocalDate creationDate;
+
+
+    protected UserAccountResponseDto(){}
+
     public UserAccountResponseDto(UserAccount aUserAccount) {
 		this.username = aUserAccount.getUsername();
 		this.name = aUserAccount.getName();

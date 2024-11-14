@@ -6,11 +6,13 @@ public class EmployeeListResponseDto {
 
     private List<EmployeeResponseDto> employees;
 
+    protected EmployeeListResponseDto(){}
+
     public EmployeeListResponseDto(List<EmployeeResponseDto> employees)
     {
         this.employees = employees;
     }
-    public List<EmployeeResponseDto> getGames()
+    public List<EmployeeResponseDto> getEmployees()
     {
         return employees;
     }
