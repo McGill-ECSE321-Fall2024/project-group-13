@@ -271,5 +271,42 @@ public class PromotionIntegrationTests {
         assertTrue(exists);
     }
 
+    @Test
+    @Order(7)
+    public void testGetPromotionById_Success() {
+        // Get a promotion by its ID
+        ResponseEntity<PromotionResponseDto> response = client.getForEntity(
+            "/games/promotions/" + promotion1ID,
+            PromotionResponseDto.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        // Check if the response matches the request
+        PromotionResponseDto promotionResponse = response.getBody();
+        assertEquals(promotion1ID, promotionResponse.getPromotionID());
+        assertEquals(20, promotionResponse.getPercentage());
+        assertEquals("Summer Sale", promotionResponse.getTitle());
+        assertEquals("This is a sale for the whole summer woohoo.", promotionResponse.getDescription());
+    }
+
+    @Test
+    @Order(8)
+    public void testGetPromotionById_PromotionDoesNotExist() {
+        // Get a promotion by its ID
+        ResponseEntity<String> response = client.getForEntity(
+            "/games/promotions/" + 9999,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody().contains("Promotion not found."));
+    }
+
     
 }

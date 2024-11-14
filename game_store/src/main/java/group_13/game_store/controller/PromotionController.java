@@ -113,9 +113,14 @@ public class PromotionController {
      * /games/promotions/{promotionID} [GET, PUT, DELETE]
      */
     @GetMapping("/games/promotions/{promotionID}")
-    public PromotionResponseDto getPromtotionById(@PathVariable int promotionID) {
+    public PromotionResponseDto getPromotionById(@PathVariable int promotionID) {
 
         Promotion promotion = gameStoreManagementService.getPromotion(promotionID);
+
+        // Check if the promotion exists if not return an error
+        if (promotion == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found.");
+        }
 
         return new PromotionResponseDto(promotion);
     }
