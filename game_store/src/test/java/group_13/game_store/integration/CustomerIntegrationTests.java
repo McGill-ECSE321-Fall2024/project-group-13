@@ -49,9 +49,6 @@ public class CustomerIntegrationTests {
     private CustomerRepository customerRepo;
 
     @Autowired
-    private UserAccountRepository userAccountRepo;
-
-    @Autowired
     private PaymentInformationRepository paymentInfoRepo;
 
     @Autowired
@@ -80,7 +77,6 @@ public class CustomerIntegrationTests {
     @AfterAll
     public void clearDatabase() {
         customerRepo.deleteAll();
-        userAccountRepo.deleteAll();
         paymentInfoRepo.deleteAll();
         addressRepo.deleteAll();
     }
