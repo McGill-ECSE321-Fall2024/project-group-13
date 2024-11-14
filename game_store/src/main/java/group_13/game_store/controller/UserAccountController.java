@@ -42,8 +42,14 @@ public class UserAccountController {
     private GameStoreManagementService gameStoreManagementService;
     @Autowired
     private AccountService accountService;
-
-    // creating a customer account while user is logged out 
+ 
+    /**
+     * Creates a new customer account while the user is logged out.
+     *
+     * @param request          The user account request data.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The created customer account.
+     */
     @PostMapping("/customers")
     public CustomerResponseDto createCustomer(@RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
         // validate that user is neither employee, owner, or customer (will need to figure that out)
@@ -58,6 +64,12 @@ public class UserAccountController {
         return new CustomerResponseDto(createdCustomerAccount);
     }
 
+    /**
+     * Retrieves all customers.
+     *
+     * @param loggedInUsername The username of the logged-in user.
+     * @return A list of all customers.
+     */
     @GetMapping("/customers")
     public CustomerListDto findAllCustomers(@RequestParam String loggedInUsername) {
 
@@ -81,7 +93,13 @@ public class UserAccountController {
         return new CustomerListDto(allCustomers);
     }
 
-    // get a specific customer
+    /**
+     * Retrieves a specific customer by username.
+     *
+     * @param username         The username of the customer to find.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The customer with the specified username.
+     */
     @GetMapping("/customers/{username}")
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
 
@@ -102,7 +120,14 @@ public class UserAccountController {
         return new CustomerResponseDto(customerToFind);
     }
 
-    // updating a user's phone number or password
+    /**
+     * Updates a user's phone number or password.
+     *
+     * @param username         The username of the user to update.
+     * @param request          The user account request data containing updates.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The updated user account.
+     */
     @PutMapping("/users/{username}")
     public UserAccountResponseDto updateGeneralUserInformation(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
@@ -130,6 +155,13 @@ public class UserAccountController {
         
     }
 
+    /**
+     * Retrieves all orders of a customer.
+     *
+     * @param loggedInUsername The username of the logged-in user.
+     * @param username         The username of the customer.
+     * @return A list of all orders made by the customer.
+     */
     @GetMapping("/customers/{username}/orders")
     public OrderListDto findAllOrdersOfCustomer(@RequestParam String loggedInUsername, @PathVariable String username) {
         // need to check if user is logged in first
@@ -149,6 +181,14 @@ public class UserAccountController {
         return new OrderListDto(allOrdersOfCustomers);
     }
 
+    /**
+     * Creates an order for a customer by purchasing the cart.
+     *
+     * @param username         The username of the customer.
+     * @param request          The order request data.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The created order.
+     */
     @PostMapping("/customers/{username}/orders") 
     public OrderResponseDto createOrder(@PathVariable String username, @RequestBody OrderRequestDto request, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
@@ -170,6 +210,14 @@ public class UserAccountController {
         return new OrderResponseDto(createdOrder);    
     }
 
+    /**
+     * Retrieves a specific order of a customer.
+     *
+     * @param username         The username of the customer.
+     * @param orderId          The ID of the order.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The specified order.
+     */
     @GetMapping("/customers/{username}/orders/{orderId}")
     public OrderResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
@@ -188,6 +236,15 @@ public class UserAccountController {
         return new OrderResponseDto(foundOrder);
     }
 
+    /**
+     * Returns an order for a specific game.
+     *
+     * @param username         The username of the customer.
+     * @param orderId          The ID of the order.
+     * @param gameId           The ID of the game to return.
+     * @param loggedInUsername The username of the logged-in user.
+     * @return The updated order after return.
+     */
     @PutMapping("/customers/{username}/orders/{orderId}/games/{gameId}")
     public OrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @PathVariable int gameId, @RequestParam String loggedInUsername) {
         // need to check if user is logged in first
