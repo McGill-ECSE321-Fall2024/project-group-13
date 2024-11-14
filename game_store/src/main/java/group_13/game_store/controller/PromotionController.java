@@ -1,5 +1,8 @@
 package group_13.game_store.controller;
 
+import java.sql.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,8 +67,8 @@ public class PromotionController {
         // Create a promotion with the information from the request
         Promotion promotion = gameStoreManagementService.addPromotion(
                 request.getPercentage(),
-                request.getStartDate(),
-                request.getEndDate(),
+                Date.valueOf(request.getStartDate()),
+                Date.valueOf(request.getEndDate()),
                 request.getTitle(),
                 request.getDescription());
 
@@ -77,30 +80,24 @@ public class PromotionController {
      * /games/{gameID}/promotions [GET, POST]
      */
     @GetMapping("/games/{gameID}/promotions")
-    public PromotionListResponseDto getPromotionsByGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
-        // Check if the user has permission to add a promotion to a game
-        boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
-        
-        if (!isOwner) {
-            //If it is not the owner return only the valid promotions
-            return new PromotionListResponseDto(browsingService.getAllValigPromotions(gameID));
+    public PromotionResponseDto getPromotionByGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
+        // This will automoatically thow an error if the gamne is not found
+        Game game = browsingService.getGameById(gameID);
 
-        } else {
-            //If it is the owner return all the promotions even the inactive ones
-            return new PromotionListResponseDto(gameStoreManagementService.getAllGamePromotions(gameID));
-        }
+        Promotion mainPromotion = game.getPromotion();
+    
+        return new PromotionResponseDto(mainPromotion);
     }
 
     @PostMapping("/games/{gameID}/promotions/{promotionID}")
-    public PromotionResponseDto addPromotionToGame(@PathVariable int gameID, @PathVariable int promotionID, @RequestParam String loggedInUsername,
-            @RequestBody PromotionRequestDto request) {
+    public PromotionResponseDto addPromotionToGame(@PathVariable int gameID, @PathVariable int promotionID, @RequestParam String loggedInUsername) {
         // Check if the user has permission to add a promotion to a game
         if (!accountService.hasPermission(loggedInUsername, 3)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to add promotions to a game.");
         }
 
         // Add a promotion to a game by their unique IDs
-        Promotion promotion = gameStoreManagementService.addPromotionToGame(gameID, promotionID);
+        Promotion promotion = gameStoreManagementService.addPromotionToGame(promotionID, gameID);
 
         // Return the promotion as a response object
         return new PromotionResponseDto(promotion);
@@ -121,7 +118,7 @@ public class PromotionController {
         if (game.getPromotion() == null || game.getPromotion().getPromotionID() != promotionID) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found in game.");
         }
-        
+
         // Remove a promotion from a game by their unique IDs
         gameStoreManagementService.removePromotionFromGame(gameID);
     }
@@ -150,8 +147,8 @@ public class PromotionController {
         // Update a promotion by its unique ID if it does not exist we get an error
         Promotion promotion = gameStoreManagementService.updatePromotion(promotionID,
                 request.getPercentage(),
-                request.getStartDate(),
-                request.getEndDate(),
+                Date.valueOf(request.getStartDate()),
+                Date.valueOf(request.getEndDate()),
                 request.getTitle(),
                 request.getDescription());
 

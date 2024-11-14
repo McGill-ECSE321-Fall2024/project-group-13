@@ -1,12 +1,13 @@
 package group_13.game_store.dto;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class PromotionRequestDto {
     private int percentage;
     private String description;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String title;
 
     // Default constructor
@@ -16,8 +17,8 @@ public class PromotionRequestDto {
     public PromotionRequestDto(int percentage, String description, Date startDate, Date endDate, String title) {
         this.percentage = percentage;
         this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.startDate = startDate.toLocalDate();
+        this.endDate = endDate.toLocalDate();
         this.title = title;
     }
 
@@ -29,11 +30,11 @@ public class PromotionRequestDto {
         return description;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
@@ -49,11 +50,11 @@ public class PromotionRequestDto {
         this.description = description;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

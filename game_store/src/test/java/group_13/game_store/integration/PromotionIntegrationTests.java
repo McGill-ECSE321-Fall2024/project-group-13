@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -23,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 
+import group_13.game_store.dto.PromotionListResponseDto;
 import group_13.game_store.dto.PromotionRequestDto;
 import group_13.game_store.dto.PromotionResponseDto;
 import group_13.game_store.dto.ReviewRequestDto;
@@ -58,8 +61,8 @@ public class PromotionIntegrationTests {
 
     @AfterAll
     public void clearDatabase() {
-        promotionRepository.deleteAll();
         gameRepository.deleteAll();
+        promotionRepository.deleteAll();
         gameCategoryRepository.deleteAll();
     }
 
@@ -95,8 +98,6 @@ public class PromotionIntegrationTests {
 
         gameCategory = gameCategoryRepository.save(gameCategory);
         game1 = gameRepository.save(game1);
-        
-
     }
 
     @Test
@@ -129,6 +130,8 @@ public class PromotionIntegrationTests {
         assertEquals(percentage, promotionResponse.getPercentage());
         assertEquals(description, promotionResponse.getDescription());
         assertEquals(title, promotionResponse.getTitle());
+        assertEquals(startDate.toLocalDate(), promotionResponse.getStartDate());
+        assertEquals(endDate.toLocalDate(), promotionResponse.getEndDate());
 
         // Check if the promotion was properly saved in the database
         int promotionID = promotionResponse.getPromotionID();
@@ -138,7 +141,9 @@ public class PromotionIntegrationTests {
         assertNotNull(savedPromotion);
         assertEquals(percentage, savedPromotion.getPercentage());
         assertEquals(description, savedPromotion.getDescription());
-        assertEquals(title, savedPromotion.getTitle());    
+        assertEquals(title, savedPromotion.getTitle());
+        assertEquals(startDate, savedPromotion.getStartDate());
+        assertEquals(endDate, savedPromotion.getEndDate());    
     }
 
 
@@ -209,6 +214,8 @@ public class PromotionIntegrationTests {
         assertEquals(percentage, promotionResponse.getPercentage());
         assertEquals(description, promotionResponse.getDescription());
         assertEquals(title, promotionResponse.getTitle());
+        assertEquals(startDate.toLocalDate(), promotionResponse.getStartDate());
+        assertEquals(endDate.toLocalDate(), promotionResponse.getEndDate());
         
         // Check if the promotion was properly saved in the database
         Promotion savedPromotion = promotionRepository.findById(promotion1ID).get();
@@ -216,6 +223,8 @@ public class PromotionIntegrationTests {
         assertEquals(percentage, savedPromotion.getPercentage());
         assertEquals(description, savedPromotion.getDescription());
         assertEquals(title, savedPromotion.getTitle());
+        assertEquals(startDate, savedPromotion.getStartDate());
+        assertEquals(endDate, savedPromotion.getEndDate());
     }
 
     @Test
@@ -332,49 +341,161 @@ public class PromotionIntegrationTests {
         assertTrue(response.getBody().contains("Promotion with ID 9999 not found."));
     }
 
-    // @Test
-    // @Order(9)
-    // public void testAddPromotionToGame_Success(){
-    //     int gameID = game1.getGameID();
+    @Test
+    @Order(9)
+    public void testAddPromotionToGame_Success(){
+        setup();
+        int gameID = game1.getGameID();
 
-    //     String loggedInUsername = "owner";
+        String loggedInUsername = "owner";
 
-    //     int percentage = 10;
-    //     String description = "Fall sale!";
-    //     Date startDate = Date.valueOf(LocalDate.of(2024, 9, 14));
-    //     Date endDate = Date.valueOf(LocalDate.of(2025, 1, 14)); //Make it a valid promotion
-    //     String title = "Fall Sale";
+        //Add promotion 1 to game 1 
+        ResponseEntity<PromotionResponseDto> response = client.postForEntity(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            null, 
+            PromotionResponseDto.class
+        );
 
-    //     // Create a promotion request
-    //     PromotionRequestDto promotionRequest = new PromotionRequestDto(percentage, description, startDate, endDate, title);
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
 
-    //     ResponseEntity<PromotionResponseDto> response = client.postForEntity(
-    //         "/games/" + gameID + "/promotions?loggedInUsername=" + loggedInUsername, 
-    //         promotionRequest, 
-    //         PromotionResponseDto.class
-    //     );
+        // Check if the response matches the request
+        PromotionResponseDto promotionResponse = response.getBody();
+        assertEquals(promotion1ID, promotionResponse.getPromotionID());
+        assertEquals(20, promotionResponse.getPercentage());
+        assertEquals("Summer Sale", promotionResponse.getTitle());
+        assertEquals("This is a sale for the whole summer woohoo.", promotionResponse.getDescription());
+        
+        // Check if the promotion was properly saved in the database
+        Game savedGame = gameRepository.findById(gameID).get();
+        assertNotNull(savedGame.getPromotion());
+        assertEquals(promotion1ID, savedGame.getPromotion().getPromotionID());
+    }
 
-    //     // Assert
-	// 	assertNotNull(response);
-	// 	assertEquals(HttpStatus.OK, response.getStatusCode());
-    //     assertNotNull(response.getBody());
+    @Test
+    @Order(10)
+    public void testAddPromotionToGame_UserLacksPermission(){
+        setup();
+        int gameID = game1.getGameID();
 
-    //     // Check if the response matches the request
-    //     PromotionResponseDto promotionResponse = response.getBody();
-    //     assertEquals(percentage, promotionResponse.getPercentage());
-    //     assertEquals(description, promotionResponse.getDescription());
-    //     assertEquals(title, promotionResponse.getTitle());
+        String loggedInUsername = "guest";
 
-    //     // Check if the promotion was properly saved in the database
-    //     int promotionID = promotionResponse.getPromotionID();
+        //Add promotion 1 to game 1
+        ResponseEntity<String> response = client.postForEntity(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            null, 
+            String.class
+        );
 
-    //     // Check if the promotion was properly saved in the database
-    //     Promotion savedPromotion = promotionRepository.findById(promotionID).get();
-    //     assertNotNull(savedPromotion);
-    //     assertEquals(percentage, savedPromotion.getPercentage());
-    //     assertEquals(description, savedPromotion.getDescription());
-    //     assertEquals(title, savedPromotion.getTitle());  
-    // }
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to add promotions to a game."));
+    }
 
-    
+    @Test
+    @Order(11)
+    public void testGetPromotionByGame() {
+        int gameID = game1.getGameID();
+
+        String loggedInUsername = "owner";
+
+        //Add promotion 1 to game 1
+        ResponseEntity<String> response = client.postForEntity(
+            "/games/" + gameID + "/promotions/" + promotion1ID  + "?loggedInUsername=" + loggedInUsername, 
+            null, 
+            String.class
+        );
+
+        // Make sure the promotion was added
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        loggedInUsername = "guest"; //Dont need to be the owner to get a games promotion
+
+        //Get the promotion of game 1 which should be promotion 1
+        ResponseEntity<PromotionResponseDto> responseGet = client.getForEntity(
+            "/games/" + gameID + "/promotions?loggedInUsername=" + loggedInUsername, 
+            PromotionResponseDto.class
+        );
+
+        // Assert
+        assertNotNull(responseGet);
+        assertEquals(HttpStatus.OK, responseGet.getStatusCode());
+        assertNotNull(responseGet.getBody());
+
+        // Check if the response matches the request
+        PromotionResponseDto promotionResponse = responseGet.getBody();
+        assertEquals(promotion1ID, promotionResponse.getPromotionID());
+        assertEquals(20, promotionResponse.getPercentage());
+        assertEquals("Summer Sale", promotionResponse.getTitle());
+        assertEquals("This is a sale for the whole summer woohoo.", promotionResponse.getDescription());
+    }
+
+    @Test
+    @Order(12)
+    public void testGetPromotionByGame_GameDoesNotExist() {
+        int gameID = 9999;
+
+        String loggedInUsername = "owner";
+
+        //Get the promotion of game 1 which should be promotion 1
+        ResponseEntity<String> response = client.getForEntity(
+            "/games/" + gameID + "/promotions?loggedInUsername=" + loggedInUsername, 
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody().contains("Game not found"));
+    }
+
+    @Test
+    @Order(13)
+    public void testGetAllPromotions_success() {
+        //Necessary to clear the database and setup again to get the correct amount of promotions
+        clearDatabase();
+        setup();
+
+        String loggedInUsername = "owner"; //Owner can see all promotions but noones else can
+
+        // Get all promotions
+        ResponseEntity<PromotionListResponseDto> response = client.getForEntity(
+            "/games/promotions?loggedInUsername=" + loggedInUsername,
+            PromotionListResponseDto.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        // Check if the response matches the request
+        PromotionListResponseDto promotionResponses = response.getBody();
+        assertEquals(4, promotionResponses.getPromotions().size());
+
+        assertEquals(promotion1ID, promotionResponses.getPromotions().get(0).getPromotionID(), "First promotion ID should match.");
+        assertEquals(promotion2ID, promotionResponses.getPromotions().get(1).getPromotionID(), "Second promotion ID should match.");
+        assertEquals(promotion3ID, promotionResponses.getPromotions().get(2).getPromotionID(), "Third promotion ID should match.");
+        assertEquals(promotion4ID, promotionResponses.getPromotions().get(3).getPromotionID(), "Fourth promotion ID should match.");
+    }
+
+    @Test
+    @Order(14)
+    public void testGetAllPromotions_UserLacksPermission() {
+        // Get all promotions
+        ResponseEntity<String> response = client.getForEntity(
+            "/games/promotions?loggedInUsername=guest",
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to view promotions."));
+    }
 }
