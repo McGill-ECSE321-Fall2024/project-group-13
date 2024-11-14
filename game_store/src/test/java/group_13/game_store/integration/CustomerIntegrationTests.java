@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Order;
@@ -109,7 +108,7 @@ public class CustomerIntegrationTests {
     @Order(2)
     public void testCreateValidPaymentInfo() {
         // Arrange
-        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("1234567890123456", "Marrec", Date.valueOf(tomorrow), 123, addressId);
+        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("1234567890123456", "Marrec", tomorrow, 123, addressId);
         String url = String.format("/customers/%s/paymentInfo", validUsername);
 
         // Act
@@ -127,7 +126,7 @@ public class CustomerIntegrationTests {
         assertEquals(paymentInfo1.getBillingName(), response.getBody().getBillingName());
         assertEquals(paymentInfo1.getCardNumber(), response.getBody().getCardNumber());
         assertEquals(paymentInfo1.getCvvCode(), response.getBody().getCvvCode());
-        //assertEquals(paymentInfo1.getExpiryDate(), response.getBody().getExpiryDate());
+        assertEquals(paymentInfo1.getExpiryDate(), response.getBody().getExpiryDate());
 
         // Next, compare the response with the DB (FOR BACK END PURPOSES)
         assertNotNull(resultCustomer.getPaymentInformation());
@@ -135,7 +134,7 @@ public class CustomerIntegrationTests {
         assertEquals(resultCustomer.getPaymentInformation().getCardNumber(), response.getBody().getCardNumber());
         assertEquals(resultCustomer.getPaymentInformation().getBillingName(), response.getBody().getBillingName());
         assertEquals(resultCustomer.getPaymentInformation().getCvvCode(), response.getBody().getCvvCode());
-        //assertEquals(resultCustomer.getPaymentInformation().getExpiryDate(), response.getBody().getExpiryDate());
+        assertEquals(resultCustomer.getPaymentInformation().getExpiryDate().toLocalDate(), response.getBody().getExpiryDate());
         assertEquals(resultCustomer.getPaymentInformation().getPaymentInfoID(), response.getBody().getPaymentInfoID());
     }
 
@@ -160,7 +159,7 @@ public class CustomerIntegrationTests {
         assertEquals(resultCustomer.getPaymentInformation().getCardNumber(), response.getBody().getCardNumber());
         assertEquals(resultCustomer.getPaymentInformation().getBillingName(), response.getBody().getBillingName());
         assertEquals(resultCustomer.getPaymentInformation().getCvvCode(), response.getBody().getCvvCode());
-        //assertEquals(resultCustomer.getPaymentInformation().getExpiryDate(), response.getBody().getExpiryDate());
+        assertEquals(resultCustomer.getPaymentInformation().getExpiryDate().toLocalDate(), response.getBody().getExpiryDate());
         assertEquals(resultCustomer.getPaymentInformation().getPaymentInfoID(), response.getBody().getPaymentInfoID());
     }
 
@@ -168,7 +167,7 @@ public class CustomerIntegrationTests {
     @Order(4)
     public void testUpdateValidPaymentInfo() {
         // Arrange 
-        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("0987654321098765", "Mark", Date.valueOf("2024-12-25"), 123, addressId);
+        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("0987654321098765", "Mark", tomorrow, 123, addressId);
         Customer customerWithInfo = customerRepo.findByUsername(validUsername);
         int paymentInfoId = customerWithInfo.getPaymentInformation().getPaymentInfoID();
 
@@ -193,7 +192,7 @@ public class CustomerIntegrationTests {
         assertEquals(paymentInfo1.getBillingName(), response.getBody().getBillingName());
         assertEquals(paymentInfo1.getCardNumber(), response.getBody().getCardNumber());
         assertEquals(paymentInfo1.getCvvCode(), response.getBody().getCvvCode());
-        //assertEquals(paymentInfo1.getExpiryDate(), response.getBody().getExpiryDate());
+        assertEquals(paymentInfo1.getExpiryDate(), response.getBody().getExpiryDate());
 
         // Next, compare the response with the DB (FOR BACK END PURPOSES)
         Customer resultCustomer = customerRepo.findByUsername(validUsername);
@@ -202,7 +201,7 @@ public class CustomerIntegrationTests {
         assertEquals(resultCustomer.getPaymentInformation().getBillingName(), response.getBody().getBillingName());
         assertEquals(resultCustomer.getPaymentInformation().getCardNumber(), response.getBody().getCardNumber());
         assertEquals(resultCustomer.getPaymentInformation().getCvvCode(), response.getBody().getCvvCode());
-        //assertEquals(resultCustomer.getPaymentInformation().getExpiryDate(), response.getBody().getExpiryDate());
+        assertEquals(resultCustomer.getPaymentInformation().getExpiryDate().toLocalDate(), response.getBody().getExpiryDate());
         assertEquals(resultCustomer.getPaymentInformation().getPaymentInfoID(), response.getBody().getPaymentInfoID());
     }
 
@@ -210,7 +209,7 @@ public class CustomerIntegrationTests {
     @Order(5)
     public void testCreateInvalidPaymentInfo() {
         // Arrange
-        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("1234", "Marrec", Date.valueOf(tomorrow), 123, addressId);
+        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("1234", "Marrec", tomorrow, 123, addressId);
         String url = String.format("/customers/%s/paymentInfo", validUsername);
 
         // Act
@@ -235,7 +234,7 @@ public class CustomerIntegrationTests {
     @Order(6)
     public void testUpdateInvalidPaymentInfo() {
         // Arrange
-        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("0987654321098765", "Mark", Date.valueOf("2024-12-25"), 1234, addressId);
+        PaymentInformationRequestDto paymentInfo1 = new PaymentInformationRequestDto("0987654321098765", "Mark", tomorrow, 1234, addressId);
         Customer customerWithInfo = customerRepo.findByUsername(validUsername);
         int paymentInfoId = customerWithInfo.getPaymentInformation().getPaymentInfoID();
 

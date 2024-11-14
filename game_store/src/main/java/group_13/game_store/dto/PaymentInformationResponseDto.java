@@ -1,6 +1,9 @@
 package group_13.game_store.dto;
 
 import java.sql.Date;
+import java.time.LocalDate;
+
+import org.springframework.cglib.core.Local;
 
 import group_13.game_store.model.Address;
 
@@ -9,7 +12,7 @@ public class PaymentInformationResponseDto {
     private int paymentInfoID;
     private String cardNumber;
     private String billingName;
-    private Date expiryDate;
+    private LocalDate expiryDate;
     private int cvvCode;
     private Address billingAddress;
 
@@ -18,7 +21,7 @@ public class PaymentInformationResponseDto {
     }
 
 
-    public PaymentInformationResponseDto(int paymentInfoID, String cardNumber, String billingName, Date expiryDate, int cvvCode, Address aBillingAddress) {
+    public PaymentInformationResponseDto(int paymentInfoID, String cardNumber, String billingName, LocalDate expiryDate, int cvvCode, Address aBillingAddress) {
         this.paymentInfoID = paymentInfoID;
         this.cardNumber = cardNumber;
         this.billingName = billingName;
@@ -50,11 +53,11 @@ public class PaymentInformationResponseDto {
         this.billingName = newBillingName;
     }
 
-    public Date getExpiryDate() {
+    public LocalDate getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date newExpiryDate) {
+    public void setExpiryDate(LocalDate newExpiryDate) {
         this.expiryDate = newExpiryDate;
     }
 

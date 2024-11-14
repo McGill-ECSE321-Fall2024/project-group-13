@@ -1,10 +1,10 @@
 package group_13.game_store.dto;
-import java.sql.Date;
+import java.time.LocalDate;
 
 public class PaymentInformationRequestDto {
     private String cardNumber;
     private String billingName;
-    private Date expiryDate;
+    private LocalDate expiryDate;
     private int cvvCode;
     private int addressId;
 
@@ -12,7 +12,7 @@ public class PaymentInformationRequestDto {
     protected PaymentInformationRequestDto() {
     }
 
-    public PaymentInformationRequestDto(String cardNumber, String billingName, Date expiryDate, int cvvCode, int addressId) {
+    public PaymentInformationRequestDto(String cardNumber, String billingName, LocalDate expiryDate, int cvvCode, int addressId) {
         this.cardNumber = cardNumber;
         this.billingName = billingName;
         this.expiryDate = expiryDate;
@@ -36,11 +36,11 @@ public class PaymentInformationRequestDto {
         this.billingName = newBillingName;
     }
 
-    public Date getExpiryDate() {
+    public LocalDate getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date newExpiryDate) {
+    public void setExpiryDate(LocalDate newExpiryDate) {
         this.expiryDate = newExpiryDate;
     }
 

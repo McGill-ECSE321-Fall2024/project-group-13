@@ -1,5 +1,7 @@
 package group_13.game_store.controller;
 
+import java.sql.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +36,7 @@ public class CustomerInformationController {
             paymentInfo.getPaymentInfoID(),
             paymentInfo.getCardNumber(),
             paymentInfo.getBillingName(),
-            paymentInfo.getExpiryDate(),
+            paymentInfo.getExpiryDate().toLocalDate(),
             paymentInfo.getCvvCode(),
             paymentInfo.getBillingAddress());
         
@@ -55,7 +57,7 @@ public class CustomerInformationController {
             loggedInUsername,
             paymentInfoRequestDto.getCardNumber(),
             paymentInfoRequestDto.getBillingName(),
-            paymentInfoRequestDto.getExpiryDate(),
+            Date.valueOf(paymentInfoRequestDto.getExpiryDate()),
             paymentInfoRequestDto.getCvvCode(),
             billingAddress
         );
@@ -87,7 +89,7 @@ public class CustomerInformationController {
             loggedInUsername,
             paymentInfoRequestDto.getCardNumber(),
             paymentInfoRequestDto.getBillingName(),
-            paymentInfoRequestDto.getExpiryDate(),
+            Date.valueOf(paymentInfoRequestDto.getExpiryDate()),
             paymentInfoRequestDto.getCvvCode(),
             billingAddress
         );
