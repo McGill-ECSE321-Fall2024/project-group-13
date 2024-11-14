@@ -345,7 +345,6 @@ public class GameStoreManagementService {
     @Transactional
     public void addEmployee(String name, String username, String email, String password,
             String phoneNumber, boolean isActive) {
-
         // Validate fields
         if (name == null || name.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name cannot be null or empty.");

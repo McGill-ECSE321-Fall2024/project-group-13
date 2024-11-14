@@ -34,7 +34,7 @@ public class PaymentInformationResponseDto {
         return paymentInfoID;
     }
 
-    public String cardNumber() {
+    public String getCardNumber() {
         return cardNumber;
     }
 

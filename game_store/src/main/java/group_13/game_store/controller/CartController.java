@@ -12,7 +12,6 @@ import group_13.game_store.service.BrowsingService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -34,20 +33,26 @@ public class CartController {
     @Autowired
     AccountService accountService;
 
-    // Get all items in the cart
+    /**
+     * Get the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @return the customer's cart ie. a list of games and the subtotal price
+     */
     @GetMapping("/customers/{customerUsername}/cart")
     public CartResponseDto getCart(@PathVariable String customerUsername) {
         // check if the customer exists and is logged in
 
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to access this user's cart");
+                    "Only customers can access their own cart");
         }
 
         // Get the users cart (list of games)
         List<CartItem> cartItems = browsingService.getCustomerCartByUsername(customerUsername);
+
+        System.out.println(cartItems);
 
         List<GameResponseDto> games = new ArrayList<>();
 
@@ -58,9 +63,10 @@ public class CartController {
             Game game = item.getKey().getGame();
 
             // create a GameResponseDto
+            String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus(), game.getCategory().getName(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle);
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -77,15 +83,19 @@ public class CartController {
 
     }
 
-    // Clear the cart
+    /**
+     * Clear the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @return the customer's cart which should be empty and have a subtotal price of 0
+     */
     @DeleteMapping("/customers/{customerUsername}/cart")
     public CartResponseDto clearCart(@PathVariable String customerUsername) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to access this user's cart");
+                    "Only customers can clear their own cart");
         }
 
         // clear the cart
@@ -105,7 +115,7 @@ public class CartController {
             // create a GameResponseDto
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus(), game.getCategory().getName(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -123,12 +133,18 @@ public class CartController {
 
     }
 
-    // Add a game to the cart
+    /**
+     * Add a game to the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @param gameID the id of the game
+     * @param quantity the quantity of the game
+     * @return the game that was added to the cart
+     */
     @PutMapping("/customers/{customerUsername}/cart/{gameID}")
     public GameResponseDto addToCart(@PathVariable String customerUsername, @PathVariable int gameID,
             @RequestParam int quantity) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -141,20 +157,27 @@ public class CartController {
         // get the game associated with the gameID
         Game game = browsingService.getGameById(gameID);
 
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
+
         // create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
-                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                game.getCategory().getName(), game.getPromotion().getTitle());
+                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto;
 
     }
 
-    // Remove a game from the cart
+    /**
+     * Remove a game from the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @param gameID the id of the game
+     * @return the game that was removed from the cart
+     */
     @DeleteMapping("/customers/{customerUsername}/cart/{gameID}")
     public GameResponseDto removeFromCart(@PathVariable String customerUsername, @PathVariable int gameID) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -168,21 +191,28 @@ public class CartController {
         Game game = browsingService.getGameById(gameID);
 
         // create a GameResponseDto
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
-                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                game.getCategory().getName(), game.getPromotion().getTitle());
+                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
+                game.getCategory().getCategoryID(), promotionTitle);
 
         return gameResponseDto; // review if this is needed
 
     }
 
-    // Update the quantity of a game in the cart
-    @PatchMapping("/customers/{customerUsername}/cart/{gameID}") // I think patch is the correct method -- need to
+    /**
+     * Update the quantity of a game in the cart of a customer by username (Customer only)
+     * @param customerUsername the username of the customer
+     * @param gameID the id of the game
+     * @param quantity the quantity of the game
+     * @return the game that was updated in the cart
+     */
+    @PutMapping("/customers/{customerUsername}/cart/{gameID}/quantity/{quantity}") 
                                                                  // double check
     public GameResponseDto updateQuantityInCart(@PathVariable String customerUsername, @PathVariable int gameID,
-            @RequestParam int quantity) {
+            @PathVariable int quantity) {
         // check if the customer exists and is logged in
-        boolean isCustomer = accountService.hasPermission(customerUsername, 2);
+        boolean isCustomer = accountService.hasPermission(customerUsername, 1);
 
         if (!isCustomer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -195,12 +225,13 @@ public class CartController {
         // get the game associated with the gameID
         Game game = browsingService.getGameById(gameID);
 
+        String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
         // create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
-                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus(),
-                game.getCategory().getName(), game.getPromotion().getTitle());
+                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
+                game.getCategory().getCategoryID(), promotionTitle);
 
-        return gameResponseDto; // review if this is needed
+        return gameResponseDto; 
 
     }
 

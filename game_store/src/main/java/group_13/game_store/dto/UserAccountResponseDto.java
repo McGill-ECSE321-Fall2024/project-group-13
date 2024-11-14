@@ -13,10 +13,10 @@ public class UserAccountResponseDto {
     // including password compromises security
     private String phoneNumber;
     private int permissionLevel;
+
     private LocalDate creationDate;
 
-    public UserAccountResponseDto() {
-    }
+    protected UserAccountResponseDto(){}
 
     public UserAccountResponseDto(UserAccount aUserAccount) {
 		this.username = aUserAccount.getUsername();

@@ -9,6 +9,10 @@ public class GameListResponseDto {
         this.games = games;
     }
 
+    // defaul constructor
+    public GameListResponseDto() {
+    }
+
     public List<GameResponseDto> getGames() {
         return games;
     }
