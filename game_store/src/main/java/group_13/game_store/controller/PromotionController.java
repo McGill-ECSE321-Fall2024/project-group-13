@@ -117,11 +117,6 @@ public class PromotionController {
 
         Promotion promotion = gameStoreManagementService.getPromotion(promotionID);
 
-        // Check if the promotion exists if not return an error
-        if (promotion == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found.");
-        }
-
         return new PromotionResponseDto(promotion);
     }
 
