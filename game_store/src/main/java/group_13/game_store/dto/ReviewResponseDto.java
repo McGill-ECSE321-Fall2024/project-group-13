@@ -15,6 +15,11 @@ public class ReviewResponseDto {
     //Set the date to a LocalDate instead of a Date to make it easier to work with
     private LocalDate date;
 
+
+    //Default constructor for the ReviewResponseDto
+    public ReviewResponseDto() {
+    }
+    
     //Constructor for the ReviewResponseDto
     public ReviewResponseDto(Review review) {
         this.reviewID = review.getReviewID();
@@ -51,4 +56,29 @@ public class ReviewResponseDto {
     public LocalDate getDate() {
         return date;
     }
+
+    public void setReviewID(int reviewID) {
+        this.reviewID = reviewID;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public void setScore(int score) {
+        this.score = score;
+    }
+    
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+    
+    public void setReviewerUsername(String reviewerUsername) {
+        this.reviewerUsername = reviewerUsername;
+    }
+    
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    
 }

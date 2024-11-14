@@ -42,7 +42,7 @@ public class Review
   @ManyToOne
   private Game reviewedGame;
 
-  @OneToOne(optional = true, mappedBy = "review")
+  @OneToOne(optional = true, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "review")
   private Reply reply;
 
   //Link the review to the customers that liked it

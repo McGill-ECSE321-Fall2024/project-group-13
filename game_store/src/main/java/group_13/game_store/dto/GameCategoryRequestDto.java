@@ -1,7 +1,5 @@
 package group_13.game_store.dto;
 
-import group_13.game_store.model.GameCategory;
-
 public class GameCategoryRequestDto {
     private String description;
     private String name;
@@ -9,10 +7,10 @@ public class GameCategoryRequestDto {
     protected GameCategoryRequestDto() {
     }
 
-    public GameCategoryRequestDto(GameCategory category)
+    public GameCategoryRequestDto(String description, String name)
     {
-        this.description = category.getDescription();
-        this.name = category.getName();
+        this.description = description;
+        this.name = name;
     }
 
 	public String getName() {

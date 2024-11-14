@@ -1,7 +1,5 @@
 package group_13.game_store.dto;
 
-import group_13.game_store.model.Game.VisibilityStatus;
-
 public class GameRequestDto {
     private String title;
     private String description;
@@ -9,20 +7,20 @@ public class GameRequestDto {
     private int stock;
     private double price;
     private String parentalRating;
-    private VisibilityStatus status;
+    private String status;
     private int categoryId;
 
     public GameRequestDto() {}
 
-    public GameRequestDto(String title, String description, String img, int stock, double price, String parentalRating, VisibilityStatus status, int categoryId) {
+    public GameRequestDto(String title, String description, String img, int stock, double price, String parentalRating, String status, int categoryId) {
         this.title = title;
         this.description = description;
         this.img = img;
         this.stock = stock;
         this.price = price;
         this.parentalRating = parentalRating;
-        this.status = status;
         this.categoryId = categoryId;
+        this.status = status;
     }
 
     // Getters and setters
@@ -75,11 +73,11 @@ public class GameRequestDto {
         this.parentalRating = parentalRating;
     }
 
-    public VisibilityStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(VisibilityStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

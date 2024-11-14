@@ -42,7 +42,15 @@ public class GameController {
     @Autowired
     AccountService accountService;
 
-    // Get all games with optional filters
+    /** 
+     * Gets all games with optional filtering by title prefix or category, customers can only see available games but employees can see all games
+     * 
+     * @param title the title prefix to filter by (for the search bar)
+     * @param category the category name to filter by
+     * @param loggedInUsername the username of the logged in user 
+     * 
+     * @return a list of games that match the filters
+     */
     @GetMapping("/games")
     public GameListResponseDto getGames(
             @RequestParam(required = false) String title,
@@ -87,8 +95,8 @@ public class GameController {
                     game.getStock(),
                     game.getPrice(),
                     game.getParentalRating(),
-                    game.getStatus(),
-                    game.getCategory().getName(),
+                    game.getStatus().toString(),
+                    game.getCategory().getCategoryID(),
                     game.getPromotion() != null ? game.getPromotion().getTitle() : null);
             gameResponseDtos.add(gameResponseDto);
         }
@@ -96,7 +104,13 @@ public class GameController {
         return new GameListResponseDto(gameResponseDtos);
     }
 
-    // Get a game by its ID
+    /**
+     * Get a game by its ID, customers can only see available games but employees can see all games
+     * @param gameID the ID of the game
+     * @param loggedInUsername the username of the logged in user
+     * @return the game with the given ID
+     */
+
     @GetMapping("/games/{gameID}")
     public GameResponseDto getGameById(@PathVariable int gameID, @RequestParam String loggedInUsername) {
 
@@ -122,14 +136,19 @@ public class GameController {
                 foundGame.getStock(),
                 foundGame.getPrice(),
                 foundGame.getParentalRating(),
-                foundGame.getStatus(),
-                foundGame.getCategory().getName(),
+                foundGame.getStatus().toString(),
+                foundGame.getCategory().getCategoryID(),
                 foundGame.getPromotion() != null ? foundGame.getPromotion().getTitle() : null);
 
         return gameResponseDto;
     }
 
-    // Add a game to the store (Owner only)
+    /**
+     * Add a game to the store (Owner only)
+     * @param gameRequestDto the game to add
+     * @param loggedInUsername the username of the logged in user
+     * @return the game that was added
+     */
     @PostMapping("/games")
     public GameResponseDto addGame(@RequestBody GameRequestDto gameRequestDto,
             @RequestParam String loggedInUsername) {
@@ -140,6 +159,7 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to add games.");
         }
 
+
         Game createdGame = gameStoreManagementService.addGame(
                 gameRequestDto.getTitle(),
                 gameRequestDto.getDescription(),
@@ -147,8 +167,10 @@ public class GameController {
                 gameRequestDto.getStock(),
                 gameRequestDto.getPrice(),
                 gameRequestDto.getParentalRating(),
-                gameRequestDto.getStatus(),
+                stringToStatus(gameRequestDto.getStatus()),
                 gameRequestDto.getCategoryId());
+
+        // Create the game in the database
 
         GameResponseDto gameResponseDto = new GameResponseDto(
                 createdGame.getGameID(),
@@ -158,14 +180,20 @@ public class GameController {
                 createdGame.getStock(),
                 createdGame.getPrice(),
                 createdGame.getParentalRating(),
-                createdGame.getStatus(),
-                createdGame.getCategory().getName(),
+                createdGame.getStatus().toString(),
+                createdGame.getCategory().getCategoryID(),
                 createdGame.getPromotion() != null ? createdGame.getPromotion().getTitle() : null);
 
         return gameResponseDto;
     }
 
-    // Update a game in the store (Owner only)
+    /**
+     * Update a game (Owner only)
+     * @param gameID the ID of the game to update
+     * @param gameRequestDto the updated game
+     * @param loggedInUsername the username of the logged in user
+     * @return the updated game
+     */
     @PutMapping("/games/{gameID}")
     public GameResponseDto updateGame(@PathVariable int gameID,
             @RequestBody GameRequestDto gameRequestDto,
@@ -185,7 +213,7 @@ public class GameController {
                 gameRequestDto.getStock(),
                 gameRequestDto.getPrice(),
                 gameRequestDto.getParentalRating(),
-                gameRequestDto.getStatus(),
+                stringToStatus(gameRequestDto.getStatus()),
                 gameRequestDto.getCategoryId());
 
         GameResponseDto gameResponseDto = new GameResponseDto(
@@ -196,42 +224,45 @@ public class GameController {
                 updatedGame.getStock(),
                 updatedGame.getPrice(),
                 updatedGame.getParentalRating(),
-                updatedGame.getStatus(),
-                updatedGame.getCategory().getName(),
+                updatedGame.getStatus().toString(),
+                updatedGame.getCategory().getCategoryID(),
                 updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null);
 
         return gameResponseDto;
     }
 
-    // Archive a game (Owner only)
+    /**
+     * Depending on the user's permission level, either archive a game (Owner) or request to archive a game (Employee)
+     * @param gameID the ID of the game to archive
+     * @param loggedInUsername the username of the logged in user
+     * 
+     * @return void
+    */
     @DeleteMapping("/games/{gameID}")
     public void archiveGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
 
         boolean isOwner = accountService.hasPermission(loggedInUsername, 3);
 
-        if (!isOwner) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to archive games.");
-        }
-
-        gameStoreManagementService.archiveGame(gameID);
-    }
-
-    // Request to archive a game (Employee only)
-    @PostMapping("/games/{gameID}/archive-requests")
-    public void requestArchiveGame(@PathVariable int gameID, @RequestParam String loggedInUsername) {
-
         boolean isEmployee = accountService.hasPermission(loggedInUsername, 2);
 
-        if (!isEmployee) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You do not have permission to request archiving games.");
+        if (!isOwner && !isEmployee) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive games.");
         }
 
-        gameStoreManagementService.archiveGameRequest(gameID);
+        if (isOwner) {
+            gameStoreManagementService.archiveGame(gameID);
+        } else {
+            gameStoreManagementService.archiveGameRequest(gameID);
+        }
+
     }
 
-    // Get pending game archive requests (Owner only)
+    /**
+     * Get all games that have been requested to be archived by employees (Owner only)
+     * @param loggedInUsername the username of the logged in user
+     * 
+     * @return a list of games that have been requested to be archived by employees
+     */
     @GetMapping("/games/archive-requests")
     public GameListResponseDto getGameArchiveRequests(@RequestParam String loggedInUsername) {
 
@@ -255,12 +286,27 @@ public class GameController {
                     game.getStock(),
                     game.getPrice(),
                     game.getParentalRating(),
-                    game.getStatus(),
-                    game.getCategory().getName(),
+                    game.getStatus().toString(),
+                    game.getCategory().getCategoryID(),
                     game.getPromotion() != null ? game.getPromotion().getTitle() : null);
             gameResponseDtos.add(gameDto);
         }
 
         return new GameListResponseDto(gameResponseDtos);
+    }
+
+
+    // Helper method to convert a string to a Game.VisibilityStatus
+    private static Game.VisibilityStatus stringToStatus(String status) {
+        if (status.equals("Visible")) {
+            return Game.VisibilityStatus.Visible;
+        } else if (status.equals("Archived")) {
+            return Game.VisibilityStatus.Archived;
+        } else if (status.equals("PendingVisible")) {
+            return Game.VisibilityStatus.PendingVisible;
+        } else {
+            // default status if not one of the above
+            return Game.VisibilityStatus.Archived;
+        }
     }
 }

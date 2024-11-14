@@ -15,6 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
@@ -105,10 +107,14 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(999)).thenReturn(Optional.empty());
 
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addGame("Game1", "Description1", "img1", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 999));
 
-        assertEquals("Invalid category ID.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Invalid category ID.", exception.getReason());
+
+        // Verify that no game is saved in the repository
         verify(gameRepository, never()).save(any(Game.class));
     }
 
@@ -129,11 +135,16 @@ public class GameStoreManagementTest {
     public void testArchiveGameNonexistent() {
         // Arrange
         when(gameRepository.findByGameID(999)).thenReturn(null);
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.archiveGame(999));
-        assertEquals("Game with ID 999 not found.", exception.getMessage());
+        
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Game with ID 999 not found.", exception.getReason());
+    
+        // Verify that no game is saved in the repository
         verify(gameRepository, never()).save(any(Game.class));
     }
 
@@ -208,10 +219,14 @@ public class GameStoreManagementTest {
     @Test
     public void testAddPromotionInvalidDate() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addPromotion(10, endDate, startDate, "Holiday Sale", "10% off"));
-
-        assertEquals("End date cannot be before start date.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("End date cannot be before start date.", exception.getReason());
+    
+        // Verify that no promotion is saved in the repository
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
 
@@ -231,11 +246,16 @@ public class GameStoreManagementTest {
     public void testDeletePromotionNonexistent() {
         // Arrange
         when(promotionRepository.findByPromotionID(999)).thenReturn(null);
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.deletePromotion(999));
-        assertEquals("Promotion with ID 999 not found.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Promotion with ID 999 not found.", exception.getReason());
+    
+        // Verify that no promotion is deleted in the repository
         verify(promotionRepository, never()).delete(any(Promotion.class));
     }
 
@@ -403,11 +423,16 @@ public class GameStoreManagementTest {
     public void testArchiveGameRequestNonexistent() {
         // Arrange
         when(gameRepository.findByGameID(999)).thenReturn(null);
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.archiveGameRequest(999));
-        assertEquals("Game with ID 999 not found.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Game with ID 999 not found.", exception.getReason());
+    
+        // Verify that no game is saved in the repository
         verify(gameRepository, never()).save(any(Game.class));
     }
 
@@ -418,37 +443,42 @@ public class GameStoreManagementTest {
         // Arrange
         Employee employee = new Employee("John Doe", "johndoe", "johndoe@example.com", "password", "123-456-7890", true);
         when(employeeRepository.findByUsername("johndoe")).thenReturn(employee);
-
+    
         // Act
         gameStoreManagementService.archiveEmployeeAccount("johndoe");
-
+    
         // Assert
         assertFalse(employee.getIsActive());
         verify(employeeRepository, times(1)).save(employee);
     }
-
+    
     @Test
     public void testArchiveEmployeeAccountNonexistent() {
         // Arrange
         when(employeeRepository.findByUsername("nonexistent_user")).thenReturn(null);
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.archiveEmployeeAccount("nonexistent_user"));
-        assertEquals("Employee with ID nonexistent_user not found.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Employee with username nonexistent_user not found.", exception.getReason());
+    
+        // Verify that no employee is saved in the repository
         verify(employeeRepository, never()).save(any(Employee.class));
     }
-
+    
     @Test
     public void testUpdateGameValid() {
         // Arrange
         when(gameRepository.findByGameID(1)).thenReturn(game1);
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-        
+    
         // Act
         Game updatedGame = gameStoreManagementService.updateGame(1, "Updated Title", "Updated Description", "updated_img",
             15, 12.0, "PG-13", Game.VisibilityStatus.Visible, 1);
-
+    
         // Assert
         assertNotNull(updatedGame);
         assertEquals("Updated Title", updatedGame.getTitle());
@@ -461,7 +491,7 @@ public class GameStoreManagementTest {
         assertEquals(category1, updatedGame.getCategory());
         verify(gameRepository, times(1)).save(updatedGame);
     }
-
+    
     @Test
     public void testUpdateGameNonexistentGame() {
         // Arrange
@@ -469,59 +499,76 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(new GameCategory("Category", GameCategory.VisibilityStatus.Visible, "CategoryName")));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(999, "Title", "Description", "img", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));  // Use a valid category ID here
-        assertEquals("Game with ID 999 not found.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Game with ID 999 not found.", exception.getReason());
+    
+        // Verify that no game is saved in the repository
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameInvalidCategory() {
         // Arrange
         when(gameRepository.findByGameID(1)).thenReturn(game1);
         when(gameCategoryRepository.findById(999)).thenReturn(Optional.empty());
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(1, "Title", "Description", "img", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 999));
-        assertEquals("Invalid category ID.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Invalid category ID.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameNegativeStock() {
         // Arrange
         when(gameRepository.findByGameID(1)).thenReturn(game1);
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(1, "Title", "Description", "img", -1, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Stock cannot be negative.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Stock cannot be negative.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameZeroOrNegativePrice() {
         // Arrange
         when(gameRepository.findByGameID(1)).thenReturn(game1);
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-
+    
         // Act and Assert for zero price
-        Exception zeroPriceException = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException zeroPriceException = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(1, "Title", "Description", "img", 10, 0.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Price must be greater than zero.", zeroPriceException.getMessage());
+        
+        // Assert Status Code and Message for zero price
+        assertEquals(HttpStatus.BAD_REQUEST, zeroPriceException.getStatusCode());
+        assertEquals("Price must be greater than zero.", zeroPriceException.getReason());
         verify(gameRepository, never()).save(any(Game.class));
-
+    
         // Act and Assert for negative price
-        Exception negativePriceException = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException negativePriceException = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(1, "Title", "Description", "img", 10, -5.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Price must be greater than zero.", negativePriceException.getMessage());
+    
+        // Assert Status Code and Message for negative price
+        assertEquals(HttpStatus.BAD_REQUEST, negativePriceException.getStatusCode());
+        assertEquals("Price must be greater than zero.", negativePriceException.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
 
@@ -530,26 +577,32 @@ public class GameStoreManagementTest {
         // Arrange
         when(gameRepository.findByGameID(1)).thenReturn(game1);
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(1, null, "Description", "img", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameEmptyTitle() {
         // Arrange
         when(gameRepository.findByGameID(1)).thenReturn(game1);
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updateGame(1, "", "Description", "img", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
 
@@ -581,9 +634,12 @@ public class GameStoreManagementTest {
         when(promotionRepository.findByPromotionID(999)).thenReturn(null);
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updatePromotion(999, 10, startDate, endDate, "Title", "Description"));
-        assertEquals("Review with ID 999 not found.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Promotion with ID 999 not found.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
     
@@ -593,15 +649,21 @@ public class GameStoreManagementTest {
         when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
     
         // Act and Assert for zero percentage
-        Exception zeroPercentageException = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException zeroPercentageException = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updatePromotion(1, 0, startDate, endDate, "Title", "Description"));
-        assertEquals("Percentage must be between 1 and 100.", zeroPercentageException.getMessage());
+    
+        // Assert Status Code and Message for zero percentage
+        assertEquals(HttpStatus.BAD_REQUEST, zeroPercentageException.getStatusCode());
+        assertEquals("Percentage must be between 1 and 100.", zeroPercentageException.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     
         // Act and Assert for percentage greater than 100
-        Exception overPercentageException = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException overPercentageException = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updatePromotion(1, 150, startDate, endDate, "Title", "Description"));
-        assertEquals("Percentage must be between 1 and 100.", overPercentageException.getMessage());
+    
+        // Assert Status Code and Message for percentage greater than 100
+        assertEquals(HttpStatus.BAD_REQUEST, overPercentageException.getStatusCode());
+        assertEquals("Percentage must be between 1 and 100.", overPercentageException.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
     
@@ -611,9 +673,12 @@ public class GameStoreManagementTest {
         when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updatePromotion(1, 10, startDate, endDate, null, "Description"));
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
     
@@ -623,9 +688,12 @@ public class GameStoreManagementTest {
         when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updatePromotion(1, 10, startDate, endDate, "", "Description"));
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
     
@@ -638,9 +706,12 @@ public class GameStoreManagementTest {
         Date invalidEndDate = Date.valueOf(today);
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.updatePromotion(1, 10, invalidStartDate, invalidEndDate, "Title", "Description"));
-        assertEquals("End date cannot be before start date.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("End date cannot be before start date.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
 
@@ -665,167 +736,205 @@ public class GameStoreManagementTest {
     @Test
     public void testAddEmployeeNullName() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee(null, "johndoe", "johndoe@example.com", "password123", "123-456-7890", true));
-        assertEquals("Name cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Name cannot be null or empty.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
     
     @Test
     public void testAddEmployeeEmptyName() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee("", "johndoe", "johndoe@example.com", "password123", "123-456-7890", true));
-        assertEquals("Name cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Name cannot be null or empty.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
     
     @Test
     public void testAddEmployeeNullUsername() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee("John Doe", null, "johndoe@example.com", "password123", "123-456-7890", true));
-        assertEquals("Username cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Username cannot be null or empty.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
     
     @Test
     public void testAddEmployeeEmptyUsername() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee("John Doe", "", "johndoe@example.com", "password123", "123-456-7890", true));
-        assertEquals("Username cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Username cannot be null or empty.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
     
     @Test
     public void testAddEmployeeInvalidEmail() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee("John Doe", "johndoe", "invalid-email", "password123", "123-456-7890", true));
-        assertEquals("Invalid email format.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Invalid email format.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
     
     @Test
     public void testAddEmployeeShortPassword() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee("John Doe", "johndoe", "johndoe@example.com", "short", "123-456-7890", true));
-        assertEquals("Password must be at least 8 characters long.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Password must be at least 8 characters long.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
     
     @Test
     public void testAddEmployeeInvalidPhoneNumber() {
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> 
             gameStoreManagementService.addEmployee("John Doe", "johndoe", "johndoe@example.com", "password123", "invalid-phone", true));
-        assertEquals("Phone number must be in the format xxx-xxx-xxxx.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Phone number must be in the format xxx-xxx-xxxx.", exception.getReason());
         verify(employeeRepository, never()).save(any(Employee.class));
     }
-
+    
     @Test
     public void testAddGameNullTitle() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame(null, "Description", "img", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameEmptyTitle() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("", "Description", "img", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
+    
 
     @Test
     public void testAddGameNullDescription() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
-
+    
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", null, "img", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Description cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameEmptyDescription() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "", "img", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Description cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameNullImageURL() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", null, 10, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Image URL cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Image URL cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameEmptyImageURL() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Image URL cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Image URL cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameNegativeStock() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "img", -1, 10.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Stock cannot be negative.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Stock cannot be negative.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameZeroPrice() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "img", 10, 0.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Price must be greater than zero.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Price must be greater than zero.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
     
@@ -835,26 +944,29 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "img", 10, -5.0, "PG", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Price must be greater than zero.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Price must be greater than zero.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameNullParentalRating() {
         // Arrange
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "img", 10, 10.0, null, Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Parental rating cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Parental rating cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
 
     @Test
     public void testAddGameEmptyParentalRating() {
@@ -862,127 +974,141 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "img", 10, 10.0, "", Game.VisibilityStatus.Visible, 1));
-        
-        assertEquals("Parental rating cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Parental rating cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddGameInvalidCategoryId() {
         // Arrange
         when(gameCategoryRepository.findById(999)).thenReturn(Optional.empty());
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addGame("Game", "Description", "img", 10, 10.0, "PG", Game.VisibilityStatus.Visible, 999));
-        
-        assertEquals("Invalid category ID.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Invalid category ID.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testAddPromotionZeroPercentage() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(0, startDate, endDate, "Title", "Description"));
     
-        // Assert
-        assertEquals("Percentage must be between 1 and 100.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Percentage must be between 1 and 100.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionOver100Percentage() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(150, startDate, endDate, "Title", "Description"));
     
-        // Assert
-        assertEquals("Percentage must be between 1 and 100.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Percentage must be between 1 and 100.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionNullTitle() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, startDate, endDate, null, "Description"));
     
-        // Assert
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionEmptyTitle() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, startDate, endDate, "", "Description"));
     
-        // Assert
-        assertEquals("Title cannot be null or empty.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Title cannot be null or empty.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionNullDescription() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, startDate, endDate, "Title", null));
     
-        // Assert
-        assertEquals("Description cannot be null or empty.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionEmptyDescription() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, startDate, endDate, "Title", ""));
     
-        // Assert
-        assertEquals("Description cannot be null or empty.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionNullStartDate() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, null, endDate, "Title", "Description"));
     
-        // Assert
-        assertEquals("Start and end dates cannot be null.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Start and end dates cannot be null.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionNullEndDate() {
         // Arrange & Act
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, startDate, null, "Title", "Description"));
     
-        // Assert
-        assertEquals("Start and end dates cannot be null.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Start and end dates cannot be null.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testAddPromotionEndDateBeforeStartDate() {
         // Arrange
         Date invalidEndDate = Date.valueOf(today.minusDays(1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.addPromotion(10, startDate, invalidEndDate, "Title", "Description"));
     
-        assertEquals("End date cannot be before start date.", exception.getMessage());
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("End date cannot be before start date.", exception.getReason());
         verify(promotionRepository, never()).save(any(Promotion.class));
     }
-
+    
     @Test
     public void testUpdateGameNullDescription() {
         // Arrange
@@ -990,13 +1116,16 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.updateGame(1, "Title", null, "img", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Description cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameEmptyDescription() {
         // Arrange
@@ -1004,13 +1133,16 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.updateGame(1, "Title", "", "img", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Description cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Description cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameNullImg() {
         // Arrange
@@ -1018,13 +1150,16 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.updateGame(1, "Title", "Description", null, 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Image URL cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Image URL cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameEmptyImg() {
         // Arrange
@@ -1032,13 +1167,16 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.updateGame(1, "Title", "Description", "", 10, 10.0, "PG", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Image URL cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Image URL cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameNullParentalRating() {
         // Arrange
@@ -1046,13 +1184,16 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.updateGame(1, "Title", "Description", "img", 10, 10.0, null, 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Parental rating cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Parental rating cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testUpdateGameEmptyParentalRating() {
         // Arrange
@@ -1060,13 +1201,16 @@ public class GameStoreManagementTest {
         when(gameCategoryRepository.findById(1)).thenReturn(Optional.of(category1));
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.updateGame(1, "Title", "Description", "img", 10, 10.0, "", 
                 Game.VisibilityStatus.Visible, 1));
-        assertEquals("Parental rating cannot be null or empty.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Parental rating cannot be null or empty.", exception.getReason());
         verify(gameRepository, never()).save(any(Game.class));
     }
-
+    
     @Test
     public void testArchiveCategoryWithPermission() {
         // Arrange
@@ -1081,7 +1225,7 @@ public class GameStoreManagementTest {
         assertEquals(GameCategory.VisibilityStatus.Archived, result.getStatus());
         verify(gameCategoryRepository, times(1)).save(category1);
     }
-
+    
     @Test
     public void testArchiveCategoryWithoutPermission() {
         // Arrange
@@ -1096,17 +1240,124 @@ public class GameStoreManagementTest {
         assertEquals(GameCategory.VisibilityStatus.PendingArchive, result.getStatus());
         verify(gameCategoryRepository, times(1)).save(category1);
     }
-
+    
     @Test
     public void testArchiveCategoryNonexistent() {
         // Arrange
         when(gameCategoryRepository.findByCategoryID(999)).thenReturn(null);
     
         // Act and Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
             gameStoreManagementService.archiveCategory(999, "admin"));
-        assertEquals("Category with ID 999 not found.", exception.getMessage());
+    
+        // Assert Status Code and Message
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Category with ID 999 not found.", exception.getReason());
         verify(gameCategoryRepository, never()).save(any(GameCategory.class));
+    }
+    
+
+    @Test
+    public void testAddPromotionToGame_Success() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
+        // Mock the save method to return the game object passed to it
+        when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Promotion result = gameStoreManagementService.addPromotionToGame(1, 1);
+
+        // Assert
+        assertNotNull(result, "The returned Promotion should not be null.");
+        assertEquals(promotion1, result, "The returned Promotion should match the promotion1.");
+
+        // Capture the Game object passed to save
+        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
+        verify(gameRepository, times(1)).save(gameCaptor.capture());
+        Game savedGame = gameCaptor.getValue();
+
+        // Verify that the promotion was set correctly
+        assertEquals(promotion1, savedGame.getPromotion(), "The promotion should be set correctly on the game.");
+    }
+
+    @Test
+    public void testAddPromotionToGame_PromotionNotFound() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        when(promotionRepository.findByPromotionID(999)).thenReturn(null); // Non-existent promotion
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            gameStoreManagementService.addPromotionToGame(999, 1);
+        }, "Expected addPromotionToGame to throw, but it didn't");
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
+        assertEquals("Promotion with ID 999 not found.", exception.getReason(), "Exception reason message mismatch");
+
+        // Verify that save was never called
+        verify(gameRepository, never()).save(any(Game.class));
+    }
+
+    @Test
+    public void testAddPromotionToGame_GameNotFound() {
+        // Arrange
+        when(gameRepository.findByGameID(999)).thenReturn(null); // Non-existent game
+        when(promotionRepository.findByPromotionID(1)).thenReturn(promotion1);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            gameStoreManagementService.addPromotionToGame(1, 999);
+        }, "Expected addPromotionToGame to throw, but it didn't");
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
+        assertEquals("Game with ID 999 not found.", exception.getReason(), "Exception reason message mismatch");
+
+        // Verify that save was never called
+        verify(gameRepository, never()).save(any(Game.class));
+    }
+
+    @Test
+    public void removePromotionFromGame_Success() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        // Associate promotion with game
+        game1.setPromotion(promotion1);
+        when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Promotion result = gameStoreManagementService.removePromotionFromGame(1, 1);
+
+        // Assert
+        assertNull(result, "The returned Promotion should be null after removal.");
+        assertNull(game1.getPromotion(), "The game's promotion should be set to null.");
+
+        // Capture the Game object passed to save
+        ArgumentCaptor<Game> gameCaptor = ArgumentCaptor.forClass(Game.class);
+        verify(gameRepository, times(1)).save(gameCaptor.capture());
+        Game savedGame = gameCaptor.getValue();
+
+        // Verify that the promotion was removed
+        assertNull(savedGame.getPromotion(), "The saved game should have no promotion associated.");
+    }
+
+    @Test
+    public void removePromotionFromGame_GameHasNoPromotion() {
+        // Arrange
+        when(gameRepository.findByGameID(1)).thenReturn(game1);
+        // Ensure the game has no promotion
+        game1.setPromotion(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            gameStoreManagementService.removePromotionFromGame(1, 1);
+        }, "Expected removePromotionFromGame to throw, but it didn't");
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Exception status should be 404 Not Found");
+        assertEquals("Game with ID 1 does not have a promotion.", exception.getReason(), "Exception reason message mismatch");
+
+        // Verify that save was never called
+        verify(gameRepository, never()).save(any(Game.class));
     }
 
 }

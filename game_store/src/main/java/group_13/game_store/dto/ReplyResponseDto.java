@@ -9,6 +9,11 @@ public class ReplyResponseDto {
     private LocalDate date;
     private String username;
 
+    //Default constructor for the ReviewResponseDto
+    public ReplyResponseDto() {
+    }
+
+
     public ReplyResponseDto(Reply reply) {
         this.text = reply.getText();
         this.date = reply.getDate().toLocalDate();
