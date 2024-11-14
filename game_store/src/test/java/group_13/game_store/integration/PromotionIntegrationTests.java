@@ -196,7 +196,7 @@ public class PromotionIntegrationTests {
 
     @Test
     @Order(4)
-    public void testUpdatePromotion_UserLacksPrmission() {
+    public void testUpdatePromotion_UserLacksPermission() {
         //Test with a guest who cant change promotions
         String loggedInUsername = "guest";
 
@@ -221,6 +221,54 @@ public class PromotionIntegrationTests {
         assertNotNull(response);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertTrue(response.getBody().contains("User does not have permission to update promotions."));
+    }
+
+    @Test
+    @Order(5)
+    public void testDeletePromotion_Success() {
+        String loggedInUsername = "owner";
+
+        // Delete a promotion
+        ResponseEntity<String> response = client.exchange(
+            "/games/promotions/" + promotion1ID + "?loggedInUsername=" + loggedInUsername,
+            HttpMethod.DELETE,
+            null,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // Check if the promotion was properly deleted from the database
+        boolean exists = promotionRepository.existsById(promotion1ID);
+        assertTrue(!exists);
+
+        setup(); //Restore the deleted promotion
+    }
+
+    @Test
+    @Order(6)
+    public void testDeletePromotion_UserLacksPermission() {
+        //Test with a guest who cant delete promotions
+        String loggedInUsername = "guest";
+
+        // Delete a promotion
+        ResponseEntity<String> response = client.exchange(
+            "/games/promotions/" + promotion1ID + "?loggedInUsername=" + loggedInUsername,
+            HttpMethod.DELETE,
+            null,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody().contains("User does not have permission to delete promotions."));
+
+        // Check if the promotion was not deleted from the database
+        boolean exists = promotionRepository.existsById(promotion1ID);
+        assertTrue(exists);
     }
 
     

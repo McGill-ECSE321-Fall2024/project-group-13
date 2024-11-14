@@ -59,31 +59,6 @@ public class PromotionController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to create promotions.");
         }
 
-        // Check if the request body is empty
-        if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is empty.");
-        }
-
-        // Check if the percentage is between 0 and 100
-        if (request.getPercentage() < 0 || request.getPercentage() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Percentage must be between 0 and 100.");
-        }
-
-        // Check if the start date and end date are provided
-        if (request.getStartDate() == null || request.getEndDate() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date and end date must be provided.");
-        }
-
-        // Check if the title and description are provided
-        if (request.getTitle() == null || request.getTitle().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be provided.");
-        }
-
-        // Check if the description is provided
-        if (request.getDescription() == null || request.getDescription().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be provided.");
-        }
-
         // Create a promotion with the information from the request
         Promotion promotion = gameStoreManagementService.addPromotion(
                 request.getPercentage(),
@@ -91,11 +66,6 @@ public class PromotionController {
                 request.getEndDate(),
                 request.getTitle(),
                 request.getDescription());
-
-        // Check if the promotion could not be created
-        if (promotion == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Promotion could not be created.");
-        }
 
         // Return the promotion as a response object 
         return new PromotionResponseDto(promotion);
