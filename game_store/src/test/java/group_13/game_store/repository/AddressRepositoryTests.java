@@ -29,33 +29,33 @@ public class AddressRepositoryTests {
         addressRepository.deleteAll();
     }
 
-    // @Test
-    // public void testWriteAndReadAddress() {
-    //     // Arrange
-    //     Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
-    //     savedAddress = addressRepository.save(savedAddress);
-    //     Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
-    //     nicolas.setAddress(savedAddress);
-    //     nicolas = customerRepo.save(nicolas);
+    @Test
+    public void testWriteAndReadAddress() {
+        // Arrange
+        Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
+        savedAddress = addressRepository.save(savedAddress);
+        Customer nicolas = new Customer("nicolas", "nicolasIsAmazing", "nick@gmail.com", "1234asd", "613-242-1325");
+        nicolas.setAddress(savedAddress);
+        nicolas = customerRepo.save(nicolas);
 
-    //     int savedAddressID = savedAddress.getAddressID();
+        int savedAddressID = savedAddress.getAddressID();
 
-    //     // Act
-    //     Address readAddress = addressRepository.findByAddressID(savedAddressID);
+        // Act
+        Address readAddress = addressRepository.findByAddressID(savedAddressID);
 
-    //     // Assert
-    //     // ensuring the loaded Address row instance actually exists in the table of the local database
-    //     assertNotNull(readAddress);
-    //     // verifying if all the fields of Address instance that was created before saving it into the local database matches the fields of the loaded row instance of Address from the table
-    //     assertEquals(savedAddressID, readAddress.getAddressID());
-    //     assertEquals(savedAddress.getStreet(), readAddress.getStreet());
-    //     assertEquals(savedAddress.getPostalCode(), readAddress.getPostalCode());
-    //     assertEquals(savedAddress.getNumber(), readAddress.getNumber());
-    //     assertEquals(savedAddress.getCity(), readAddress.getCity());
-    //     assertEquals(savedAddress.getStateOrProvince(), readAddress.getStateOrProvince());
-    //     assertEquals(savedAddress.getCountry(), readAddress.getCountry());
-    //     assertEquals(savedAddress.getApartmentNo(), readAddress.getApartmentNo());
+        // Assert
+        // ensuring the loaded Address row instance actually exists in the table of the local database
+        assertNotNull(readAddress);
+        // verifying if all the fields of Address instance that was created before saving it into the local database matches the fields of the loaded row instance of Address from the table
+        assertEquals(savedAddressID, readAddress.getAddressID());
+        assertEquals(savedAddress.getStreet(), readAddress.getStreet());
+        assertEquals(savedAddress.getPostalCode(), readAddress.getPostalCode());
+        assertEquals(savedAddress.getNumber(), readAddress.getNumber());
+        assertEquals(savedAddress.getCity(), readAddress.getCity());
+        assertEquals(savedAddress.getStateOrProvince(), readAddress.getStateOrProvince());
+        assertEquals(savedAddress.getCountry(), readAddress.getCountry());
+        assertEquals(savedAddress.getApartmentNo(), readAddress.getApartmentNo());
 
-    //}
+    }
 
 }

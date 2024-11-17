@@ -8,6 +8,7 @@ import group_13.game_store.dto.OrderResponseDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -33,26 +34,34 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.model.Address;
+import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
+import group_13.game_store.model.GameCopy;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Order;
 import group_13.game_store.model.PaymentInformation;
 import group_13.game_store.repository.AddressRepository;
+import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
 import group_13.game_store.repository.EmployeeRepository;
 import group_13.game_store.repository.GameCategoryRepository;
+import group_13.game_store.repository.GameCopyRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
+import group_13.game_store.service.AccountService;
+import group_13.game_store.service.OrderManagementService;
+import group_13.game_store.service.PaymentService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -80,12 +89,26 @@ public class UserAccountIntegrationTests {
 	@Autowired
 	private PaymentInformationRepository paymentinfoRepository;
 
+	@Autowired
+	private CartItemRepository cartItemRepository;
 
 	@Autowired
 	private GameCategoryRepository categoryRepository;
 
 	@Autowired
 	private OrderRepository orderRepository;
+
+	@Autowired
+	private GameCopyRepository copyRepository;
+
+	@Autowired
+    private AccountService accountService;
+
+	@Autowired
+    private PaymentService paymentService;
+
+	@Autowired
+    private OrderManagementService orderManagementService;
 
 	private Customer customer1;
 	private Customer customer2;
@@ -115,17 +138,19 @@ public class UserAccountIntegrationTests {
 		category1 = new GameCategory("this type of game involves X", GameCategory.VisibilityStatus.Visible, "generic category");
         game1 = new Game("Game1", "Description1", "img1", 10, 10.0, "PG", Game.VisibilityStatus.Visible, category1);
 
-		Address savedAddress = new Address("Sherbrooke St W", "H3A 0G4", 845, "Montreal", "Quebec", "Canada", 0);
-		PaymentInformation savedPaymentInformation = new PaymentInformation("123456789", "John Cena",
-                Date.valueOf("2022-10-11"), 000, savedAddress);
+		Address savedAddress = new Address("Sherbrooke St W", "H3A0G4", 845, "Montreal", "Quebec", "Canada", 0);
+		PaymentInformation savedPaymentInformation = new PaymentInformation("1234123412341234", "RealNameOne",
+                Date.valueOf("2027-10-11"), 123, savedAddress);
 		customer1.setPaymentInformation(savedPaymentInformation);
 
-		//category1.setCategoryID(1);
-       // game1.setGameID(1);
+		CartItem.Key key = new CartItem.Key(customer1, game1);
+        CartItem savedCartItem = new CartItem(key, 1);
+
 		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);
-		//order1.setOrderID(1);
         order2 = new group_13.game_store.model.Order(randomDate2, null, customer1);
-		//order2.setOrderID(2);
+
+		GameCopy copy1 = new GameCopy(order1, game1);
+		GameCopy copy2 = new GameCopy(order2, game1);
 
 		addressRepository.save(savedAddress);
 		paymentinfoRepository.save(savedPaymentInformation);
@@ -133,18 +158,23 @@ public class UserAccountIntegrationTests {
 		gameRepository.save(game1);
 		customerRepository.save(customer1);
 		customerRepository.save(customer2);
+		cartItemRepository.save(savedCartItem);
 		employeeRepository.save(employee1);
 		orderRepository.save(order1);
 		orderRepository.save(order2);
+		copyRepository.save(copy1);
+		copyRepository.save(copy2);
 	}
 
     @AfterAll
 	public void clearDatabase() {
 		employeeRepository.deleteAll();
+		cartItemRepository.deleteAll();
+		copyRepository.deleteAll();
 		orderRepository.deleteAll();
-		customerRepository.deleteAll();
-		categoryRepository.deleteAll();
+		customerRepository.deleteAll();	
 		gameRepository.deleteAll();
+		categoryRepository.deleteAll();
 		paymentinfoRepository.deleteAll();
 		addressRepository.deleteAll();
 	}
@@ -303,7 +333,7 @@ public class UserAccountIntegrationTests {
 		// assert
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		//assertEquals(newValidPassword, updatedUser.getPassword());
+		assertEquals(accountService.hashPassword(newValidPassword), updatedUser.getPassword());
 		assertEquals(newValidPhoneNumber, updatedUser.getPhoneNumber());
 	}
 
@@ -348,11 +378,11 @@ public class UserAccountIntegrationTests {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(2, response.getBody().getOrders().size());
 		// checking to see if these order dtos are within the OrderListDto
-		//assertEquals(order1.getPurchaseDate(), response.getBody().getOrders().get(0).getPurchaseDate());
-		//assertEquals(order1.getReturnDate(), response.getBody().getOrders().get(0).getReturnDate());
+		assertEquals(order1.getPurchaseDate(), response.getBody().getOrders().get(0).getPurchaseDate());
+		assertEquals(order1.getReturnDate(), response.getBody().getOrders().get(0).getReturnDate());
 		assertEquals(order1.getCustomer().getUsername(), response.getBody().getOrders().get(0).getCustomer().getUsername());
-		//assertEquals(order2.getPurchaseDate(), response.getBody().getOrders().get(1).getPurchaseDate());
-		//assertEquals(order2.getReturnDate(), response.getBody().getOrders().get(1).getReturnDate());
+		assertEquals(order2.getPurchaseDate(), response.getBody().getOrders().get(1).getPurchaseDate());
+		assertEquals(order2.getReturnDate(), response.getBody().getOrders().get(1).getReturnDate());
 		assertEquals(order2.getCustomer().getUsername(), response.getBody().getOrders().get(1).getCustomer().getUsername());
 	}
 
@@ -384,10 +414,16 @@ public class UserAccountIntegrationTests {
 
 		// act
 		ResponseEntity<OrderResponseDto> response = client.postForEntity("/customers/FakeUsername1/orders?loggedInUsername=FakeUsername1", testedCreatedOrder, OrderResponseDto.class);
-
+		
+		
+		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> paymentService.purchaseCart(customer1.getUsername()));
+        
 		// assert
 		assertNotNull(response);
+		// fails most likely because purchase cart is empty
 		assertEquals(HttpStatus.OK, response.getStatusCode());
+		//
+		//assertEquals("", exception.getReason());
 		assertEquals(randomDate1, response.getBody().getPurchaseDate());
 		assertNull(response.getBody().getReturnDate());
 		assertEquals(customer1.getUsername(), response.getBody().getCustomer().getUsername());
@@ -463,7 +499,12 @@ public class UserAccountIntegrationTests {
 		// act
 		ResponseEntity<OrderResponseDto> response = client.exchange("/users/FakeUsername1/orders/1/games/1&loggedInUsername=FakeUsername1", HttpMethod.PUT, requestEntity, OrderResponseDto.class);
 
+		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> orderManagementService.returnOrder(order1.getOrderID(), game1.getGameID(), randomDate4));
+        
 		// assert
+		
+		//assertEquals("", exception.getReason());
+
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(randomDate4, response.getBody().getReturnDate());
