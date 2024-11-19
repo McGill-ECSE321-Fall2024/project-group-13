@@ -111,6 +111,7 @@ public class PaymentService {
         }
 
         // Create a new order for the customer
+        System.out.println(String.format("Here: %s", customer.getUsername()));
         Order order = new Order(currentDate, null, customer);
 
         // Reduce stock for each game and create GameCopy records
@@ -125,7 +126,7 @@ public class PaymentService {
                 gameCopy = gameCopyRepo.save(gameCopy);
             }
         }
-
+        System.out.println(String.format("Here 2: %s", customer.getUsername()));
         // Clear customer's cart and save the order
         clearCart(customer);
         order = orderRepo.save(order);

@@ -35,12 +35,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class UserAccountController {
+    
     @Autowired
     private OrderManagementService orderManagementService;
+    
     @Autowired
     private PaymentService paymentService;
+    
     @Autowired
     private GameStoreManagementService gameStoreManagementService;
+
     @Autowired
     private AccountService accountService;
  
@@ -180,7 +184,7 @@ public class UserAccountController {
         }
 
         // purchasing the cart creates the order, which is now saved in the database
-        Order createdOrder = paymentService.purchaseCart(request.getCustomer());
+        Order createdOrder = paymentService.purchaseCart(username);
         if (createdOrder == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order made by " + username + " has not been made.");
         }
@@ -206,7 +210,7 @@ public class UserAccountController {
 
         Order foundOrder = orderManagementService.getOrderById(orderId);
         if (foundOrder == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " made by " + username + " has not been made.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + String.valueOf(orderId) + " made by " + username + " has not been made.");
         }
         return new OrderCreationResponseDto(foundOrder);
     }
