@@ -143,8 +143,8 @@ public class UserAccountIntegrationTests {
 		PaymentInformation savedPaymentInformation = new PaymentInformation("1234123412341234", "RealNameOne",
                 Date.valueOf("2027-10-11"), 123, savedAddress);
 		customer1.setPaymentInformation(savedPaymentInformation);
+		customer1.setAddress(savedAddress);
 
-		//CartItem.Key key = new CartItem.Key(customer1, game1);
         CartItem savedCartItem = new CartItem(new CartItem.Key(customer1, game1), 1);
 
 		order1 = new group_13.game_store.model.Order(randomDate1, null, customer1);

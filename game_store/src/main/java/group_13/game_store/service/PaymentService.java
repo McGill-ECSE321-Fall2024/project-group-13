@@ -61,6 +61,7 @@ public class PaymentService {
     @Transactional
     public Order purchaseCart(String username) {
         // Retrieve customer details by username
+        // @@@@@@@@@@@@@@@@ CANT SEEM TO FIND CUSTOMER THAT I SAVED HERE
         Customer customer = customerRepo.findByUsername(username);
         if (customer == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such customer with username exists");
