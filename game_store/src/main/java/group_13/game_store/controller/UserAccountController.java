@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import group_13.game_store.service.OrderManagementService;
 import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.dto.OrderListDto;
-import group_13.game_store.dto.OrderRequestDto;
-import group_13.game_store.dto.OrderResponseDto;
+import group_13.game_store.dto.ReturnOrderResponseDto;
+import group_13.game_store.dto.OrderCreationRequestDto;
+import group_13.game_store.dto.OrderCreationResponseDto;
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
 import group_13.game_store.dto.UserAccountResponseDto;
@@ -72,11 +73,6 @@ public class UserAccountController {
      */
     @GetMapping("/customers")
     public CustomerListDto findAllCustomers(@RequestParam String loggedInUsername) {
-
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-
         // validate that user is either employee or owner
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee to view all customers");
@@ -102,11 +98,6 @@ public class UserAccountController {
      */
     @GetMapping("/customers/{username}")
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
-
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-
         // validate that it is an employee or owner who is searching for customer
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee");
@@ -130,10 +121,6 @@ public class UserAccountController {
      */
     @PutMapping("/users/{username}")
     public UserAccountResponseDto updateGeneralUserInformation(@PathVariable String username, @RequestBody UserAccountRequestDto request, @RequestParam String loggedInUsername) {
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-        
         // validating that a logged in account is update the password or phone number
         // every user has permission to change their own password
         if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
@@ -164,18 +151,14 @@ public class UserAccountController {
      */
     @GetMapping("/customers/{username}/orders")
     public OrderListDto findAllOrdersOfCustomer(@RequestParam String loggedInUsername, @PathVariable String username) {
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-       
         // only customer should be able to see their order history
         if (!accountService.hasPermission(loggedInUsername, 1) || !loggedInUsername.equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to view their own orders");
         }
 
-        List<OrderResponseDto> allOrdersOfCustomers = new ArrayList<OrderResponseDto>();
+        List<OrderCreationResponseDto> allOrdersOfCustomers = new ArrayList<OrderCreationResponseDto>();
         for (Order order : orderManagementService.getOrderHistoryOfCustomer(username)) {
-            allOrdersOfCustomers.add(new OrderResponseDto(order));
+            allOrdersOfCustomers.add(new OrderCreationResponseDto(order));
         }
 
         return new OrderListDto(allOrdersOfCustomers);
@@ -190,24 +173,20 @@ public class UserAccountController {
      * @return The created order.
      */
     @PostMapping("/customers/{username}/orders") 
-    public OrderResponseDto createOrder(@PathVariable String username, @RequestBody OrderRequestDto request, @RequestParam String loggedInUsername) {
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-        
+    public OrderCreationResponseDto createOrder(@PathVariable String username, @RequestBody OrderCreationRequestDto request, @RequestParam String loggedInUsername) {
         // only customer should be able to add orders to their order history
-        if (!accountService.hasPermission(loggedInUsername, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1) || !username.equals(loggedInUsername)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to make own orders");
         }
 
         // purchasing the cart creates the order, which is now saved in the database
-        Order createdOrder = paymentService.purchaseCart(username);
+        Order createdOrder = paymentService.purchaseCart(request.getCustomer());
         if (createdOrder == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order made by " + username + " has not been made.");
         }
 
         // will need to the return variable for PaymentService.purchaseCart for this method to allow the return of a created OrderResponseDto
-        return new OrderResponseDto(createdOrder);    
+        return new OrderCreationResponseDto(createdOrder);    
     }
 
     /**
@@ -219,13 +198,9 @@ public class UserAccountController {
      * @return The specified order.
      */
     @GetMapping("/customers/{username}/orders/{orderId}")
-    public OrderResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-        
+    public OrderCreationResponseDto findOrderOfCustomer(@PathVariable String username, @PathVariable int orderId, @RequestParam String loggedInUsername) {
         // only customer should be able to check their own order
-        if (!accountService.hasPermission(loggedInUsername, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1) || !username.equals(loggedInUsername)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to check their own order");
         }
 
@@ -233,7 +208,7 @@ public class UserAccountController {
         if (foundOrder == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " made by " + username + " has not been made.");
         }
-        return new OrderResponseDto(foundOrder);
+        return new OrderCreationResponseDto(foundOrder);
     }
 
     /**
@@ -245,24 +220,17 @@ public class UserAccountController {
      * @param loggedInUsername The username of the logged-in user.
      * @return The updated order after return.
      */
-    @PutMapping("/customers/{username}/orders/{orderId}/games/{gameId}")
-    public OrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @PathVariable int gameId, @RequestParam String loggedInUsername) {
-        // need to check if user is logged in first
-        //UserAccount userOfInterest = accountService.findUserByUsername(loggedInUsername);
-        //String checkLoggedInUser = accountService.loginToAccount(loggedInUsername, userOfInterest.getPassword());
-        
+    @PutMapping("/customers/{username}/orders/{orderId}")
+    public ReturnOrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @RequestBody ReturnOrderResponseDto request, @RequestParam String loggedInUsername) {
         // only customer should be able to return their own order
-        if (!accountService.hasPermission(loggedInUsername, 1)) {
+        if (!accountService.hasPermission(loggedInUsername, 1) || !loggedInUsername.equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to return their order");
         }
 
         // need to include date input to make tge service method returnOrder testable
         Date dateToReturn = Date.valueOf(LocalDate.now());
-        Order returnedOrder = orderManagementService.returnOrder(orderId, gameId, dateToReturn);
-        //if (returnedOrder == null) {
-          //  throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + orderId + " from " + username +  "for game " + gameId + "has not been made.");
-        //}
+        Order returnedOrder = orderManagementService.returnOrder(request.getOrderId(), dateToReturn);
 
-        return new OrderResponseDto(returnedOrder);
+        return new ReturnOrderResponseDto(returnedOrder);
     }
 }

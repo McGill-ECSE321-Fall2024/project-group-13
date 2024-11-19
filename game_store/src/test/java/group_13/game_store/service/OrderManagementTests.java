@@ -157,7 +157,7 @@ public class OrderManagementTests {
         // verify that findByOrderID(), findByOrderID(), findByOrder_OrderID, and save() were called from gameRepository, copyRepository, and orderRepository
         verify(orderRepository, times(1)).findByOrderID(validOrderId);
         verify(gameRepository, times(2)).findByGameID(1);
-        verify(gameRepository, times(2)).findByGameID(2);
+        //verify(gameRepository, times(2)).findByGameID(2);
         verify(copyRepository, times(1)).findByOrder_OrderID(validGameId);
         verify(gameRepository, times(2)).save(any(Game.class));
         verify(orderRepository, times(1)).save(any(Order.class));

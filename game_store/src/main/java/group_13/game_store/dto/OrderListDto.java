@@ -3,20 +3,20 @@ package group_13.game_store.dto;
 import java.util.List;
 
 public class OrderListDto {
-    private List<OrderResponseDto> orders;
+    private List<OrderCreationResponseDto> orders;
 
     protected OrderListDto() {
         
     }
-    public OrderListDto(List<OrderResponseDto> orders) {
+    public OrderListDto(List<OrderCreationResponseDto> orders) {
         this.orders = orders;
     }
 
-    public List<OrderResponseDto> getOrders() {
+    public List<OrderCreationResponseDto> getOrders() {
         return orders;
     }
 
-    public void setCustomers(List<OrderResponseDto> orders) {
+    public void setCustomers(List<OrderCreationResponseDto> orders) {
         this.orders = orders;
     }
 }
