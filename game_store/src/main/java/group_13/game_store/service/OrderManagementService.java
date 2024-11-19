@@ -60,12 +60,12 @@ public class OrderManagementService {
         // @@@@@@@@@@@@@@@@@@@2 CANT SEEM TO FIND ORDER THAT I SAVED HERE
         Order orderToReturn = orderRepo.findByOrderID(orderID);
         if (orderToReturn == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No order with order ID " + orderID + ".");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No order with order ID " + String.valueOf(orderID) + ".");
         }
 
          // check if order was already returned
          if (orderToReturn.isIsReturned() == true) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + orderID + " was already returned.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + String.valueOf(orderID) + " was already returned.");
         }
 
         List<GameCopy> gameCopiesOfOrder = copyRepo.findByOrder_OrderID(orderID);
@@ -105,7 +105,7 @@ public class OrderManagementService {
         } 
         
         // default response if purchase was not made within 7 days
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + orderID + " cannot be returned, because 7 days have already passed since its purchase.");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + String.valueOf(orderID) + " cannot be returned, because 7 days have already passed since its purchase.");
     }
 
     @Transactional
