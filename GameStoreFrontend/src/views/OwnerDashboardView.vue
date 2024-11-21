@@ -1,18 +1,18 @@
 <template>
-    <div class="home">
-        <h1>Home Page</h1>
+    <div class="ownerdashboard">
+        <h1>Owner Dashboard Page</h1>
         <p>Welcome to the Game Store!</p>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'HomeView',
+    name: 'OwnerDashboardView',
 }
 </script>
 
 <style scoped>
-.home {
+.ownerdashboard {
     text-align: center;
     margin-top: 50px;
 }

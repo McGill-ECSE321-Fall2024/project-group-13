@@ -1,19 +1,20 @@
 <template>
-    <div class="home">
-        <h1>Home Page</h1>
-        <p>Welcome to the Game Store!</p>
+    <div class="browse">
+        <h1>Browse Page</h1>
+        <p>Explore our content on the Browse page!</p>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'HomeView',
+    name: 'BrowseView',
 }
 </script>
 
 <style scoped>
-.home {
+.browse {
     text-align: center;
     margin-top: 50px;
 }
+
 </style>
