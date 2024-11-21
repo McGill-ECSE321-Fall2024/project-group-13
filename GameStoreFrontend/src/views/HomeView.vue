@@ -7,6 +7,11 @@
                 </div>
             </div>
         </div>
+        <div class="cardFlex">
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+        </div>
     </section>
 </template>
 
@@ -47,6 +52,23 @@ export default {
     font-size: 1.5rem;
     font-weight: normal;
     margin-left: 5px;
+    }
+
+    .cardFlex{
+        height: 600px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-evenly;
+    } 
+
+    .card{
+        height: 500px;
+        width: 450px;
+        background-color: black;
+        margin: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
 </style>
