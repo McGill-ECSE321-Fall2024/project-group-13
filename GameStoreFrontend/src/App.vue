@@ -1,85 +1,105 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterLink, RouterView } from 'vue-router';
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+  <div id="app">
+    <header>
+      <nav class="navbar">
+        <div class="nav-container">
+          <RouterLink to="/" class="nav-logo">Logo</RouterLink>
+          <div class="nav-links">
+            <RouterLink to="/" class="nav-item">Home</RouterLink>
+            <RouterLink to="/browse" class="nav-item">Browse</RouterLink>
+            <RouterLink to="/game" class="nav-item">Game</RouterLink>
+            <RouterLink to="/login" class="nav-item">Login</RouterLink>
+            <RouterLink to="/register" class="nav-item">Register</RouterLink>
+            <RouterLink to="/account" class="nav-item">Account</RouterLink>
+            <RouterLink to="/cart" class="nav-item">Cart</RouterLink>
+            <RouterLink to="/wishlist" class="nav-item">Wishlist</RouterLink>
+            <RouterLink to="/checkout" class="nav-item">Checkout</RouterLink>
+            <RouterLink to="/owner-dashboard" class="nav-item">Owner Dashboard</RouterLink>
+          </div>
+        </div>
       </nav>
-    </div>
-  </header>
+    </header>
 
-  <RouterView />
+    <main>
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
   width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  background-color: #000000; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.navbar {
+  max-width: 1200px; 
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+.nav-logo {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
 }
 
-nav a:first-of-type {
-  border: 0;
+.nav-links {
+  display: flex;
+  gap: 1rem;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.nav-item {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.router-link-exact-active.nav-item {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+main {
+  flex: 1;
+  padding: 5rem 1rem 1rem; 
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 </style>

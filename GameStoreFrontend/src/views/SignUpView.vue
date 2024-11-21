@@ -1,18 +1,18 @@
 <template>
-    <div class="home">
-        <h1>Home Page</h1>
+    <div class="signup">
+        <h1>Sign Up Page</h1>
         <p>Welcome to the Game Store!</p>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'HomeView',
+    name: 'SignUpView',
 }
 </script>
 
 <style scoped>
-.home {
+.signup {
     text-align: center;
     margin-top: 50px;
 }
