@@ -1,5 +1,7 @@
 <template>
     <section class="title">
+
+        <!-- Title section  -->
         <div class="backgroundImage">
             <div class="titleFlex">
                 <div class="titleText">
@@ -10,6 +12,7 @@
             </div>
         </div>
 
+        <!-- Game Cards section  -->
         <div class="cardTitle">
                 <h2>Featured & Recommended</h2>
             </div>
@@ -36,20 +39,26 @@
             </div>
         </div>
 
-        <div class="cardTitle">
-                <h2>Our Platforms</h2>
+         <!-- Featured Promotions section  -->
+         <div class="cardTitle">
+                <h2>Promotions</h2>
+         </div>
+      
+        <div class="promotionWrapper">
+            <div class="promotionMain"></div>
+            <div class="promotionDesc"></div>
         </div>
 
+          <!-- Platform section  -->
+          <div class="cardTitle">
+                <h2>Our Platforms</h2>
+        </div>
         <div class="platforms">     
                 <img :src="xboxlogo" alt="xbox logo" class="platformLogo" />
                 <img :src="ps5logo" alt="ps5 logo" class="platformLogo" />
                 <img :src="switchlogo" alt="switch logo" class="platformLogo">
                 <img :src="windowslogo" alt="windows logo" class="platformLogo">
                 <img :src="wiilogo" alt="wii logo" class="platformLogo">
-        </div>
-
-        <div class="promotion-wrapper">
-
         </div>
     </section>
 </template>
@@ -86,6 +95,31 @@ export default {
 </script>
 
 <style scoped>
+    .promotionWrapper {
+        margin-top: 20px;
+        height: 550px;
+        background-color: #121212;
+        border-radius: 10px;
+        margin-left: 85px;
+        margin-right: 85px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: row;
+    }
+
+    .promotionMain {
+        flex: 2.45;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+    .promotionDesc {
+        flex: 1;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+
+    }
+
     .cardTitle {
         margin-left: 85px;
         margin-top: 20px;
