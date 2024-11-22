@@ -3,13 +3,15 @@
         <div class="backgroundImage">
             <div class="titleFlex">
                 <div class="titleText">
-                    <h1>404 Games Not Found</h1>
+                    <div class="glitch-wrapper">
+                        <div class="glitch" data-text="404 Games Not Found">404 Games Not Found</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="cardTitle">
-                <h2>Featured & Reccomended</h2>
+                <h2>Featured & Recommended</h2>
             </div>
             
         <div class="cardFlex">
@@ -39,11 +41,15 @@
         </div>
 
         <div class="platforms">     
-            <div class="platformItem"></div>
-            <div class="platformItem"></div>
-            <div class="platformItem"></div>
-            <div class="platformItem"></div>
-            <div class="platformItem"></div>
+                <img :src="xboxlogo" alt="xbox logo" class="platformLogo" />
+                <img :src="ps5logo" alt="ps5 logo" class="platformLogo" />
+                <img :src="switchlogo" alt="switch logo" class="platformLogo">
+                <img :src="windowslogo" alt="windows logo" class="platformLogo">
+                <img :src="wiilogo" alt="wii logo" class="platformLogo">
+        </div>
+
+        <div class="promotion-wrapper">
+
         </div>
     </section>
 </template>
@@ -53,6 +59,11 @@ import LpGameCard from '@/components/LpGameCard.vue';
 import roundsImage from '../assets/rounds.jpg';
 import r6Image from '../assets/r6.jpg';
 import civ6Image from '../assets/civ6.jpg';
+import xboxlogo from '../assets/xboxlogo.png';
+import ps5logo from '../assets/ps5logo.png';
+import switchlogo from '../assets/nintendologo.png';
+import windowslogo from '../assets/windowslogo.png';
+import wiilogo from '../assets/wiilogo.png';
 
 export default {
   name: 'HomeView',
@@ -63,7 +74,12 @@ export default {
     return {
       roundsImage,
       r6Image,
-      civ6Image
+      civ6Image,
+      xboxlogo,
+      ps5logo,
+      switchlogo,
+      windowslogo,
+      wiilogo
     };
   }
 }
@@ -131,11 +147,72 @@ export default {
         align-items: center;
         justify-content: space-evenly;
     }
-    
-    .platformItem {
-        background-color: aliceblue;
-        width: 30px;
+
+    .platformLogo{
         height: 30px;
     }
+
+    /* Glitch title effect */
+    .glitch-wrapper {
+   width: 100%;
+   height: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-align: center;
+}
+
+.glitch {
+   position: relative;
+   font-size: 90px;
+   font-weight: bold;
+   color: #FFFFFF;
+   letter-spacing: 3px;
+   z-index: 1;
+}
+
+.glitch:before,
+.glitch:after {
+   display: block;
+   content: attr(data-text);
+   position: absolute;
+   top: 0;
+   left: 0;
+   opacity: 0.8;
+}
+
+.glitch:before {
+   animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+   color: #00FFFF;
+   z-index: -1;
+}
+
+.glitch:after {
+   animation: glitch-it 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
+   color: #FF00FF;
+   z-index: -2;
+}
+
+@keyframes glitch-it {
+   0% {
+      transform: translate(0);
+   }
+   20% {
+      transform: translate(-2px, 2px);
+   }
+   40% {
+      transform: translate(-2px, -2px);
+   }
+   60% {
+      transform: translate(2px, 2px);
+   }
+   80% {
+      transform: translate(2px, -2px);
+   }
+   to {
+      transform: translate(0);
+   }
+}
+
 
 </style>
