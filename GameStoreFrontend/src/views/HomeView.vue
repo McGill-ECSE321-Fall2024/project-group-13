@@ -46,7 +46,28 @@
       
         <div class="promotionWrapper">
             <div class="promotionMain"></div>
-            <div class="promotionDesc"></div>
+            <div class="promotionDesc">
+                <div class="promo1">
+                    <div class="promosubtext">
+                        <div class="promopct">
+                            <span>-35%</span>
+                        </div>
+                        <div class="promoprc">
+ 
+                        </div>
+                    </div>
+                </div>
+                <div class="promo2">
+                    <div class="promosubtext">
+                        <div class="promopct">
+                            <span>-35%</span>
+                        </div>
+                        <div class="promoprc">
+ 
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
           <!-- Platform section  -->
@@ -111,6 +132,12 @@ export default {
         flex: 2.45;
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
+        background-image: url('../assets/promoBig.webp');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        display: flex;
+        flex-direction: column;
     }
 
     .promotionDesc {
@@ -119,6 +146,50 @@ export default {
         border-bottom-right-radius: 10px;
 
     }
+
+    .promo1 {
+        flex: 1;
+        height: 50%;
+        border-top-right-radius: 10px;
+        background-image: url('../assets/alto.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .promo2 {
+        flex: 1;
+        height: 50%;
+        border-bottom-right-radius: 10px;
+        background-image: url('../assets/d2.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .promosubtext {
+        display: flex;
+        flex-direction: column;
+        height: 15%;
+        width: 30%;
+        background-color: black;
+
+    }
+
+    .promoprt{
+        text-align: center;
+        align-items: center;
+    }
+
+    .promoprt>span {
+        font-weight: bold;
+    }
+
+    .promoprc{
+
+    }
+
+
 
     .cardTitle {
         margin-left: 85px;
