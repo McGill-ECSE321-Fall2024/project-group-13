@@ -70,7 +70,7 @@
   .game-price {
     font-size: 1.2em;
     margin: 10px 0;
-    color: #03DAC6; 
+    color: #ece6e6; 
   }
   
   .game-description {

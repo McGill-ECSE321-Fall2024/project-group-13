@@ -53,7 +53,8 @@
                             <span>-35%</span>
                         </div>
                         <div class="promoprc">
- 
+                            <p class="oldprice">$16.99</p>
+                            <p>$10.99</p>
                         </div>
                     </div>
                 </div>
@@ -63,7 +64,8 @@
                             <span>-35%</span>
                         </div>
                         <div class="promoprc">
- 
+                            <p class="oldprice">$27.99</p>
+                            <p>$19.99</p>
                         </div>
                     </div>
                 </div>
@@ -169,24 +171,38 @@ export default {
 
     .promosubtext {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         height: 15%;
         width: 30%;
-        background-color: black;
-
-    }
-
-    .promoprt{
-        text-align: center;
+        justify-content: space-between;
         align-items: center;
+        font-size: small;
+        gap: 8px;
+        background: rgba(7, 226, 43, 0.1);
+        backdrop-filter: blur(10px);
     }
 
-    .promoprt>span {
+    .promopct{
+        padding-left: 5px;
+    }
+
+    .promopct>span {
         font-weight: bold;
+        color: rgb(170, 228, 170);
+        font-size: 1.5em;
+        
     }
 
     .promoprc{
+        display: flex;
+        flex-direction: column;
+        padding-right: 10%;
+        color: rgb(209, 218, 226);
+    }
 
+    .oldprice {
+        text-decoration: line-through;
+        opacity: 0.7;
     }
 
 
