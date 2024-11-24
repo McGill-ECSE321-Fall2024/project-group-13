@@ -28,23 +28,50 @@
                     <!-- Game Cards -->
                     <div class="gameCardWrapper">
                         <!-- Game cards will be dynamically inserted here -->
-                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                         <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
-                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-
-                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                         <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
-                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                
+                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                        <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
+                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                        <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
+                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
                     </div>
                 </div>
 
                 <!-- Right Group: Category Filter -->
                 <div class="rightGroup">
                     <h2>Category Filters</h2>
-                    <p>This side will have filters for the categories by name</p>
+                    <hr style="background-image: none;">
+
+                    <!-- Open Source Checkbox, credit: https://uiverse.io/Shoh2008/big-deer-80 -->
+                    <svg style="display: none;">
+                        <defs>
+                            <filter id="goo-12">
+                                <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"></feGaussianBlur>
+                                <feColorMatrix in="blur" mode="matrix" values="
+                                    1 0 0 0 0  
+                                    0 1 0 0 0  
+                                    0 0 1 0 0  
+                                    0 0 0 22 -7" result="goo-12"></feColorMatrix>
+                                <feBlend in="SourceGraphic" in2="goo-12"></feBlend>
+                            </filter>
+                        </defs>
+                    </svg>
+
+                    <!-- Dynamic Checkboxes -->
+                    <div class="category-filters">
+                        <div class="checkbox-wrapper-12" v-for="(category, index) in categories" :key="index">
+                            <div class="cbx">
+                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category">
+                                <label :for="'cbx-12-' + index"></label>
+                                <svg fill="none" viewBox="0 0 15 14" height="14" width="15">
+                                    <path d="M2 8.36364L6.23077 12L13 2"></path>
+                                </svg>
+                            </div>
+                            <label :for="'cbx-12-' + index" class="category-label">{{ category }}</label>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -64,15 +91,15 @@ export default {
     components: {
         BrGameCard
     },
-
     data() {
         return {
             roundsImage: roundsImage,
             r6Image: r6Image,
-            civ6Image: civ6Image
+            civ6Image: civ6Image,
+            categories: ['Action', 'Strategy', 'Shooter', 'Adventure', 'Sports', 'Horror', 'Party', 'Puzzle', 'RPG', 'Sandbox'],
+            selectedCategories: []
         }
     }
-    
 }
 </script>
 
@@ -88,7 +115,7 @@ export default {
     margin: 10%;
     margin-top: 100px;
     margin-bottom: 30px;
-    height: 87vh;
+    height: calc(100vh - 150px); 
 }
 
 .titleWrapper {
@@ -227,7 +254,7 @@ hr {
     overflow-y: auto; 
     padding: 10px; 
 
-    /* Setup 4x2 grid */
+    /* Setup 4x... grid */
     display: grid;
     grid-template-columns: repeat(4, 225px); 
     justify-content: center; 
@@ -240,8 +267,136 @@ hr {
     color: #fff;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex; 
     flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Category Filters Container */
+.category-filters {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+/* Checkbox Wrapper */
+.checkbox-wrapper-12 {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-wrapper-12 > svg {
+    position: absolute;
+    top: -130%;
+    left: -170%;
+    width: 110px;
+    pointer-events: none;
+}
+
+.checkbox-wrapper-12 * {
+    box-sizing: border-box;
+}
+
+.checkbox-wrapper-12 input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    margin: 0;
+}
+
+.checkbox-wrapper-12 input[type="checkbox"]:focus {
+    outline: 0;
+}
+
+.checkbox-wrapper-12 .cbx {
+    width: 24px;
+    height: 24px;
+    position: relative;
+}
+
+.checkbox-wrapper-12 .cbx input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #bfbfc0;
+    border-radius: 50%;
+    background: none;
+    z-index: 2;
+}
+
+.checkbox-wrapper-12 .cbx label {
+    width: 24px;
+    height: 24px;
+    background: none;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate3d(0, 0, 0);
+    pointer-events: none;
+    filter: url(#goo-12);
+}
+
+.checkbox-wrapper-12 .cbx svg {
+    position: absolute;
+    top: 5px;
+    left: 4px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.checkbox-wrapper-12 .cbx svg path {
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 19;
+    stroke-dashoffset: 19;
+    transition: stroke-dashoffset 0.3s ease;
+    transition-delay: 0.2s;
+}
+
+.checkbox-wrapper-12 .cbx input:checked + label {
+    animation: splash-12 0.6s ease forwards;
+}
+
+.checkbox-wrapper-12 .cbx input:checked + label + svg path {
+    stroke-dashoffset: 0;
+}
+
+.category-label {
+    margin-left: 40px;
+    font-size: 16px;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+/* Animation Keyframes */
+@keyframes splash-12 {
+    40% {
+        background: #866efb;
+        box-shadow: 0 -18px 0 -8px #866efb, 16px -8px 0 -8px #866efb, 16px 8px 0 -8px #866efb, 0 18px 0 -8px #866efb, -16px 8px 0 -8px #866efb, -16px -8px 0 -8px #866efb;
+    }
+    100% {
+        background: #866efb;
+        box-shadow: 0 -36px 0 -10px transparent, 32px -16px 0 -10px transparent, 32px 16px 0 -10px transparent, 0 36px 0 -10px transparent, -32px 16px 0 -10px transparent, -32px -16px 0 -10px transparent;
+    }
+}
+
+/* Adjust the scroll behavior of rightGroup if there are many categories */
+.rightGroup {
+    overflow-y: auto;
+}
+
+/* Adjust the max height to ensure scroll works */
+.browseFlex {
+    height: calc(100vh - 150px); 
 }
 </style>
+
