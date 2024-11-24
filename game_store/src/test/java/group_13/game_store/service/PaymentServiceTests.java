@@ -142,7 +142,7 @@ public class PaymentServiceTests {
         verify(cartItemRepo, times(1)).findByKeyCustomerAccountUsername(username);
         verify(gameRepo, times(1)).save(game1);
         verify(gameCopyRepo, times(1)).save(any(GameCopy.class));
-        verify(orderRepo, times(1)).save(any(Order.class));
+        verify(orderRepo, times(2)).save(any(Order.class));
         verify(cartItemRepo, times(1)).deleteByKeyCustomerAccountUsername(username);
     }
 

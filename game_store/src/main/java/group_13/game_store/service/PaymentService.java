@@ -61,6 +61,7 @@ public class PaymentService {
     @Transactional
     public Order purchaseCart(String username) {
         // Retrieve customer details by username
+        // @@@@@@@@@@@@@@@@ CANT SEEM TO FIND CUSTOMER THAT I SAVED HERE
         Customer customer = customerRepo.findByUsername(username);
         if (customer == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No such customer with username exists");
@@ -110,8 +111,9 @@ public class PaymentService {
         }
 
         // Create a new order for the customer
+        System.out.println(String.format("Here: %s", customer.getUsername()));
         Order order = new Order(currentDate, null, customer);
-
+        order = orderRepo.save(order);
         // Reduce stock for each game and create GameCopy records
         GameCopy gameCopy;
         for (int i = 0; i < cartItems.length; i++) {
@@ -124,7 +126,6 @@ public class PaymentService {
                 gameCopy = gameCopyRepo.save(gameCopy);
             }
         }
-
         // Clear customer's cart and save the order
         clearCart(customer);
         order = orderRepo.save(order);

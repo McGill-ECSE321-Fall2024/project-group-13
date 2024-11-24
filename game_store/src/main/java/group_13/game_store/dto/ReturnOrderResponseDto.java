@@ -5,28 +5,26 @@ import java.sql.Date;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
 
-public class OrderResponseDto {
-    private Date purchaseDate;
-    private int totalPrice;
+public class ReturnOrderResponseDto {
     private Date returnDate;
+    private int totalPrice;
     private boolean isReturned;
-    private Customer customer;
+    private String customerUsername;
     private int orderId;
-    
-    protected OrderResponseDto() {
+
+    protected ReturnOrderResponseDto() {
 
     }
-    public OrderResponseDto(Order order) {
-        this.purchaseDate = order.getPurchaseDate();
+    public ReturnOrderResponseDto(Order order) {
+        this.returnDate = Date.valueOf(order.getReturnDate().toLocalDate().plusDays(1));
         this.totalPrice = order.getTotalPrice();
-        this.returnDate = order.getReturnDate();
         this.isReturned = order.getIsReturned();
-        this.customer = order.getCustomer();
+        this.customerUsername = order.getCustomer().getUsername();
         this.orderId = order.getOrderID();
     }
 
-    public Date getPurchaseDate() {
-        return purchaseDate;
+    public Date getReturnDate() {
+        return returnDate;
     }
 
     public int getTotalPrice() {
@@ -37,16 +35,12 @@ public class OrderResponseDto {
         return orderId;
     }
 
-    public Date getReturnDate() {
-        return returnDate;
-    }
-
     public boolean getIsReturned() {
         return isReturned;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public String getCustomerUsername() {
+        return this.customerUsername;
     }
+    
 }
-
