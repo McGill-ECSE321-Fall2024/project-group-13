@@ -9,9 +9,6 @@ import group_13.game_store.dto.OrderCreationResponseDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Date;
@@ -19,13 +16,11 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
-//import org.junit.jupiter.api.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -36,7 +31,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.dto.CustomerListDto;
 import group_13.game_store.dto.UserAccountRequestDto;
@@ -62,7 +56,6 @@ import group_13.game_store.repository.OrderRepository;
 import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
 import group_13.game_store.service.AccountService;
-import group_13.game_store.service.OrderManagementService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -104,12 +97,6 @@ public class UserAccountIntegrationTests {
 
 	@Autowired
     private AccountService accountService;
-
-	// @Autowired
-    // private PaymentService paymentService;
-
-	@Autowired
-    private OrderManagementService orderManagementService;
 
 	private Customer customer1;
 	private Customer customer2;
@@ -377,10 +364,10 @@ public class UserAccountIntegrationTests {
 		// checking to see if these order dtos are within the OrderListDto
 		assertEquals(order1.getPurchaseDate().toString(), response.getBody().getOrders().get(0).getPurchaseDate().toString());
 		//assertEquals(order1.getReturnDate(), response.getBody().getOrders().get(0).getReturnDate());
-		assertEquals(order1.getCustomer().getUsername(), response.getBody().getOrders().get(0).getCustomer().getUsername());
+		assertEquals(order1.getCustomer().getUsername(), response.getBody().getOrders().get(0).getCustomerUsername());
 		assertEquals(order2.getPurchaseDate().toString(), response.getBody().getOrders().get(1).getPurchaseDate().toString());
 		//assertEquals(order2.getReturnDate(), response.getBody().getOrders().get(1).getReturnDate());
-		assertEquals(order2.getCustomer().getUsername(), response.getBody().getOrders().get(1).getCustomer().getUsername());
+		assertEquals(order2.getCustomer().getUsername(), response.getBody().getOrders().get(1).getCustomerUsername());
 	}
 
 	@Test 
@@ -407,20 +394,16 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(11)
 	public void testCreateOrderAsCustomer() {
 		// arrange
-		OrderCreationRequestDto testedCreatedOrder = new OrderCreationRequestDto(randomDate1, customer1.getUsername());
+		OrderCreationRequestDto testedCreatedOrder = new OrderCreationRequestDto(Date.valueOf(LocalDate.now()), customer1.getUsername());
 
 		// act
 		ResponseEntity<OrderCreationResponseDto> response = client.postForEntity("/customers/FakeUsername1/orders?loggedInUsername=FakeUsername1", testedCreatedOrder, OrderCreationResponseDto.class);
-		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> paymentService.purchaseCart(customer1.getUsername()));
-        
+
 		// assert
 		assertNotNull(response);
-		// fails most likely because purchase cart is empty
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		//
-		//assertEquals("", exception.getReason());
-		assertEquals(randomDate1.toString(), response.getBody().getPurchaseDate().toString());
-		assertEquals(customer1.getUsername(), response.getBody().getCustomer().getUsername());
+		assertEquals(Date.valueOf(LocalDate.now()).toString(), response.getBody().getPurchaseDate().toString());
+		assertEquals(customer1.getUsername(), response.getBody().getCustomerUsername());
 		}
 
 	@Test 
@@ -458,7 +441,7 @@ public class UserAccountIntegrationTests {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(order1.getOrderID(), response.getBody().getOrderId());
 		assertEquals(order1.getPurchaseDate().toString(), response.getBody().getPurchaseDate().toString());
-		assertEquals(order1.getCustomer().getUsername(), response.getBody().getCustomer().getUsername());
+		assertEquals(order1.getCustomer().getUsername(), response.getBody().getCustomerUsername());
 	}
 
 	@Test 
