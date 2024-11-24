@@ -37,7 +37,7 @@
   .game-card {
     width: 225px;
     height: 250px;
-    background-color: #1E1E1E;
+    background-color: #121212;
     color: #FFFFFF;
     border-radius: 10px;
     overflow: hidden;

@@ -36,6 +36,10 @@
                         <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                        <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
+                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
                     </div>
                 </div>
 
@@ -96,7 +100,7 @@ export default {
             roundsImage: roundsImage,
             r6Image: r6Image,
             civ6Image: civ6Image,
-            categories: ['Action', 'Strategy', 'Shooter', 'Adventure', 'Sports', 'Horror', 'Party', 'Puzzle', 'RPG', 'Sandbox'],
+            categories: ['Action', 'Strategy', 'Shooter', 'Adventure', 'Sports', 'Horror', 'Party', 'Puzzle', 'RPG', 'Sandbox', 'Simulation', 'Survival'],
             selectedCategories: []
         }
     }
@@ -398,5 +402,36 @@ hr {
 .browseFlex {
     height: calc(100vh - 150px); 
 }
+
+/* Make scrollbar thinner */
+.gameCardWrapper::-webkit-scrollbar,
+.rightGroup::-webkit-scrollbar {
+    width: 8px;
+}
+
+.gameCardWrapper::-webkit-scrollbar-track,
+.rightGroup::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.gameCardWrapper::-webkit-scrollbar-thumb,
+.rightGroup::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid #1e1e1e;
+}
+
+.gameCardWrapper::-webkit-scrollbar-thumb:hover,
+.rightGroup::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+
+.gameCardWrapper,
+.rightGroup {
+    scrollbar-width: thin;
+    scrollbar-color: #555 #1e1e1e;
+}
+
+
 </style>
 
