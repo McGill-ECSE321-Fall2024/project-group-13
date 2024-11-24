@@ -498,13 +498,6 @@ public class UserAccountIntegrationTests {
 		// act
 		ResponseEntity<String> response = client.exchange("/customers/FakeUsername1/orders/" + String.valueOf(order1.getOrderID()) +"?loggedInUsername=EmployeeUsername", HttpMethod.PUT, requestEntity, String.class);
 
-		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> orderManagementService.returnOrder(order1.getOrderID(), randomDate4));
-        
-		// assert
-		
-		//assertEquals("", exception.getReason());
-
-
 		// assert
 		try {
 			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
