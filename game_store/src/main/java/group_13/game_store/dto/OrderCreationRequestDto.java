@@ -1,9 +1,10 @@
 package group_13.game_store.dto;
 
-import java.time.LocalDate;
+//import java.time.LocalDate;
+import java.sql.Date;
 
 public class OrderCreationRequestDto {
-    private LocalDate purchaseDate;
+    private Date purchaseDate;
     /* private int totalPrice;
     private Date returnDate;
     private boolean isReturned; */
@@ -14,13 +15,13 @@ public class OrderCreationRequestDto {
 
     }
 
-    public OrderCreationRequestDto(LocalDate purchaseDate, String customerUsername) {
+    public OrderCreationRequestDto(Date purchaseDate, String customerUsername) {
         this.purchaseDate = purchaseDate;
         this.customerUsername = customerUsername;
         //this.orderId = orderId
     }
 
-    public LocalDate getPurchaseDate() {
+    public Date getPurchaseDate() {
         return purchaseDate;
     }
 

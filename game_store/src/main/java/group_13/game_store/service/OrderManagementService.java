@@ -59,24 +59,19 @@ public class OrderManagementService {
         // check if order exists
         // @@@@@@@@@@@@@@@@@@@2 CANT SEEM TO FIND ORDER THAT I SAVED HERE
         Order orderToReturn = orderRepo.findByOrderID(orderID);
+        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@222222");
+        //System.out.println(orderToReturn.getOrderID());
+
         if (orderToReturn == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No order with order ID " + String.valueOf(orderID) + ".");
         }
 
-         // check if order was already returned
-         if (orderToReturn.isIsReturned() == true) {
+        // check if order was already returned
+        if (orderToReturn.isIsReturned() == true) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order " + String.valueOf(orderID) + " was already returned.");
         }
 
         List<GameCopy> gameCopiesOfOrder = copyRepo.findByOrder_OrderID(orderID);
-
-        // check if games from this order exist
-        /* for (GameCopy orderCopy : gameCopiesOfOrder) {
-            Game gameToReturn = gameRepo.findByGameID(orderCopy.getGame().getGameID());
-            if (gameToReturn == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No game with game ID " + gameToReturn.getGameID() + ".");
-            }
-        } */
 
         // check if 7 days passed after the purchas within a set amount of milliseconds
         //Date dateToReturn = Date.valueOf(LocalDate.now());

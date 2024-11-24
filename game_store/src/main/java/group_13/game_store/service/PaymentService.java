@@ -126,7 +126,6 @@ public class PaymentService {
                 gameCopy = gameCopyRepo.save(gameCopy);
             }
         }
-        System.out.println(String.format("Here 2: %s", customer.getUsername()));
         // Clear customer's cart and save the order
         clearCart(customer);
         order = orderRepo.save(order);

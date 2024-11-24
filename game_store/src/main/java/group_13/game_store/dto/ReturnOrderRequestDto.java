@@ -1,26 +1,26 @@
 package group_13.game_store.dto;
 
-import java.time.LocalDate;
+import java.sql.Date;
 
 public class ReturnOrderRequestDto {
-    private LocalDate returnDate;
+    private Date returnDate;
     private String customerUsername;
     
     protected ReturnOrderRequestDto() {
 
     }
 
-    public ReturnOrderRequestDto(LocalDate returnDate, String customerUsername) {
+    public ReturnOrderRequestDto(Date returnDate, String customerUsername) {
         this.returnDate = returnDate;
         this.customerUsername = customerUsername;
         //this.orderId = orderId
     }
 
-    public LocalDate getReturnDate() {
+    public Date getReturnDate() {
         return returnDate;
     }
 
-    public String getCustomer() {
+    public String getCustomerUsername() {
         return this.customerUsername;
     }
 }

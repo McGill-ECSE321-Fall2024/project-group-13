@@ -1,30 +1,31 @@
 package group_13.game_store.dto;
 
-//import java.sql.Date;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.sql.Date;
+//import java.time.LocaDate;
+//import java.time.ZoneId;
 
+import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
 
 public class OrderCreationResponseDto {
-    private LocalDate purchaseDate;
+    private Date purchaseDate;
     private int totalPrice;
     private boolean isReturned;
-    private String customerUsername;
+    private Customer customer;
     private int orderId;
     
     protected OrderCreationResponseDto() {
 
     }
     public OrderCreationResponseDto(Order order) {
-        this.purchaseDate = order.getPurchaseDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        this.purchaseDate = Date.valueOf(order.getPurchaseDate().toLocalDate().plusDays(1)); 
         this.totalPrice = order.getTotalPrice();
         this.isReturned = order.getIsReturned();
-        this.customerUsername = order.getCustomer().getUsername();
+        this.customer = order.getCustomer();
         this.orderId = order.getOrderID();
     }
 
-    public LocalDate getPurchaseDate() {
+    public Date getPurchaseDate() {
         return purchaseDate;
     }
 
@@ -40,8 +41,8 @@ public class OrderCreationResponseDto {
         return isReturned;
     }
 
-    public String getCustomer() {
-        return customerUsername;
+    public Customer getCustomer() {
+        return customer;
     }
 }
 

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import group_13.game_store.service.OrderManagementService;
 import group_13.game_store.dto.CustomerResponseDto;
 import group_13.game_store.dto.OrderListDto;
+import group_13.game_store.dto.ReturnOrderRequestDto;
 import group_13.game_store.dto.ReturnOrderResponseDto;
 import group_13.game_store.dto.OrderCreationRequestDto;
 import group_13.game_store.dto.OrderCreationResponseDto;
@@ -225,15 +226,15 @@ public class UserAccountController {
      * @return The updated order after return.
      */
     @PutMapping("/customers/{username}/orders/{orderId}")
-    public ReturnOrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @RequestBody ReturnOrderResponseDto request, @RequestParam String loggedInUsername) {
+    public ReturnOrderResponseDto returnOrder(@PathVariable String username, @PathVariable int orderId, @RequestBody ReturnOrderRequestDto request, @RequestParam String loggedInUsername) {
         // only customer should be able to return their own order
         if (!accountService.hasPermission(loggedInUsername, 1) || !loggedInUsername.equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be a customer to return their order");
         }
 
         // need to include date input to make tge service method returnOrder testable
-        Date dateToReturn = Date.valueOf(LocalDate.now());
-        Order returnedOrder = orderManagementService.returnOrder(request.getOrderId(), dateToReturn);
+        //Date dateToReturn = Date.valueOf(LocalDate.now());
+        Order returnedOrder = orderManagementService.returnOrder(orderId, request.getReturnDate());
 
         return new ReturnOrderResponseDto(returnedOrder);
     }

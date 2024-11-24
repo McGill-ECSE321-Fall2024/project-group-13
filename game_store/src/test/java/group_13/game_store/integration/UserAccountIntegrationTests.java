@@ -10,6 +10,7 @@ import group_13.game_store.dto.OrderCreationResponseDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -62,7 +63,6 @@ import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.repository.UserAccountRepository;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.OrderManagementService;
-import group_13.game_store.service.PaymentService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
@@ -105,8 +105,8 @@ public class UserAccountIntegrationTests {
 	@Autowired
     private AccountService accountService;
 
-	@Autowired
-    private PaymentService paymentService;
+	// @Autowired
+    // private PaymentService paymentService;
 
 	@Autowired
     private OrderManagementService orderManagementService;
@@ -335,7 +335,6 @@ public class UserAccountIntegrationTests {
 		assertEquals(newValidPhoneNumber, updatedUser.getPhoneNumber());
 	}
 
-	// dealing with guest again @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	@Test
 	@org.junit.jupiter.api.Order(8)
 	public void testUpdateGeneralUserInformationWhenAGuestException(){
@@ -376,12 +375,12 @@ public class UserAccountIntegrationTests {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(2, response.getBody().getOrders().size());
 		// checking to see if these order dtos are within the OrderListDto
-		assertEquals(order1.getPurchaseDate(), response.getBody().getOrders().get(0).getPurchaseDate());
+		assertEquals(order1.getPurchaseDate().toString(), response.getBody().getOrders().get(0).getPurchaseDate().toString());
 		//assertEquals(order1.getReturnDate(), response.getBody().getOrders().get(0).getReturnDate());
-		assertEquals(order1.getCustomer().getUsername(), response.getBody().getOrders().get(0).getCustomer());
-		assertEquals(order2.getPurchaseDate(), response.getBody().getOrders().get(1).getPurchaseDate());
+		assertEquals(order1.getCustomer().getUsername(), response.getBody().getOrders().get(0).getCustomer().getUsername());
+		assertEquals(order2.getPurchaseDate().toString(), response.getBody().getOrders().get(1).getPurchaseDate().toString());
 		//assertEquals(order2.getReturnDate(), response.getBody().getOrders().get(1).getReturnDate());
-		assertEquals(order2.getCustomer().getUsername(), response.getBody().getOrders().get(1).getCustomer());
+		assertEquals(order2.getCustomer().getUsername(), response.getBody().getOrders().get(1).getCustomer().getUsername());
 	}
 
 	@Test 
@@ -408,14 +407,10 @@ public class UserAccountIntegrationTests {
 	@org.junit.jupiter.api.Order(11)
 	public void testCreateOrderAsCustomer() {
 		// arrange
-		LocalDate newRandomDate1 = randomDate1.toLocalDate();
-		//LocalDate newRandomDate1 = randomDate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		OrderCreationRequestDto testedCreatedOrder = new OrderCreationRequestDto(newRandomDate1, customer1.getUsername());
+		OrderCreationRequestDto testedCreatedOrder = new OrderCreationRequestDto(randomDate1, customer1.getUsername());
 
 		// act
 		ResponseEntity<OrderCreationResponseDto> response = client.postForEntity("/customers/FakeUsername1/orders?loggedInUsername=FakeUsername1", testedCreatedOrder, OrderCreationResponseDto.class);
-		
-		
 		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> paymentService.purchaseCart(customer1.getUsername()));
         
 		// assert
@@ -424,18 +419,15 @@ public class UserAccountIntegrationTests {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		//
 		//assertEquals("", exception.getReason());
-		assertEquals(randomDate1, response.getBody().getPurchaseDate());
-		assertNull(response.getBody().getPurchaseDate());
-		assertEquals(customer1.getUsername(), response.getBody().getCustomer());
+		assertEquals(randomDate1.toString(), response.getBody().getPurchaseDate().toString());
+		assertEquals(customer1.getUsername(), response.getBody().getCustomer().getUsername());
 		}
 
 	@Test 
 	@org.junit.jupiter.api.Order(12)
 	public void testCreateOrderAsNonCustomer() {
 		// arrange
-		LocalDate newRandomDate1 = randomDate1.toLocalDate();
-		//LocalDate newRandomDate1 = randomDate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		OrderCreationRequestDto testedCreatedOrder = new OrderCreationRequestDto(newRandomDate1, customer1.getUsername());
+		OrderCreationRequestDto testedCreatedOrder = new OrderCreationRequestDto(randomDate1, customer1.getUsername());
 
 		// act
 		ResponseEntity<String> response = client.postForEntity("/customers/EmployeeUsername/orders?loggedInUsername=EmployeeUsername", testedCreatedOrder, String.class);
@@ -465,8 +457,8 @@ public class UserAccountIntegrationTests {
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(order1.getOrderID(), response.getBody().getOrderId());
-		assertNull(response.getBody().getPurchaseDate());
-		assertEquals(order1.getCustomer().getUsername(), response.getBody().getCustomer());
+		assertEquals(order1.getPurchaseDate().toString(), response.getBody().getPurchaseDate().toString());
+		assertEquals(order1.getCustomer().getUsername(), response.getBody().getCustomer().getUsername());
 	}
 
 	@Test 
@@ -492,55 +484,52 @@ public class UserAccountIntegrationTests {
 	@Test 
 	@org.junit.jupiter.api.Order(15)
 	public void testReturnOrderAsCustomer() {
-		LocalDate newRandomDate4 = randomDate4.toLocalDate();
-		//LocalDate newRandomDate4 = randomDate4.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		ReturnOrderRequestDto testedUpdatedOrder = new ReturnOrderRequestDto(newRandomDate4, customer1.getUsername());
+		ReturnOrderRequestDto testedUpdatedOrder = new ReturnOrderRequestDto(randomDate4, customer1.getUsername());
 		// creating the request entity
 		HttpHeaders header = new HttpHeaders();
 		header.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<ReturnOrderRequestDto> requestEntity = new HttpEntity<>(testedUpdatedOrder, header);
 
 		// act
-		Order orderToReturn = orderRepository.findByOrderID(order1.getOrderID());
-		int orderToReturnId = orderToReturn.getOrderID();
-		ResponseEntity<ReturnOrderResponseDto> response = client.exchange("/users/FakeUsername1/orders/" + String.valueOf(orderToReturnId) + "&loggedInUsername=FakeUsername1", HttpMethod.PUT, requestEntity, ReturnOrderResponseDto.class);
+		ResponseEntity<ReturnOrderResponseDto> response = client.exchange("/customers/FakeUsername1/orders/" + String.valueOf(order1.getOrderID()) + "?loggedInUsername=FakeUsername1", HttpMethod.PUT, requestEntity, ReturnOrderResponseDto.class);
 
-		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> orderManagementService.returnOrder(order1.getOrderID(), game1.getGameID(), randomDate4));
-        
+		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> orderManagementService.returnOrder(order1.getOrderID(), randomDate4));
+        Order updatedOrder = orderRepository.findByOrderID(order1.getOrderID());
+
 		// assert
-		
-		//assertEquals("", exception.getReason());
-
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(newRandomDate4, response.getBody().getReturnDate());
-		assertEquals(customer1.getUsername(), response.getBody().getCustomer());
+		assertEquals(updatedOrder.getReturnDate().toString(), response.getBody().getReturnDate().toString());
+		assertEquals(updatedOrder.getCustomer().getUsername(), response.getBody().getCustomerUsername());
 	}
 
 	@Test 
 	@org.junit.jupiter.api.Order(16)
 	public void testReturnOrderAsNonCustomer() {
-		LocalDate newRandomDate4 = randomDate4.toLocalDate();
-		//LocalDate newRandomDate4 = randomDate4.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		ReturnOrderRequestDto testedUpdatedOrder = new ReturnOrderRequestDto(newRandomDate4, customer1.getUsername());
+		ReturnOrderRequestDto testedUpdatedOrder = new ReturnOrderRequestDto(randomDate4, customer1.getUsername());
 		// creating the request entity
 		HttpHeaders header = new HttpHeaders();
 		header.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<ReturnOrderRequestDto> requestEntity = new HttpEntity<>(testedUpdatedOrder, header);
 
 		// act
-		Order orderToReturn = orderRepository.findByOrderID(order1.getOrderID());
-		int orderToReturnId = orderToReturn.getOrderID();
-		ResponseEntity<String> response = client.exchange("/users/FakeUsername1/orders/" + String.valueOf(orderToReturnId) +"&loggedInUsername=EmployeeUsername", HttpMethod.PUT, requestEntity, String.class);
+		ResponseEntity<String> response = client.exchange("/customers/FakeUsername1/orders/" + String.valueOf(order1.getOrderID()) +"?loggedInUsername=EmployeeUsername", HttpMethod.PUT, requestEntity, String.class);
+
+		//ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> orderManagementService.returnOrder(order1.getOrderID(), randomDate4));
+        
+		// assert
+		
+		//assertEquals("", exception.getReason());
+
 
 		// assert
 		try {
 			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
 			assertEquals(403, json.getInt("status"));
 			assertEquals("Forbidden", json.getString("error"));
-			assertEquals("User must be a customer to check their own order", json.getString("message"));
+			assertEquals("User must be a customer to return their order", json.getString("message"));
 		} catch (org.json.JSONException e){
-			fail("User must be a customer to return their order");
+			fail("Response body is not a valid JSON");
 		}
 	}
 }
