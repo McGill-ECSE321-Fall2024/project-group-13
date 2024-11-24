@@ -28,6 +28,16 @@
                     <!-- Game Cards -->
                     <div class="gameCardWrapper">
                         <!-- Game cards will be dynamically inserted here -->
+                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                         <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
+                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+
+                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                         <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
+                         <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
+                         <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                
                     </div>
                 </div>
 
@@ -42,6 +52,29 @@
     </section>
 </template>
 
+<script>
+import BrGameCard from '@/components/BrGameCard.vue';
+
+import roundsImage from '../assets/rounds.jpg';
+import r6Image from '../assets/r6.jpg';
+import civ6Image from '../assets/civ6.jpg';
+
+export default {
+    name: 'BrowseView',
+    components: {
+        BrGameCard
+    },
+
+    data() {
+        return {
+            roundsImage: roundsImage,
+            r6Image: r6Image,
+            civ6Image: civ6Image
+        }
+    }
+    
+}
+</script>
 
 <style scoped>
 .browse {
@@ -98,7 +131,7 @@ hr {
 /* Search Wrapper */
 .searchWrapper {
     width: 100%; 
-    background-color: #121212; 
+    background-color:  #1e1e1e; 
     border-radius: 10px;
     display: flex;
     flex-direction: row;
@@ -186,13 +219,19 @@ hr {
 
 /* Game Cards */
 .gameCardWrapper {
-    background-color: #121212;
+    background-color: #1e1e1e;
     width: 100%; 
     flex-grow: 1; 
     margin-top: 0; 
     border-radius: 10px;
     overflow-y: auto; 
     padding: 10px; 
+
+    /* Setup 4x2 grid */
+    display: grid;
+    grid-template-columns: repeat(4, 225px); 
+    justify-content: center; 
+    gap : 40px; 
 }
 
 .rightGroup {
