@@ -11,4 +11,6 @@ public interface GameCategoryRepository extends CrudRepository<GameCategory, Int
     public GameCategory findByCategoryID(int categoryID);
 
     List<GameCategory> findByStatusIn(List<GameCategory.VisibilityStatus> statuses);
+
+    GameCategory findByName(String name);
 }

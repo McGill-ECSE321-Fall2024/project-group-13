@@ -30,4 +30,7 @@ public interface GameRepository extends CrudRepository<Game, Integer> {
     //Method to find all games associated to a customer
     @Query("SELECT DISTINCT gc.game FROM GameCopy gc JOIN gc.order o WHERE o.customer = :customer")
     List<Game> findGamesByCustomer(@Param("customer") Customer customer);
+
+    // find games by title
+    Game findByTitle(String title);
 }
