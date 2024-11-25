@@ -14,6 +14,19 @@ export default {
 <style scoped>
 .game {
     text-align: center;
-    margin-top: 50px;
+    background-color: #1e1e1e;
+    
+    display: flex;
+    flex-direction: column;
+
+    margin-top: 0px;
+    padding-top: 1rem;
+
+    margin-left: 0%;
+    margin-bottom: 30px;
+    width: 100%;
+    height: 100vh;
+
+    border-radius: 10%;
 }
 </style>
