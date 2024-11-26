@@ -199,5 +199,334 @@ public class DataInitializer {
             gameRepo.save(altosCollection);
         }
 
+        if (gameRepo.findByTitle("Among Us") == null) {
+            GameCategory partyCategory = gameCategoryRepo.findByName("Party");
+            Game amongUs = new Game(
+                "Among Us", 
+                "A social deduction game where you work together to find the impostor.", 
+                "amongus.webp", 
+                50, 
+                4.99,
+                "Everyone 10+", 
+                Game.VisibilityStatus.Visible, 
+                partyCategory
+            );
+            gameRepo.save(amongUs);
+        }
+
+        if (gameRepo.findByTitle("Minecraft") == null) {
+            GameCategory sandboxCategory = gameCategoryRepo.findByName("Sandbox");
+            Game minecraft = new Game(
+                "Minecraft", 
+                "A creative sandbox game where you can build and explore infinite worlds.", 
+                "minecraft.jpg", 
+                100, 
+                19.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                sandboxCategory
+            );
+            gameRepo.save(minecraft);
+        }
+
+        if (gameRepo.findByTitle("Bloons TD 6") == null) {
+            GameCategory strategyCategory = gameCategoryRepo.findByName("Strategy");
+            Game bloonsTD6 = new Game(
+                "Bloons TD 6", 
+                "A tower defense game with monkeys, balloons, and tons of fun challenges.", 
+                "bloons.jpg", 
+                30, 
+                9.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                strategyCategory
+            );
+            gameRepo.save(bloonsTD6);
+        }
+
+        if (gameRepo.findByTitle("Deep Rock Galactic") == null) {
+            GameCategory shooterCategory = gameCategoryRepo.findByName("Shooter");
+            Game deepRockGalactic = new Game(
+                "Deep Rock Galactic", 
+                "A cooperative FPS game where you mine, fight, and explore dangerous caves.", 
+                "deeprock.jpg", 
+                20, 
+                29.99,
+                "Teen", 
+                Game.VisibilityStatus.Visible, 
+                shooterCategory
+            );
+            gameRepo.save(deepRockGalactic);
+        }
+
+        if (gameRepo.findByTitle("Risk of Rain 2") == null) {
+            GameCategory shooterCategory = gameCategoryRepo.findByName("Shooter");
+            Game riskOfRain2 = new Game(
+                "Risk of Rain 2", 
+                "A roguelike shooter with challenging enemies and powerful items.", 
+                "riskofrain.webp", 
+                30, 
+                24.99,
+                "Teen", 
+                Game.VisibilityStatus.Visible, 
+                shooterCategory
+            );
+            gameRepo.save(riskOfRain2);
+        }
+
+        if (gameRepo.findByTitle("Terraria") == null) {
+            GameCategory sandboxCategory = gameCategoryRepo.findByName("Sandbox");
+            Game terraria = new Game(
+                "Terraria", 
+                "An action-adventure sandbox game with exploration, crafting, and building.", 
+                "terraria.jpg", 
+                50, 
+                9.99,
+                "Everyone 10+", 
+                Game.VisibilityStatus.Visible, 
+                sandboxCategory
+            );
+            gameRepo.save(terraria);
+        }
+
+        if (gameRepo.findByTitle("Zelda Breath of the Wild") == null) {
+            GameCategory adventureCategory = gameCategoryRepo.findByName("Adventure");
+            Game zeldaBreathOfTheWild = new Game(
+                "Zelda Breath of the Wild", 
+                "An open-world adventure game with exploration, puzzles, and epic battles.", 
+                "zelda.jpg", 
+                30, 
+                59.99,
+                "Everyone 10+", 
+                Game.VisibilityStatus.Visible, 
+                adventureCategory
+            );
+            gameRepo.save(zeldaBreathOfTheWild);
+        }
+
+        if (gameRepo.findByTitle("Lego Star Wars") == null) {
+            GameCategory adventureCategory = gameCategoryRepo.findByName("Adventure");
+            Game legoStarWars = new Game(
+                "Lego Star Wars", 
+                "A fun and humorous adventure game set in the Star Wars universe.", 
+                "lego.jpg", 
+                40, 
+                19.99,
+                "Everyone 10+", 
+                Game.VisibilityStatus.Visible, 
+                adventureCategory
+            );
+            gameRepo.save(legoStarWars);
+        }
+
+        if (gameRepo.findByTitle("Golf With Your Friends") == null) {
+            GameCategory sportsCategory = gameCategoryRepo.findByName("Sports");
+            Game golfWithYourFriends = new Game(
+                "Golf With Your Friends", 
+                "A fun and challenging mini-golf game with friends.", 
+                "golf.jpg", 
+                20, 
+                14.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                sportsCategory
+            );
+            gameRepo.save(golfWithYourFriends);
+        }
+
+        if (gameRepo.findByTitle("Rocket League") == null) {
+            GameCategory sportsCategory = gameCategoryRepo.findByName("Sports");
+            Game rocketLeague = new Game(
+                "Rocket League", 
+                "A high-flying sports game with rocket-powered cars and soccer.", 
+                "rocketleague.jpg", 
+                50, 
+                19.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                sportsCategory
+            );
+            gameRepo.save(rocketLeague);
+        }
+
+        if (gameRepo.findByTitle("FIFA 24") == null) {
+            GameCategory sportsCategory = gameCategoryRepo.findByName("Sports");
+            Game fifa22 = new Game(
+                "FIFA 24", 
+                "The latest installment in the FIFA series with updated teams and gameplay.", 
+                "fifa24.jpeg", 
+                60, 
+                59.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                sportsCategory
+            );
+            gameRepo.save(fifa22);
+        }
+
+        if (gameRepo.findByTitle("NBA 2K24") == null) {
+            GameCategory sportsCategory = gameCategoryRepo.findByName("Sports");
+            Game nba2k22 = new Game(
+                "NBA 2K24", 
+                "The latest basketball simulation game with updated rosters and features.", 
+                "nba2k24.jpeg", 
+                40, 
+                59.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                sportsCategory
+            );
+            gameRepo.save(nba2k22);
+        }
+
+        if (gameRepo.findByTitle("Dying Light" ) == null) {
+            GameCategory horrorCategory = gameCategoryRepo.findByName("Horror");
+            Game dyingLight = new Game(
+                "Dying Light", 
+                "A first-person survival horror game set in a zombie-infested open world.", 
+                "dyinglight.jpg", 
+                30, 
+                19.99,
+                "Mature", 
+                Game.VisibilityStatus.Visible, 
+                horrorCategory
+            );
+            gameRepo.save(dyingLight);
+        }
+
+        if (gameRepo.findByTitle("Brawlhalla") == null) {
+            GameCategory partyCategory = gameCategoryRepo.findByName("Party");
+            Game brawlhalla = new Game(
+                "Brawlhalla", 
+                "A platform fighting game with online and local multiplayer.", 
+                "brawlhalla.jpg", 
+                50, 
+                1.99,
+                "Everyone 10+", 
+                Game.VisibilityStatus.Visible, 
+                partyCategory
+            );
+            gameRepo.save(brawlhalla);
+        }
+
+        if (gameRepo.findByTitle("Super Smash Bros") == null) {
+            GameCategory partyCategory = gameCategoryRepo.findByName("Party");
+            Game superSmashBrosUltimate = new Game(
+                "Super Smash Bros", 
+                "A crossover fighting game with iconic characters from Nintendo and beyond.", 
+                "smashbros.jpeg",  
+                40, 
+                59.99,
+                "Everyone 10+", 
+                Game.VisibilityStatus.Visible, 
+                partyCategory
+            );
+            gameRepo.save(superSmashBrosUltimate);
+        }
+
+        if (gameRepo.findByTitle("Mario Kart 8 Deluxe") == null) {
+            GameCategory partyCategory = gameCategoryRepo.findByName("Party");
+            Game marioKart8Deluxe = new Game(
+                "Mario Kart 8 Deluxe", 
+                "A fun and competitive racing game with classic Nintendo characters.", 
+                "mariokart.jpg", 
+                30, 
+                59.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                partyCategory
+            );
+            gameRepo.save(marioKart8Deluxe);
+        }
+
+        if (gameRepo.findByTitle("Phasmophobia") == null) {
+            GameCategory horrorCategory = gameCategoryRepo.findByName("Horror");
+            Game phasmophobia = new Game(
+                "Phasmophobia", 
+                "A cooperative horror game where you hunt ghosts with friends.", 
+                "phasmophobia.jpg", 
+                20, 
+                13.99,
+                "Teen", 
+                Game.VisibilityStatus.Visible, 
+                horrorCategory
+            );
+            gameRepo.save(phasmophobia);
+        }
+
+        if (gameRepo.findByTitle("Farming Simulator 24") == null) {
+            GameCategory simulationCategory = gameCategoryRepo.findByName("Simulation");
+            Game farmingSimulator22 = new Game(
+                "Farming Simulator 24", 
+                "A realistic farming simulation game with new crops, animals, and vehicles.", 
+                "farmingsim24.jpg", 
+                30, 
+                39.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                simulationCategory
+            );
+            gameRepo.save(farmingSimulator22);
+        }
+
+        if (gameRepo.findByTitle("Overwatch 2") == null) {
+            GameCategory shooterCategory = gameCategoryRepo.findByName("Shooter");
+            Game overwatch = new Game(
+                "Overwatch 2", 
+                "A team-based hero shooter with diverse characters and exciting gameplay.", 
+                "overwatch.webp", 
+                50, 
+                19.99,
+                "Teen", 
+                Game.VisibilityStatus.Visible, 
+                shooterCategory
+            );
+            gameRepo.save(overwatch);
+        }
+
+        if (gameRepo.findByTitle("The Sims 4") == null) {
+            GameCategory simulationCategory = gameCategoryRepo.findByName("Simulation");
+            Game theSims4 = new Game(
+                "The Sims 4", 
+                "A life simulation game where you create and control virtual people.", 
+                "sims4.jpg", 
+                40, 
+                39.99,
+                "Teen", 
+                Game.VisibilityStatus.Visible, 
+                simulationCategory
+            );
+            gameRepo.save(theSims4);
+        }
+
+        if (gameRepo.findByTitle("Halo Infinite") == null) {
+            GameCategory shooterCategory = gameCategoryRepo.findByName("Shooter");
+            Game haloInfinite = new Game(
+                "Halo Infinite", 
+                "The latest installment in the Halo series with epic sci-fi battles.", 
+                "halo.jpg", 
+                60, 
+                59.99,
+                "Teen", 
+                Game.VisibilityStatus.Visible, 
+                shooterCategory
+            );
+            gameRepo.save(haloInfinite);
+        }
+
+        if (gameRepo.findByTitle("Animal Crossing") == null) {
+            GameCategory simulationCategory = gameCategoryRepo.findByName("Simulation");
+            Game animalCrossingNewHorizons = new Game(
+                "Animal Crossing", 
+                "A relaxing life simulation game where you build and customize your island.", 
+                "animalcrossing.jpg", 
+                50, 
+                59.99,
+                "Everyone", 
+                Game.VisibilityStatus.Visible, 
+                simulationCategory
+            );
+            gameRepo.save(animalCrossingNewHorizons);
+        }
     }
 }

@@ -16,8 +16,8 @@
                 <div class="leftGroup">
                     <!-- Search Bar -->
                     <div class="searchWrapper">
-                        <input type="text" name="text" class="input" placeholder="Search for games by Title">
-                        <button class="search__btn">
+                        <input type="text" name="text" class="input" placeholder="Search for games by Title" v-model="searchBar" v-on:keyup.enter="handleSearch">
+                        <button class="search__btn" @click="handleSearch"> 
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22">
                                 <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z" fill="#efeff1"></path>
                             </svg>
@@ -75,10 +75,6 @@
 <script>
 import BrGameCard from '@/components/BrGameCard.vue';
 
-import roundsImage from '../assets/rounds.jpg';
-import r6Image from '../assets/r6.jpg';
-import civ6Image from '../assets/civ6.jpg';
-
 import axios from 'axios';
 
 const axiosClient = axios.create({
@@ -92,12 +88,10 @@ export default {
     },
     data() {
         return {
-            roundsImage: roundsImage,
-            r6Image: r6Image,
-            civ6Image: civ6Image,
             categories: [],
             selectedCategories: [],
-            games: []
+            games: [],
+            searchBar: ''
         }
     },
 
@@ -105,8 +99,8 @@ export default {
        try {
             // Fetch the games and the categories
             const [gameResponse, categoriesResponse] = await Promise.all([
-                axiosClient.get('./games?loggedInUsername=owner'), // replace this when sessions works
-                axiosClient.get('./categories?loggedInUsername=owner') // replace this when sessions works
+                axiosClient.get('/games', { params: { loggedInUsername: 'owner' } }), // replace this when sessions works
+                axiosClient.get('/categories', { params: { loggedInUsername: 'owner' } }) // replace this when sessions works
             ]);
 
             console.log(gameResponse.data, categoriesResponse.data); 
@@ -117,6 +111,21 @@ export default {
        } catch (errror) {
             console.error('Error fetching data:', error);
        }
+    },
+
+    methods: {
+        async handleSearch() {
+            try {
+                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: this.searchBar}})
+
+                console.log("Search bar response: ", gameResponse)
+
+                this.games = gameResponse.data.games;
+
+            } catch(error) {
+                console.log("Error searching, " + error);
+            }
+        }
     }
 }
 </script>
