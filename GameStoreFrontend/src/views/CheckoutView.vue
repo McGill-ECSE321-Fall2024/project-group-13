@@ -15,7 +15,7 @@
             </p>
             <p class="game-description">{{ game.price }}</p>
             <div class="game-quantity">
-              <span class="quantity-number">{{ game.quantity }}</span>
+              <span class="quantity-number">Quantity: {{ game.quantity }}</span>
             </div>
           </div>
       </div>
@@ -425,6 +425,7 @@
   .form-group button {
     padding: 10px 15px;
     cursor: pointer;
+    background-color: #BB86FC;
   }
   
   .payment-info h3,
