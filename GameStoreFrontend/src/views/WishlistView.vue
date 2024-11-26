@@ -19,6 +19,7 @@
     </div>
 </template>
 
+<!-- will be removing these games once I begin adding functionality-->
 <script>
     import fortnite from '../assets/fortnite.jpg';
     import overwatch from '../assets/overwatch.jpeg';
@@ -54,13 +55,15 @@ export default {
 <style scoped>
 .wishlist {
   margin: 20px;
-  background-color: #282828;
-  border-radius: 2%;
+  background-color: #1e1e1e;
+  border-radius: 1%;
+  color: white;
 }
 
 .title {
   text-align: left;
   padding: 2%;
+  font-weight: bold;
 }
 
 .below-title {
@@ -77,16 +80,19 @@ export default {
 }
 
 .wishlist-items {
-  margin-top: 20px;
-  padding: 20px;
+  margin-top: 1%;
+  padding: 1%;
 }
 
 .game-details {
   flex: 1;
+  margin-bottom: 10%;
 }
 
 .game-title {
   margin: 0;
+  font-weight: bold;
+
 }
 
 .game-description {
@@ -96,7 +102,11 @@ export default {
 .wishlist-item {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 2%;
+  background-color: rgba(84, 84, 84, 0.65);
+  padding: 20px;
+  border-radius: 3%;
+
 }
 
 .game-image {
@@ -104,6 +114,7 @@ export default {
   height: 150px;
   object-fit: cover;
   margin-right: 20px;
+  border-radius: 2%;
 }
 
 .game-actions {
@@ -123,4 +134,7 @@ export default {
   cursor: pointer;
 }
 
+.action-button:hover {
+  background-color: #0056b3; /* Darker blue */
+}
 </style>
