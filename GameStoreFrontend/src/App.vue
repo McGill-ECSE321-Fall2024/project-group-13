@@ -42,6 +42,7 @@ import { RouterLink, RouterView } from 'vue-router';
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100vw;
 }
 
 header {
@@ -96,8 +97,7 @@ header {
 
 main {
   flex: 1;
-  padding: 5rem 1rem 1rem; 
-  max-width: 1200px;
+  padding: 0;
   margin: 0 auto;
   width: 100%;
 }
