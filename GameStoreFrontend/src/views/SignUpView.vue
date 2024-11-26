@@ -37,6 +37,8 @@ export default {
         async attemptSignUp() {
             var loggedIn = sessionStorage.getItem("loggedInUsername");
             console.log(loggedIn);
+            var permissionLevel = sessionStorage.getItem("permissionLevel");
+            console.log(permissionLevel);
         }
     }
 }

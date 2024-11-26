@@ -25,13 +25,15 @@ export default {
     data() {
 		return {
 			username: null,
-			password: null
+			password: null,
+            permissionLevel: 1
 		};
 	},
 
     methods: {
         async attemptLogin() {
             sessionStorage.setItem("loggedInUsername", this.username);
+            sessionStorage.setItem("permissionLevel", this.permissionLevel);
         }
     }
 }
