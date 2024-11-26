@@ -22,11 +22,18 @@
     </section>
 
     <section class="game-actions">
-        <div>
-            <button id="buy-now">Add to cart</button> <span id="price">Price: 10$</span> <span id="promotion">-10%</span>
+        <div class="purchasing-options">
+            <div>
+                <button id="buy-now">Add to cart</button><span id="price">10.49$ </span> <span id="promotion">-10%</span>
+            </div>
+
+            <div>
+                <button id="add-wishlist">Add to your wishlist</button>
+            </div> 
         </div>
-        <div>
-            <button id="add-wishlist">Add to your wishlist</button>
+
+        <div class="viewing-options">
+            <button id="view-wishlist">View your wishlist</button>
         </div> 
     </section>
 </template>
@@ -150,4 +157,66 @@ export default {
         }
     }
 }
+
+.game-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    margin-top: 20px;
+
+    button {
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .purchasing-options {
+        display: flex;
+        flex-direction: row;
+
+        gap: 10px;
+
+        button {
+            background-color: #619bda;
+            color: white;
+        }
+
+        #buy-now {
+            border-radius: 5px 0 0 5px;
+            background-color: #7347ff;
+            color: white;
+        }
+
+        #price {
+            color: white;
+            padding: 10px 10px 10px;
+            border-radius: 0px 5px 5px 0px;
+            border-bottom: 1px solid #7347ff;
+            background-color: #997aff;
+        }
+
+        #promotion {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #5ba022;
+        }
+
+        #add-wishlist {
+            background-color: #2f73f1;
+            color: white;
+        }
+    }
+
+    #view-wishlist {
+        background-color: #92c3e4;
+        color: white;
+    }
+}
+
 </style>
