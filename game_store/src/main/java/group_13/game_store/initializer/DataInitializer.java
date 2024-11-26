@@ -14,6 +14,7 @@ import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.service.AccountService;
 import java.util.Map;
+import java.util.HashMap;
 import java.sql.Date;
 import jakarta.annotation.PostConstruct;
 
@@ -47,18 +48,19 @@ public class DataInitializer {
         }
 
         // ****** WHERE TO ADD DEFAULT GAME CATEGORIES ******
-        Map<String, String> categoryDescriptions = Map.of(
-            "Action", "Fast-paced games with exciting gameplay and intense challenges.",
-            "Strategy", "Games that require careful planning and tactical thinking.",
-            "Shooter", "First or third-person games focused on shooting mechanics.",
-            "Adventure", "Games featuring exploration, storylines, and problem-solving.",
-            "Sports", "Games simulating real-world sports or fictional competitions.",
-            "Horror", "Games designed to thrill and scare players with eerie atmospheres.",
-            "Party", "Fun multiplayer games great for gatherings and social play.",
-            "Puzzle", "Games that challenge problem-solving skills and creativity.",
-            "RPG", "Role-playing games with character customization and immersive stories.",
-            "Sandbox", "Open-world games that allow players to create and explore freely."
-        );
+        Map<String, String> categoryDescriptions = new HashMap<>();
+        categoryDescriptions.put("Action", "Fast-paced games with exciting gameplay and intense challenges.");
+        categoryDescriptions.put("Strategy", "Games that require careful planning and tactical thinking.");
+        categoryDescriptions.put("Shooter", "First or third-person games focused on shooting mechanics.");
+        categoryDescriptions.put("Adventure", "Games featuring exploration, storylines, and problem-solving.");
+        categoryDescriptions.put("Sports", "Games simulating real-world sports or fictional competitions.");
+        categoryDescriptions.put("Horror", "Games designed to thrill and scare players with eerie atmospheres.");
+        categoryDescriptions.put("Party", "Fun multiplayer games great for gatherings and social play.");
+        categoryDescriptions.put("Puzzle", "Games that challenge problem-solving skills and creativity.");
+        categoryDescriptions.put("RPG", "Role-playing games with character customization and immersive stories.");
+        categoryDescriptions.put("Sandbox", "Open-world games that allow players to create and explore freely.");
+        categoryDescriptions.put("Simulation", "Games that simulate real-world activities or fictional scenarios.");
+        categoryDescriptions.put("Survival", "Games where players must survive in harsh environments or situations.");
 
         for (Map.Entry<String, String> entry : categoryDescriptions.entrySet()) {
             String categoryName = entry.getKey();

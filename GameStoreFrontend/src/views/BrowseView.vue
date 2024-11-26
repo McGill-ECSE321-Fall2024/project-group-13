@@ -28,18 +28,7 @@
                     <!-- Game Cards -->
                     <div class="gameCardWrapper">
                         <!-- Game cards will be dynamically inserted here -->
-                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                        <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
-                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                        <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
-                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
-                        <BrGameCard :image="civ6Image" title="Civilization VI" price="$14.99" description="Expand your empire and be history’s greatest leader"/>
-                        <BrGameCard :image="roundsImage" title="Rounds" price="$19.99" description="Rounds is a 1v1 rogue-lite card game"/>
-                        <BrGameCard :image="r6Image" title="Rainbow Six Siege" price="$24.99" description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                        <BrGameCard v-for="(game, index) in games" :key="index" :image="game.img" :title="game.title" :price="game.price" :description="game.description" :stock="game.stock" :promotionTitle="game.promotionName" :categoryId="game.categoryId" :gameId="game.gameID" :visibility="game.status"/>
                     </div>
                 </div>
 
@@ -67,13 +56,13 @@
                     <div class="category-filters">
                         <div class="checkbox-wrapper-12" v-for="(category, index) in categories" :key="index">
                             <div class="cbx">
-                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category">
+                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category.name">
                                 <label :for="'cbx-12-' + index"></label>
                                 <svg fill="none" viewBox="0 0 15 14" height="14" width="15">
                                     <path d="M2 8.36364L6.23077 12L13 2"></path>
                                 </svg>
                             </div>
-                            <label :for="'cbx-12-' + index" class="category-label">{{ category }}</label>
+                            <label :for="'cbx-12-' + index" class="category-label">{{ category.name }}</label>
                         </div>
                     </div>
                 </div>
@@ -90,6 +79,12 @@ import roundsImage from '../assets/rounds.jpg';
 import r6Image from '../assets/r6.jpg';
 import civ6Image from '../assets/civ6.jpg';
 
+import axios from 'axios';
+
+const axiosClient = axios.create({
+    baseURL: 'http://localhost:8080'
+});
+
 export default {
     name: 'BrowseView',
     components: {
@@ -100,9 +95,28 @@ export default {
             roundsImage: roundsImage,
             r6Image: r6Image,
             civ6Image: civ6Image,
-            categories: ['Action', 'Strategy', 'Shooter', 'Adventure', 'Sports', 'Horror', 'Party', 'Puzzle', 'RPG', 'Sandbox', 'Simulation', 'Survival'],
-            selectedCategories: []
+            categories: [],
+            selectedCategories: [],
+            games: []
         }
+    },
+
+    async created() {
+       try {
+            // Fetch the games and the categories
+            const [gameResponse, categoriesResponse] = await Promise.all([
+                axiosClient.get('./games?loggedInUsername=owner'), // replace this when sessions works
+                axiosClient.get('./categories?loggedInUsername=owner') // replace this when sessions works
+            ]);
+
+            console.log(gameResponse.data, categoriesResponse.data); 
+
+            this.games = gameResponse.data.games;
+            this.categories = categoriesResponse.data.gameCategories;
+
+       } catch (errror) {
+            console.error('Error fetching data:', error);
+       }
     }
 }
 </script>

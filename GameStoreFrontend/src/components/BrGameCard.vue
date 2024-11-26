@@ -1,9 +1,9 @@
 <template>
     <div class="game-card">
-      <img :src="image" alt="Game Image" class="game-image" />
+      <img :src="resolveImagePath(image)" alt="Game Image" class="game-image" />
       <div class="game-content">
         <h2 class="game-title">{{ title }}</h2>
-        <p class="game-price">{{ price }}</p>
+        <p class="game-price">${{ price.toFixed(2) }}</p>
         <p class="game-description">{{ description }}</p>
       </div>
     </div>
@@ -22,15 +22,47 @@
         required: true
       },
       price: {
-        type: String,
+        type: Number,
         required: true
       },
       description: {
         type: String,
         default: ''
+      },
+      stock: {
+        type: Number,
+        required: true
+      },
+      promotionTitle: {
+        type: String,
+        default: ''
+      },
+      categoryId: {
+        type: Number,
+      },
+      gameId: {
+        type: Number,
+        required: true
+      },
+      visibility : {
+        type: String,
+        required: true
       }
-    }
-  }
+
+    },
+    methods: {
+      resolveImagePath(image) {
+        try {
+          // Resolve path using import.meta.URL
+          return new URL(`../assets/${image}`, import.meta.url).href;
+        } catch (error) {
+          // Fail
+          console.log("Error resolving image path: ", error);
+          return '';
+      }
+    },
+  },
+  };
   </script>
   
   <style scoped>
