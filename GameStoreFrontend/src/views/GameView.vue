@@ -32,10 +32,61 @@
             </div> 
         </div>
 
-        <div class="viewing-options">
+        <!-- <div class="viewing-options">
             <button id="view-wishlist">View your wishlist</button>
-        </div> 
+        </div>  -->
     </section>
+
+    
+    <section class="review-section">
+        <h1>Reviews</h1>
+
+        <div class="reviews">
+            <div class="review">
+                <div class="review-header">
+                    <p class="username">Mr. Fluffy</p>
+                    <div class="likes-container">
+                        <button class="like-button">Like</button>
+                        <p class="likes">Likes: 10</p>
+                    </div>
+                </div>
+                <p class="content">Great game, I love it!</p>
+                <div class="review-footer">
+                    <p class="rating">Rating: 5/5</p>
+                    <p class="date">Date: 2021-10-10</p>
+                </div>
+            </div>
+            <div class="review">
+                <div class="review-header">
+                    <p class="username">Anonymous</p>
+                    <div class="likes-container">
+                        <button class="like-button">Like</button>
+                        <p class="likes">Likes: 7</p>
+                    </div>
+                </div>
+                <p class="content">It's a good game, but it's not for everyone.</p>
+                <div class="review-footer">
+                    <p class="rating">Rating: 3/5</p>
+                    <p class="date">Date: 2021-10-09</p>
+                </div>
+            </div>
+            <div class="review">
+                <div class="review-header">
+                    <p class="username">Gamer123</p>
+                    <div class="likes-container">
+                        <button class="like-button">Like</button>
+                        <p class="likes">Likes: 5</p>
+                    </div>
+                </div>
+                <p class="content">It's a great game, but it's not for everyone.</p>
+                <div class="review-footer">
+                    <p class="rating">Rating: 4/5</p>
+                    <p class="date">Date: 2021-10-08</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </template>
 
 <script>
@@ -91,11 +142,6 @@ export default {
     font-size: 1.2rem;
     
     margin-left: 20px; 
-
-    #descirption{
-        margin: 0;
-        /* padding-bottom: 80px; */
-    }
 
     .rating-category {
         display: flex;
@@ -208,7 +254,7 @@ export default {
         }
 
         #add-wishlist {
-            background-color: #2f73f1;
+            background-color: #7347ff;
             color: white;
         }
     }
@@ -218,5 +264,85 @@ export default {
         color: white;
     }
 }
+
+.review-section {
+    font-size: 1.3rem;
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 100px;
+    background-color: #1e1e1e;
+
+    h1 {
+        color: white;
+    }
+
+    .reviews {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+
+        .review {
+            width: 100%;
+            background-color: #696060;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+
+            .review-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .username {
+                    font-size: 1rem;
+                    font-weight: bold;
+                    text-decoration: underline;
+                    margin: 0;
+                }
+
+                .likes-container {
+                    display: flex;
+                    align-items: center;
+
+                    .like-button {
+                        padding: 5px 10px;
+                        margin-right: 10px;
+                        border-radius: 5px;
+                        border: none;
+                        cursor: pointer;
+                        background-color: #2f73f1;
+                        color: white;
+                        font-size: 0.9rem;
+                    }
+
+                    .likes {
+                        margin: 0;
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+
+            .content {
+                margin: 10px 0;
+                font-size: 1rem;
+            }
+
+            .review-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .rating,
+                .date {
+                    font-size: 0.9rem;
+                    margin: 0;
+                }
+            }
+        }
+    }
+}
+
 
 </style>
