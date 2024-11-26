@@ -1,9 +1,9 @@
 <template>
-    <div class="game">
-        <div class="header-container">
+    <section class="header-container">
             <h1 id="title">Sid Meier's Civilization VI</h1>
-        </div>
-        
+    </section>
+
+    <section class="game-header">
         <div class="game-overview">
             <img src="../assets/civ6.jpg" alt="Civilization VI" width="480" height="270">
             <div id="game-info">
@@ -11,30 +11,24 @@
                     Civilization VI offers new ways to interact with your world, expand your empire across the map, advance your culture, and compete against history’s greatest leaders to build a civilization that will stand the test of time. Play as one of 20 historical leaders including Roosevelt (America) and Victoria (England).
                 </p>
                 <div class="rating-category">
-                    <p id="game-rating">
-                        Audience Rating:
-                        4/5
-                    </p>
-                    <p id="category">
-                        Game category:
-                        Strategy
-                    </p>
-
-                    <p id="parental-rating">
-                        Parental Rating: 
-                        14+
-                    </p>
-
-                    <p id="stock">
-                        Stock: 
-                        10
-                    </p>
-                    
+                    <p id="game-rating">Audience Rating: 4/5</p>
+                    <p id="category">Game Category: Strategy</p>
+                    <p id="parental-rating">Parental Rating: 14+</p>
+                    <p id="stock">Current Stock: 10</p>
                 </div>
+
             </div>
         </div>
+    </section>
 
-    </div>
+    <section class="game-actions">
+        <div>
+            <button id="buy-now">Add to cart</button> <span id="price">Price: 10$</span> <span id="promotion">-10%</span>
+        </div>
+        <div>
+            <button id="add-wishlist">Add to your wishlist</button>
+        </div> 
+    </section>
 </template>
 
 <script>
@@ -44,7 +38,7 @@ export default {
 </script>
 
 <style scoped>
-.game {
+.game-header {
     text-align: center;
     background-color: #1e1e1e;
     color: white;
@@ -52,15 +46,20 @@ export default {
     display: flex;
     flex-direction: column;
 
-    margin-top: 0px;
     padding: 1rem 1rem; 
 
     margin-left: 0%;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     width: 100%;
     height: 100%;
 
     border-radius: 10px;
+}
+
+#title {
+    font-size: 3rem;
+    color: white;
+    margin: 0;
 }
 
 .header-container {
@@ -112,6 +111,8 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+
+            line-height: 1.8rem; /* Centers the botom two boxes' text */
 
             text-align: center;
             font-weight: bold;
