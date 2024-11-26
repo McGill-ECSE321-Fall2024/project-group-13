@@ -13,6 +13,7 @@ import group_13.game_store.dto.GameCategoryRequestDto;
 import group_13.game_store.dto.GameCategoryResponseDto;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.service.AccountService;
+import group_13.game_store.service.BrowsingService;
 import group_13.game_store.service.GameStoreManagementService;
 
 @RestController
@@ -23,6 +24,9 @@ public class GameCategoryController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private BrowsingService browsingService;
 
     /**
      * Creates a new game category.
@@ -59,12 +63,11 @@ public class GameCategoryController {
      */
     @GetMapping("/categories")
     public GameCategoryListResponseDto getAllGameCategory(@RequestParam String loggedInUsername) {
-        // Check if the user is at least an owner
-        boolean isOwner = accountService.hasPermissionAtLeast(loggedInUsername, 3);
-        // If the user is not the owner, throw a permission denied exception
-        if (!isOwner) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view game categories.");
-        } else {
+        // Check if the user is at least an employee
+        boolean isStaff = accountService.hasPermissionAtLeast(loggedInUsername, 2);
+
+        // If the user is a staff get all categories
+        if (isStaff) {
             Iterable<GameCategory> gameCategories = gameStoreService.getAllCategories();
 
             List<GameCategoryResponseDto> gameCategoryResponseDtos = new ArrayList<>();
@@ -75,7 +78,21 @@ public class GameCategoryController {
             }
 
             return new GameCategoryListResponseDto(gameCategoryResponseDtos);
+        } else {
+            // Else get all available categories only
+            Iterable<GameCategory> gameCategories = browsingService.getAllAvailableGameCategories();
+
+            List<GameCategoryResponseDto> gameCategoryResponseDtos = new ArrayList<>();
+
+            for (GameCategory category : gameCategories) {
+                GameCategoryResponseDto gameCategoryResponseDto = new GameCategoryResponseDto(category);
+                gameCategoryResponseDtos.add(gameCategoryResponseDto);
+            }
+
+            return new GameCategoryListResponseDto(gameCategoryResponseDtos);
+
         }
+
     }
 
     /**
