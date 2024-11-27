@@ -121,7 +121,11 @@ export default {
         async handleSearch() {
             try {
                 this.selectedCategories = [];
-                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: this.searchBar}})
+
+                // All titles have first letter of each word capitalized
+                let title = this.searchBar.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
+
+                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: title}})
 
                 console.log("Search bar response: ", gameResponse)
 
@@ -129,6 +133,7 @@ export default {
 
             } catch(error) {
                 console.log("Error searching, " + error);
+                this.games = [];
             }
         },
 
