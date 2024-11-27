@@ -32,7 +32,7 @@
                         <BrGameCard v-for="(game, index) in games" :key="index" :image="game.img" :title="game.title" 
                         :price="game.price" :description="game.description" :stock="game.stock" :promotionTitle="game.promotionName" 
                         :categoryId="game.categoryId" :gameId="game.gameID" :visibility="game.status" :promotionPercentage="game.promotionPercentage" 
-                        :categoryName="game.categoryName" :rating="game.rating"/>
+                        :categoryName="game.categoryName" :rating="game.rating" @click="handleGameClick(game.gameID)"/>
                     </div>
                 </div>
 
@@ -160,6 +160,9 @@ export default {
                 console.log("There was an error getting games by category: ", error);
                 this.games = [];
             }
+        },
+        handleGameClick(gameId) {
+            console.log("Game clicked: ", gameId); // replace with router push later
         }
     },
 }
