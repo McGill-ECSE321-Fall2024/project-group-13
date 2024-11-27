@@ -23,6 +23,19 @@
                                 <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z" fill="#efeff1"></path>
                             </svg>
                         </button>
+
+                        <!-- Sort by Price Dropdown -->
+                        <select 
+                            class="sort-dropdown" 
+                            v-model="sortPriceDirection" 
+                            @change="handleSortByPrice"
+                        >
+                            <option disabled value="off">Sort by Price</option>
+                            <option value="asc">Low to High</option>
+                            <option value="desc">High to Low</option>
+                        </select>
+
+
                         <button id="clearBtn" @click="handleClear">Clear</button>
                     </div>
 
@@ -95,7 +108,8 @@ export default {
             categories: [],
             selectedCategories: [],
             games: [],
-            searchBar: ''
+            searchBar: '',
+            sortPriceDirection: 'off'
         }
     },
 
@@ -112,7 +126,7 @@ export default {
             this.games = gameResponse.data.games;
             this.categories = categoriesResponse.data.gameCategories;
 
-       } catch (errror) {
+       } catch (error) {
             console.error('Error fetching data:', error);
        }
     },
@@ -143,6 +157,7 @@ export default {
             this.games = gameResponse.data.games;
             this.selectedCategories = [];
             this.searchBar = '';
+            this.sortPriceDirection = 'off';
         } catch(error) {
             console.log("Error clearing search, " + error);
             }},
@@ -168,7 +183,16 @@ export default {
         },
         handleGameClick(gameId) {
             console.log("Game clicked: ", gameId); // replace with router push later
-        }
+        },
+        handleSortByPrice() {
+            console.log("Sort by price clicked");
+
+                if (this.sortPriceDirection === 'asc') {
+                     this.games.sort((a, b) => a.price - b.price);
+                } else if (this.sortPriceDirection === 'desc') {
+                      this.games.sort((a, b) => b.price - a.price);
+            }
+}
     },
 }
 </script>
@@ -499,6 +523,28 @@ hr {
 .rightGroup {
     scrollbar-width: thin;
     scrollbar-color: #555 #1e1e1e;
+}
+
+/* Sort Dropdown */
+.sort-dropdown {
+    background-color: #313134;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.sort-dropdown:hover {
+    background-color: #4a4a4a;
+}
+
+.sort-dropdown:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
 
 
