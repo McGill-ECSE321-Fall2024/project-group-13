@@ -4,10 +4,11 @@
             <!-- Title -->
             <div class="titleWrapper">
                 <h1>Browse Products</h1>
+                 <!-- Horizontal Bar -->
+                <hr>    
             </div>
 
-            <!-- Horizontal Bar -->
-            <hr>
+           
 
             <!-- Group Flex: Contains Left and Right Groups -->
             <div class="groupFlex">
@@ -28,7 +29,10 @@
                     <!-- Game Cards -->
                     <div class="gameCardWrapper">
                         <!-- Game cards will be dynamically inserted here -->
-                        <BrGameCard v-for="(game, index) in games" :key="index" :image="game.img" :title="game.title" :price="game.price" :description="game.description" :stock="game.stock" :promotionTitle="game.promotionName" :categoryId="game.categoryId" :gameId="game.gameID" :visibility="game.status"/>
+                        <BrGameCard v-for="(game, index) in games" :key="index" :image="game.img" :title="game.title" 
+                        :price="game.price" :description="game.description" :stock="game.stock" :promotionTitle="game.promotionName" 
+                        :categoryId="game.categoryId" :gameId="game.gameID" :visibility="game.status" :promotionPercentage="game.promotionPercentage" 
+                        :categoryName="game.categoryName" :rating="game.rating"/>
                     </div>
                 </div>
 
@@ -191,7 +195,7 @@ hr {
     border: 0;
     height: 1px;
     background: #333;
-    background-image: linear-gradient(to right, #ccc, purple, #ccc);
+    background-image: linear-gradient(to right, #272525, purple, #272525);
     margin-top: 10px;
 }
 
@@ -317,6 +321,8 @@ hr {
     grid-template-columns: repeat(4, 225px); 
     justify-content: center; 
     gap : 40px; 
+    
+    max-height: 575px;
 }
 
 .rightGroup {
@@ -328,6 +334,7 @@ hr {
     display: flex; 
     flex-direction: column;
     overflow-y: auto;
+    max-height: 645px;
 }
 
 /* Category Filters Container */
