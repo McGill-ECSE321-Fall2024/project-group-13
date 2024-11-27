@@ -7,6 +7,7 @@
         <section class="game-header">
             <div class="game-overview">
                 <img src="../assets/civ6.jpg" alt="Civilization VI" width="480" height="270">
+
                 <div id="game-info">
                     <p id="descirption">
                         Civilization VI offers new ways to interact with your world, expand your empire across the map, advance your culture, and compete against history’s greatest leaders to build a civilization that will stand the test of time. Play as one of 20 historical leaders including Roosevelt (America) and Victoria (England).
@@ -105,6 +106,7 @@ export default {
     padding: 5rem 8rem;
     font-weight: normal;
 }
+
 .game-header {
     text-align: center;
     background-color: #1e1e1e;
