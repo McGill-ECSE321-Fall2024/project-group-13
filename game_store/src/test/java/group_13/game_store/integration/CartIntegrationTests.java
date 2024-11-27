@@ -144,7 +144,11 @@ public class CartIntegrationTests {
                  game1.getParentalRating(),
                  game1.getStatus().toString(),
                  game1.getCategory().getCategoryID(),
-                 "");
+                 "",
+                 "",
+                 0,
+                 0
+                 );
  
          expectedGame2 = new GameResponseDto(
                  game2.getGameID(),
@@ -156,7 +160,10 @@ public class CartIntegrationTests {
                  game2.getParentalRating(),
                  game2.getStatus().toString(),
                  game2.getCategory().getCategoryID(),
-                 "");
+                 "",
+                 "",
+                        0,
+                        0);
  
  
          // ***** Users *****
