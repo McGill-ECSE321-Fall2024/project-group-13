@@ -22,7 +22,7 @@
                                 <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z" fill="#efeff1"></path>
                             </svg>
                         </button>
-                        <button id="clearBtn">Clear</button>
+                        <button id="clearBtn" @click="handleClear">Clear</button>
                     </div>
 
                     <!-- Game Cards -->
@@ -34,7 +34,7 @@
 
                 <!-- Right Group: Category Filter -->
                 <div class="rightGroup">
-                    <h2>Category Filters</h2>
+                    <h2>Search By Category</h2>
                     <hr style="background-image: none;">
 
                     <!-- Open Source Checkbox, credit: https://uiverse.io/Shoh2008/big-deer-80 -->
@@ -56,7 +56,7 @@
                     <div class="category-filters">
                         <div class="checkbox-wrapper-12" v-for="(category, index) in categories" :key="index">
                             <div class="cbx">
-                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category.name">
+                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category.name" @click="handleGetGamesByCategory(category.name, $event)">
                                 <label :for="'cbx-12-' + index"></label>
                                 <svg fill="none" viewBox="0 0 15 14" height="14" width="15">
                                     <path d="M2 8.36364L6.23077 12L13 2"></path>
@@ -116,6 +116,7 @@ export default {
     methods: {
         async handleSearch() {
             try {
+                this.selectedCategories = [];
                 const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: this.searchBar}})
 
                 console.log("Search bar response: ", gameResponse)
@@ -125,8 +126,38 @@ export default {
             } catch(error) {
                 console.log("Error searching, " + error);
             }
+        },
+
+        async handleClear() {
+        try {
+            const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner'}});
+            this.games = gameResponse.data.games;
+            this.selectedCategories = [];
+            this.searchBar = '';
+        } catch(error) {
+            console.log("Error clearing search, " + error);
+            }},
+
+        async handleGetGamesByCategory(category, event) {
+            try{
+                if (event.target.checked) {
+                    this.selectedCategories = [category];
+                    this.searchBar = '';
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', category: category}});
+                    this.games = gameResponse.data.games;
+                } else {
+                    this.selectedCategories = [];
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner'}});
+                    this.games = gameResponse.data.games;
+                }
+
+
+            } catch(error) {
+                console.log("There was an error getting games by category: ", error);
+                this.games = [];
+            }
         }
-    }
+    },
 }
 </script>
 
