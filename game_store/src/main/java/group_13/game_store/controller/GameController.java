@@ -97,7 +97,7 @@ public class GameController {
                     game.getParentalRating(),
                     game.getStatus().toString(),
                     game.getCategory().getCategoryID(),
-                    game.getPromotion() != null ? game.getPromotion().getTitle() : null);
+                    game.getPromotion() != null ? game.getPromotion().getTitle() : null, game.getCategory().getName(), game.getPromotion() != null ? game.getPromotion().getPercentage() : 0, reviewService.getGameRating(game.getGameID()));
             gameResponseDtos.add(gameResponseDto);
         }
 
@@ -138,7 +138,8 @@ public class GameController {
                 foundGame.getParentalRating(),
                 foundGame.getStatus().toString(),
                 foundGame.getCategory().getCategoryID(),
-                foundGame.getPromotion() != null ? foundGame.getPromotion().getTitle() : null);
+                foundGame.getPromotion() != null ? foundGame.getPromotion().getTitle() : null, 
+                foundGame.getCategory().getName(), foundGame.getPromotion() != null ? foundGame.getPromotion().getPercentage() : 0, reviewService.getGameRating(foundGame.getGameID()));
 
         return gameResponseDto;
     }
@@ -182,7 +183,8 @@ public class GameController {
                 createdGame.getParentalRating(),
                 createdGame.getStatus().toString(),
                 createdGame.getCategory().getCategoryID(),
-                createdGame.getPromotion() != null ? createdGame.getPromotion().getTitle() : null);
+                createdGame.getPromotion() != null ? createdGame.getPromotion().getTitle() : null,
+                createdGame.getCategory().getName(), createdGame.getPromotion() != null ? createdGame.getPromotion().getPercentage() : 0, reviewService.getGameRating(createdGame.getGameID()));
 
         return gameResponseDto;
     }
@@ -226,7 +228,8 @@ public class GameController {
                 updatedGame.getParentalRating(),
                 updatedGame.getStatus().toString(),
                 updatedGame.getCategory().getCategoryID(),
-                updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null);
+                updatedGame.getPromotion() != null ? updatedGame.getPromotion().getTitle() : null,
+                updatedGame.getCategory().getName(), updatedGame.getPromotion() != null ? updatedGame.getPromotion().getPercentage() : 0, reviewService.getGameRating(updatedGame.getGameID()));
 
         return gameResponseDto;
     }
@@ -288,7 +291,8 @@ public class GameController {
                     game.getParentalRating(),
                     game.getStatus().toString(),
                     game.getCategory().getCategoryID(),
-                    game.getPromotion() != null ? game.getPromotion().getTitle() : null);
+                    game.getPromotion() != null ? game.getPromotion().getTitle() : null,
+                    game.getCategory().getName(), game.getPromotion() != null ? game.getPromotion().getPercentage() : 0, reviewService.getGameRating(game.getGameID()));
             gameResponseDtos.add(gameDto);
         }
 

@@ -140,7 +140,10 @@ public class GameIntegrationTests {
                 game1.getParentalRating(),
                 game1.getStatus().toString(),
                 game1.getCategory().getCategoryID(),
-                null);
+                null,
+                game1.getCategory().getName(),
+                0,
+                0);
 
         expectedGame2 = new GameResponseDto(
                 game2.getGameID(),
@@ -152,7 +155,10 @@ public class GameIntegrationTests {
                 game2.getParentalRating(),
                 game2.getStatus().toString(),
                 game2.getCategory().getCategoryID(),
-                null);
+                null,
+                game2.getCategory().getName(),
+                0,
+                0);
 
         expectedGame3 = new GameResponseDto(
                 game3.getGameID(),
@@ -164,7 +170,10 @@ public class GameIntegrationTests {
                 game3.getParentalRating(),
                 game3.getStatus().toString(),
                 game3.getCategory().getCategoryID(),
-                null);
+                null,
+                game3.getCategory().getName(),
+                0,
+                0);
 
         expectedGame4 = new GameResponseDto(
                 game4.getGameID(),
@@ -176,7 +185,10 @@ public class GameIntegrationTests {
                 game4.getParentalRating(),
                 game4.getStatus().toString(),
                 game4.getCategory().getCategoryID(),
-                null);
+                null, 
+                game4.getCategory().getName(),
+                0,
+                0);
 
         expectedGame5 = new GameResponseDto(
                 game5.getGameID(),
@@ -188,7 +200,10 @@ public class GameIntegrationTests {
                 game5.getParentalRating(),
                 game5.getStatus().toString(),
                 game5.getCategory().getCategoryID(),
-                null);
+                null,
+                game5.getCategory().getName(),
+                0,
+                0);
 
         expectedGame6 = new GameResponseDto(
                 game6.getGameID(),
@@ -200,7 +215,10 @@ public class GameIntegrationTests {
                 game6.getParentalRating(),
                 game6.getStatus().toString(),
                 game6.getCategory().getCategoryID(),
-                null);
+                null,
+                game6.getCategory().getName(),
+                0,
+                0);
 
         expectedGame7 = new GameResponseDto(
                 game7.getGameID(),
@@ -212,7 +230,10 @@ public class GameIntegrationTests {
                 game7.getParentalRating(),
                 game7.getStatus().toString(),
                 game7.getCategory().getCategoryID(),
-                null);
+                null,
+                game7.getCategory().getName(),
+                0,
+                0);
 
         // ***** Users *****
 
