@@ -9,6 +9,7 @@ import group_13.game_store.dto.CartResponseDto;
 import group_13.game_store.dto.GameResponseDto;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.BrowsingService;
+import group_13.game_store.service.ReviewService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,9 @@ public class CartController {
 
     @Autowired
     AccountService accountService;
+
+    @Autowired
+    ReviewService reviewService;
 
     /**
      * Get the cart of a customer by username (Customer only)
@@ -64,9 +68,13 @@ public class CartController {
 
             // create a GameResponseDto
             String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
+
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle);
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle, 
+                    game.getCategory().getName(), 
+                    (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0, 
+                    reviewService.getGameRating(game.getGameID()));
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -113,9 +121,13 @@ public class CartController {
             Game game = item.getKey().getGame();
 
             // create a GameResponseDto
+            String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
+            int promotionPercentage = (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0;
+
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getCategoryID(), game.getPromotion().getTitle());
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle,
+                    game.getCategory().getName(), promotionPercentage, reviewService.getGameRating(game.getGameID()));
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -162,7 +174,8 @@ public class CartController {
         // create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), promotionTitle);
+                game.getCategory().getCategoryID(), promotionTitle, game.getCategory().getName(),
+                (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0, reviewService.getGameRating(game.getGameID()));
 
         return gameResponseDto;
 
@@ -194,7 +207,7 @@ public class CartController {
         String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), promotionTitle);
+                game.getCategory().getCategoryID(), promotionTitle, game.getCategory().getName(), (game.getPromotion() != null ? game.getPromotion().getPercentage() : 0), reviewService.getGameRating(game.getGameID()));
 
         return gameResponseDto; // review if this is needed
 
@@ -229,7 +242,7 @@ public class CartController {
         // create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), promotionTitle);
+                game.getCategory().getCategoryID(), promotionTitle, game.getCategory().getName(), (game.getPromotion() != null ? game.getPromotion().getPercentage() : 0), reviewService.getGameRating(game.getGameID()));
 
         return gameResponseDto; 
 

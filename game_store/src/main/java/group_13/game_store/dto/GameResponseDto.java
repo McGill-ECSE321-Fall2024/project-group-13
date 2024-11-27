@@ -17,11 +17,16 @@ public class GameResponseDto {
     private int categoryId;
     private String promotionName;
 
+    // New fields
+    private String categoryName;
+    private int promotionPercentage;
+    private int rating;
+
     public GameResponseDto() {
     }
 
     public GameResponseDto(int gameID, String title, String description, String img, int stock, double price,
-            String parentalRating, String status, int categoryId, String promotionName) {
+            String parentalRating, String status, int categoryId, String promotionName, String categoryName, int promotionPercentage, int rating) {
         this.gameID = gameID;
         this.title = title;
         this.description = description;
@@ -30,7 +35,16 @@ public class GameResponseDto {
         this.price = price;
         this.parentalRating = parentalRating;
         this.categoryId = categoryId;
-        this.promotionName = promotionName;
+        if (promotionName == null) {
+            this.promotionName = "";
+            this.promotionPercentage = 0;
+        } else {
+            this.promotionName = promotionName;
+            this.promotionPercentage = promotionPercentage;
+        }
+
+        this.categoryName = categoryName;
+        this.rating = rating;
 
         if (status.equals("Visible")) {
             this.status = VisibilityStatus.Visible;
@@ -85,6 +99,18 @@ public class GameResponseDto {
 
     public String getPromotionName() {
         return promotionName;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public int getPromotionPercentage() {
+        return promotionPercentage;
+    }
+
+    public int getRating() {
+        return rating;
     }
 
     @Override

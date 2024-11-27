@@ -110,10 +110,14 @@ public class GameCategoryIntegrationTests {
     @Order(4)
     public void testGetAllGameCategoriesWithGuestPermission() {
         // Act
-        ResponseEntity<String> response = client.getForEntity("/categories?loggedInUsername=" + GUEST_USERNAME, String.class);
+        ResponseEntity<GameCategoryListResponseDto> response = client.getForEntity("/categories?loggedInUsername=" + GUEST_USERNAME, GameCategoryListResponseDto.class);
 
         // Assert
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody().getGameCategories());
+        assertEquals(1, response.getBody().getGameCategories().size());
+        assertEquals(CATEGORY_NAME, response.getBody().getGameCategories().get(0).getName());
     }
 
     @Test

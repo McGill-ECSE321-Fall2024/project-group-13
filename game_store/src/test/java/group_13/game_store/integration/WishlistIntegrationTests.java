@@ -146,7 +146,10 @@ public class WishlistIntegrationTests {
                 game1.getParentalRating(),
                 game1.getStatus().toString(),
                 game1.getCategory().getCategoryID(),
-                "");
+                "",
+                "",
+                0,
+                0);
 
         expectedGame2 = new GameResponseDto(
                 game2.getGameID(),
@@ -158,7 +161,10 @@ public class WishlistIntegrationTests {
                 game2.getParentalRating(),
                 game2.getStatus().toString(),
                 game2.getCategory().getCategoryID(),
-                "");
+                "",
+                "",
+                0,
+                0);
 
         expectedGame3 = new GameResponseDto(
                 game3.getGameID(),
@@ -170,7 +176,10 @@ public class WishlistIntegrationTests {
                 game3.getParentalRating(),
                 game3.getStatus().toString(),
                 game3.getCategory().getCategoryID(),
-                "");
+                "",
+                "",
+                0,
+                0);
 
         // ***** Users *****
 

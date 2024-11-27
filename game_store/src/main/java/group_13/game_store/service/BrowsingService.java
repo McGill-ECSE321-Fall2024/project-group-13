@@ -5,6 +5,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import group_13.game_store.repository.CartItemRepository;
 import group_13.game_store.repository.CustomerRepository;
+import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.repository.WishlistItemRepository;
@@ -12,6 +13,7 @@ import jakarta.transaction.Transactional;
 import group_13.game_store.model.CartItem;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Game;
+import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.WishlistItem;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,8 @@ public class BrowsingService {
 
     @Autowired
     private PromotionRepository promotionRepository;
+
+    @Autowired GameCategoryRepository gameCategoryRepository;
 
     // ************************** EMPLOYEE AND OWNER BROWSING **************************
 
@@ -332,10 +336,21 @@ public class BrowsingService {
     }
 
     //Mothod to only show valid promotions linked to a game for everyone but the owner
+    @Transactional
     public List<Promotion> getAllValigPromotions(int gameId) {
         //Get the current date to compare
         Date today = Date.valueOf(LocalDate.now());
 
         return (List<Promotion>) promotionRepository.findByGame_GameIDAndStartDateLessThanEqualAndEndDateGreaterThanEqual(gameId, today, today);
     }
+
+     // ************************** CUSTOMER CATEGORIES **************************
+
+     // Get all available game categories
+        @Transactional
+        public List<GameCategory> getAllAvailableGameCategories() {
+            List<GameCategory> gameCategories = gameCategoryRepository.findByStatusIn(List.of(GameCategory.VisibilityStatus.Visible, GameCategory.VisibilityStatus.PendingArchive));
+    
+            return gameCategories;
+}
 }

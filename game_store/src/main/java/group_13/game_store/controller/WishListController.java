@@ -68,7 +68,10 @@ public class WishListController {
             // create a GameResponseDto
             GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
-                    game.getStatus().toString(), game.getCategory().getCategoryID(),promotionTitle);
+                    game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle, 
+                    game.getCategory().getName(), 
+                    (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0, 
+                    reviewService.getGameRating(game.getGameID()));
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
@@ -102,8 +105,9 @@ public class WishListController {
 
         // Create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
-                game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), promotionTitle);
+            game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
+            game.getCategory().getCategoryID(), promotionTitle, game.getCategory().getName(), 
+            (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0, reviewService.getGameRating(game.getGameID()));
 
         return gameResponseDto;
     }
@@ -134,7 +138,8 @@ public class WishListController {
         // Create a GameResponseDto
         GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(), game.getDescription(),
                 game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(), game.getStatus().toString(),
-                game.getCategory().getCategoryID(), promotionTitle);
+                game.getCategory().getCategoryID(), promotionTitle, game.getCategory().getName(), 
+                (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0, reviewService.getGameRating(game.getGameID()));
 
         return gameResponseDto;
     }

@@ -15,4 +15,7 @@ public interface PromotionRepository extends CrudRepository<Promotion, Integer> 
 
     //Method to find all promotions associated to a gameID and that are active
     List<Promotion> findByGame_GameIDAndStartDateLessThanEqualAndEndDateGreaterThanEqual(int gameId, Date now1, Date now2);
+
+    // Find promotions by title
+    Promotion findByTitle(String title);
 }
