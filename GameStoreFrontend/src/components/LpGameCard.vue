@@ -1,9 +1,9 @@
 <template>
     <div class="game-card">
-      <img :src="image" alt="Game Image" class="game-image" />
+      <img :src="resolveImagePath(image)" alt="Game Image" class="game-image" />
       <div class="game-content">
         <h2 class="game-title">{{ title }}</h2>
-        <p class="game-price">{{ price }}</p>
+        <p class="game-price">${{ price.toFixed(2) }}</p>
         <p class="game-description">{{ description }}</p>
         <button class="buy-button">See More</button>
       </div>
@@ -23,13 +23,25 @@
         required: true
       },
       price: {
-        type: String,
+        type: Number,
         required: true
       },
       description: {
         type: String,
         default: ''
       }
+    },
+    methods: {
+      resolveImagePath(image) {
+        try {
+          // Resolve path using import.meta.URL
+          return new URL(`../assets/${image}`, import.meta.url).href;
+        } catch (error) {
+          // Fail
+          console.log("Error resolving image path: ", error);
+          return '';
+      }
+    },
     }
   }
   </script>
@@ -74,9 +86,15 @@
   }
   
   .game-description {
-    flex-grow: 1;
-    color: #B0B0B0;
-  }
+  color: #B0B0B0;
+  display: -webkit-box;        
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;       /* Clamps to 1 line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;          /* Ensures line height doesn't cause overflow */
+  max-height: 1.2em;           
+}
   
   .buy-button {
     background-color: #BB86FC;
