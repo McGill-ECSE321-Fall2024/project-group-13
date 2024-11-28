@@ -100,8 +100,6 @@ const axiosClient = axios.create({
     baseURL: 'http://localhost:8080'
 });
 
-const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
-
 export default {
   name: 'HomeView',
   components: {
@@ -123,7 +121,10 @@ export default {
   },
 
   async created() {
+    const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
+    const PERMISSIONLEVEL = sessionStorage.getItem('permissionLevel');
     console.log("Logged in username: ", LOGGEDINUSERNAME);
+    console.log("Permission level: ", PERMISSIONLEVEL);
     // Fetch the displayed games by calling the API
     try {
         const [roundsResponse, r6Response, civ6Response, altoResponse, d2Response] = await Promise.all([

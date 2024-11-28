@@ -21,6 +21,7 @@
 
 <script>
 import axios from "axios";
+import { session } from "../session.js";
 
 const axiosClient = axios.create({
 	// NOTE: it's baseURL, not baseUrl
@@ -58,6 +59,7 @@ export default {
                 sessionStorage.setItem("loggedInUsername", this.username);
                 sessionStorage.setItem("permissionLevel", this.permissionLevel);
                 this.clearInputs();
+                session.updateSession(response.data.username, response.data.permissionLevel); // Update global state
                 console.log("loggedInUsername is now:", sessionStorage.getItem("loggedInUsername"));
                 console.log("permissionLevel is now:", sessionStorage.getItem("permissionLevel"));
                 this.$router.push("/");
