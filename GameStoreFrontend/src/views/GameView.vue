@@ -1,6 +1,6 @@
 <template>
     <main id="game-page">
-        <section class="header-container">
+        <section class="header-container" v-if="game">
                 <h1 id="title">{{ game.title }}</h1>
         </section>
     
@@ -29,7 +29,7 @@
             </div>
         </section>
     
-        <section class="game-actions">
+        <section class="game-actions" v-if="game">
             <div class="purchasing-options">
                 <div>
                     <button id="buy-now">Add to cart</button><span id="price">{{ game.price }}</span> <span id="promotion">{{ game.promotion ? "-" + game.promotionPercentage + "%" : '' }}</span>
@@ -46,7 +46,7 @@
         </section>
     
         
-        <section class="review-section">
+        <section class="review-section" v-if="game">
             <h1>Reviews</h1>
     
             <div class="reviews">
@@ -377,6 +377,4 @@ export default {
         }
     }
 }
-
-
 </style>
