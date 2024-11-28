@@ -18,10 +18,12 @@ import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
+import group_13.game_store.model.WishlistItem;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.PromotionRepository;
+import group_13.game_store.repository.WishlistItemRepository;
 import group_13.game_store.service.AccountService;
 import java.util.Map;
 import java.util.HashMap;
@@ -54,6 +56,9 @@ public class DataInitializer {
 
     @Autowired
     private GameRepository gameRepo;
+
+    @Autowired
+    private WishlistItemRepository wishlistRepo;
 
     @PostConstruct
     public void initializeData() {
@@ -564,8 +569,22 @@ public class DataInitializer {
                 simulationCategory
             );
             gameRepo.save(animalCrossingNewHorizons);
+        }
 
+        // creating existing wishlist items for defaultCustomer
+        if (wishlistRepo.findByKey_CustomerAccount_Username("defaultCustomer") == null) {
+            WishlistItem.Key key1 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Animal Crossing"));
+            WishlistItem savedWishlistItem1 = new WishlistItem(key1);
+            wishlistRepo.save(savedWishlistItem1);
+
+            WishlistItem.Key key2 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Halo Infinite"));
+            WishlistItem savedWishlistItem2 = new WishlistItem(key2);
+            wishlistRepo.save(savedWishlistItem2);
+
+            WishlistItem.Key key3 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Dying Light"));
+            WishlistItem savedWishlistItem3 = new WishlistItem(key3);
+            wishlistRepo.save(savedWishlistItem3);
+        }
         
-    }
 }
 }

@@ -14,6 +14,7 @@
 
         <div class="wishlist-items">
           
+          <!-- will need to add games here-->
           <div v-for="(game, index) in games" :key="index" class="wishlist-item">
                 
             <img :src="game.image" alt="Game Image" class="game-image" />
@@ -23,7 +24,6 @@
               <p class="game-description">{{ game.description }}</p>
             </div>
                 
-            <p class="game-description">{{ game.price }}</p>
             <div class="game-actions">
               <button class="action-button">Add to Cart</button>
               <button class="action-button">Remove from Wishlist</button>
@@ -51,44 +51,56 @@
   
 export default {
     name: 'WishlistView',
+    // data() {
+    //     return {
+    //         games: [
+    //         {
+    //         image: fortnite,
+    //         title: 'Fortnite',
+    //         description: 'A battle royale game where you fight to be the last one standing.',
+    //       },
+    //       {
+    //         image: overwatch,
+    //         title: 'Overwatch',
+    //         description: 'A team-based multiplayer first-person shooter.',
+    //       },
+    //       {
+    //         image: gta,
+    //         title: 'Grand Theft Auto V',
+    //         description: 'An action-adventure game set in an open world.',
+    //       },
+    //         ]
+    //     }
+    // },
+
     data() {
-        return {
-            games: [
-            {
-            image: fortnite,
-            title: 'Fortnite',
-            description: 'A battle royale game where you fight to be the last one standing.',
-          },
-          {
-            image: overwatch,
-            title: 'Overwatch',
-            description: 'A team-based multiplayer first-person shooter.',
-          },
-          {
-            image: gta,
-            title: 'Grand Theft Auto V',
-            description: 'An action-adventure game set in an open world.',
-          },
-            ]
-        }
-    },
+       return {
+         wishlistItems: []
+         //gameName: null,
+         //gameDescription: null,
+         //gamePicture: null,
+         //errorMessage: null
+       };
+     },
 
     async created() {
        try {
             // Fetch the games from logged in user's wishlist (if they are a customer)
             const loggedInUsername = 'defaultCustomer'; // need a way to somehow extract the username of the currently logged in user
-            const [gameResponse] = await Promise.all([
-                axiosClient.get('/customers/${loggedInUsername}/wishlist') 
-            ]);
+            const wishlistGamesResponse = await Promise.all(
+                axiosClient.get('/customers/${loggedInUsername}/wishlist')
+            );
 
-            console.log(gameResponse.data); 
-
-            this.games = gameResponse.data.games;
+            console.log(wishlistGamesResponse.data); 
+            this.wishlistItems = wishlistGamesResponse.data.wishlistItems
 
        } catch (error) {
             console.error('Error fetching data:', error);
        }
     },
+
+    // one for adding to cart
+    // one for removing from wishlist
     
 }
 </script>
