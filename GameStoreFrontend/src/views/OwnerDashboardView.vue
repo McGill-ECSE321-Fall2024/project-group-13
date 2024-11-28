@@ -11,17 +11,77 @@
 
       <!-- Section Grid -->
       <div class="sectionGrid">
+
         <!-- Games Section -->
         <section class="box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h2 style="margin: 0;">Games</h2>
-            <button class="action__btn" @click="addGame">Add Game</button>
+            <button class="action__btn" @click="toggleAddGame">Add Game</button>
           </div>
+
           <div class="controls">
             <input type="text" placeholder="Filter games..." v-model="gameFilter" />
           </div>
+
+          <!-- Conditional Fields for Adding Game -->
+          <div v-if="isAddingGame" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <div style="margin-bottom: 10px;">
+              <label for="game-title">Game Title:</label>
+              <input v-model="newGame.title" id="game-title" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-description">Description:</label>
+              <textarea v-model="newGame.description" id="game-description"></textarea>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-img">Image URL:</label>
+              <input v-model="newGame.img" id="game-img" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-stock">Stock:</label>
+              <input v-model="newGame.stock" id="game-stock" type="number" min="0" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-price">Price:</label>
+              <input v-model="newGame.price" id="game-price" type="number" min="0" step="0.01" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-rating">Parental Rating:</label>
+              <input v-model="newGame.parentalRating" id="game-rating" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-status">Status:</label>
+              <select v-model="newGame.status" id="game-status">
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="game-category">Category:</label>
+              <select v-model="newGame.categoryId" id="game-category">
+                <option v-for="category in categories" :value="category.id" :key="category.id">
+                  {{ category.name }}
+                </option>
+              </select>
+            </div>
+
+            <button class="action__btn" @click="saveGame">Save</button>
+          </div>
+
+          <!-- List of Games -->
           <ul class="list" style="list-style: none; padding: 0; margin: 0;">
-            <li v-for="game in games" :key="game.id" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 5px 0;">
+            <li
+              v-for="game in games"
+              :key="game.id"
+              style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 5px 0;"
+            >
               <!-- Game Details -->
               <div style="flex: 1; text-align: left;">
                 <strong>{{ game.title }}</strong><br />
@@ -38,7 +98,6 @@
             </li>
           </ul>
         </section>
-
 
         <!-- Promotions Section -->
         <section class="box">
@@ -250,6 +309,17 @@ export default {
         name: "",
         description: "",
       },
+      isAddingGame: false, // Tracks whether the "Add Game" form is visible
+      newGame: {
+        title: "",
+        description: "",
+        img: "",
+        stock: 0,
+        price: 0.0,
+        parentalRating: "",
+        status: "Available", // Default status
+        categoryId: null, // ID of the selected category
+      },
     };
   },
   computed: {
@@ -291,11 +361,13 @@ export default {
           params: { loggedInUsername: "owner" },
         });
         this.categories = categoriesResponse.data.gameCategories.map((category) => ({
-          id: category.categoryID,
+          id: category.categoryId,
           name: category.name,
           description: category.description,
+          status: category.status,
           isNew: false,
         }));
+        console.log("Fetched Categories:", this.categories); // Debugging
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -519,6 +591,90 @@ export default {
             "An error occurred while adding the category."
         );
       }
+    },
+    toggleAddGame() {
+      this.isAddingGame = !this.isAddingGame;
+    },
+    async saveGame() {
+      console.log("New Game Details:", this.newGame);
+
+      console.log("Category ID:", this.newGame.categoryId);
+      console.log("Title:", this.newGame.title);
+      
+      if (
+        !this.newGame.title ||
+        !this.newGame.description ||
+        !this.newGame.img ||
+        !this.newGame.stock ||
+        !this.newGame.price ||
+        !this.newGame.parentalRating ||
+        !this.newGame.status ||
+        !this.newGame.categoryId
+      ) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+
+      try {
+        const response = await axiosClient.post(
+          "/games",
+          {
+            title: this.newGame.title,
+            description: this.newGame.description,
+            img: this.newGame.img,
+            stock: this.newGame.stock,
+            price: this.newGame.price,
+            parentalRating: this.newGame.parentalRating,
+            status: this.newGame.status,
+            categoryId: this.newGame.categoryId,
+          },
+          {
+            params: {
+              loggedInUsername: "owner", // Adjust based on the logged-in user
+            },
+          }
+        );
+
+        console.log("Create Game Response:", response.data);
+
+        // Add the new game to the list
+        this.games.push({
+          id: response.data.gameID,
+          title: response.data.title,
+          description: response.data.description,
+          img: response.data.img,
+          stock: response.data.stock,
+          price: response.data.price,
+          parentalRating: response.data.parentalRating,
+          status: response.data.status,
+          categoryId: response.data.categoryId,
+        });
+
+        // Reset and hide form
+        this.resetNewGame();
+        this.isAddingGame = false;
+
+        alert("Game added successfully!");
+      } catch (error) {
+        console.error("Error adding game:", error);
+        alert(
+          error.response?.data?.message ||
+            "An error occurred while adding the game."
+        );
+      }
+    },
+    resetNewGame() {
+      this.newGame = {
+        title: "",
+        description: "",
+        img: "",
+        stock: 0,
+        price: 0.0,
+        parentalRating: "",
+        status: "Available",
+        categoryId: null,
+      };
     },
     resetNewCategory() {
       this.newCategory = {
