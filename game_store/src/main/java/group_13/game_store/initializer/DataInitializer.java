@@ -18,10 +18,12 @@ import group_13.game_store.repository.PaymentInformationRepository;
 import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
+import group_13.game_store.model.UserAccount;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.PromotionRepository;
+import group_13.game_store.repository.UserAccountRepository;
 import group_13.game_store.service.AccountService;
 import java.util.Map;
 import java.util.HashMap;
@@ -55,8 +57,18 @@ public class DataInitializer {
     @Autowired
     private GameRepository gameRepo;
 
+    @Autowired
+    private UserAccountRepository userAccountRepo;
+
     @PostConstruct
     public void initializeData() {
+        // Create a default guest with permission level 0
+        if (userAccountRepo.findByUsername("guest") == null) {
+            UserAccount guest = new UserAccount("guest", "guest", "guest@guest.guest", "guest", "098-765-4321");
+            guest.setPermissionLevel(0);
+            userAccountRepo.save(guest);
+        }
+
         // Check if the default owner account already exists, and if not, create it
         if (ownerRepo.findByUsername("owner") == null) {
             String hashedPassword = accountService.hashPassword("own3rPassword");

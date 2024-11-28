@@ -4,49 +4,124 @@
     <form class="form">
         <div class="input">
             <label for="name">Name</label>
-            <input type="text" name="name" id="name" placeholder="" required>
+            <input type="text" name="name" id="name" placeholder="" required v-model="name">
         </div>
         <div class="input">
             <label for="username">Username</label>
-            <input type="text" name="username" id="username" placeholder="" required>
+            <input type="text" name="username" id="username" placeholder="" required v-model="username">
         </div>
         <div class="input">
             <label for="password">Password</label>
-            <input type="text" name="password" id="password" placeholder="" required>
+            <input type="password" name="password" id="password" placeholder="" required v-model="password">
         </div>
         <div class="input">
             <label for="email">Email</label>
-            <input type="text" name="email" id="email" placeholder="" required>
+            <input type="text" name="email" id="email" placeholder="" required v-model="email">
         </div>
         <div class="input">
             <label for="phone-number">Phone Number</label>
-            <input type="text" name="phone-number" id="phone-number" placeholder="" required>
+            <input type="text" name="phone-number" id="phone-number" placeholder="" required v-model="phoneNumber">
         </div>
-        <RouterLink to="/Account" class="nav-item">
-            <button class="sign-in" @click="attemptSignUp">Create Account</button>
-        </RouterLink>
+            <button class="sign-in nav-item" @click="attemptSignUp" v-bind:disabled="!isInputValid()">Create Account</button>
+            <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
     </div>
 </template>
 
 <script>
+import axios from "axios";
+
+const axiosClient = axios.create({
+	// NOTE: it's baseURL, not baseUrl
+	baseURL: "http://localhost:8080"
+});
+
 export default {
     name: 'SignUpView',
 
+    data() {
+		return {
+            name: null,
+			username: null,
+			password: null,
+            email: null,
+            phoneNumber: null,
+            errorMessage: null
+		};
+	},
+
     methods: {
         async attemptSignUp() {
-            var loggedIn = sessionStorage.getItem("loggedInUsername");
-            console.log(loggedIn);
-            var permissionLevel = sessionStorage.getItem("permissionLevel");
-            console.log(permissionLevel);
+            event.preventDefault();  // Prevent the form from submitting and updating the URL
+
+			const customerRequest = {
+                name: this.name,
+				username: this.username,
+				password: this.password,
+                email: this.email,
+                phoneNumber: this.phoneNumber
+			};
+			try {
+                console.log(sessionStorage.getItem("loggedInUsername"));
+                console.log(customerRequest)
+				const response = await axiosClient.post("/customers", customerRequest, {
+                    params: { loggedInUsername: sessionStorage.getItem("loggedInUsername") }   // Add the query parameter
+                });
+                this.username = response.data.username;
+                this.permissionLevel = response.data.permissionLevel;
+                sessionStorage.setItem("loggedInUsername", this.username);
+                sessionStorage.setItem("permissionLevel", 1);
+                this.clearInputs();
+                console.log("loggedInUsername is now:", sessionStorage.getItem("loggedInUsername"));
+                console.log("permissionLevel is now:", sessionStorage.getItem("permissionLevel"));
+                this.$router.push("/account");
+			}
+			catch (error) {
+                // Check if the error is a server response with a status code
+                if (error.response) {
+                    const status = error.response.status;
+                    const message = error.response.data?.message || "An error occurred.";
+                    
+                    // Display user-friendly messages based on status codes or backend message
+                    if (status === 400 || status === 404 || status == 403) {
+                        this.errorMessage = message; // Example: Invalid credentials
+                        console.log(message);
+                    } else if (status === 403) {
+                        this.errorMessage = "Access denied. Please contact support.";
+                    } else {
+                        this.errorMessage = "An unexpected error occurred.";
+                    }
+                } else {
+                    // Network or unexpected error
+                    console.error(error);
+                    this.errorMessage = "Unable to connect to the server.";
+                }
+            }
+        },
+
+        clearInputs() {
+			this.username = null,
+			this.password = null,
+            this.permissionLevel = 0,
+            this.errorMessage = null
+		},
+
+        isInputValid() {
+            return this.username   
+            && this.password
+            && this.name
+            && this.email
+            && this.phoneNumber
         }
     }
 }
+
 </script>
 
 <style scoped>
 .create-account {
   width: 500px;
+  margin-top: 100px;
   margin-left: auto;
   margin-right: auto;
   border-radius: 0.75rem;
@@ -120,5 +195,18 @@ export default {
 
 .sign-in:hover {
   text-decoration: underline rgba(55, 65, 81, 1);
+}
+
+.sign-in:disabled {
+  background-color: rgba(75, 85, 99, 1);
+  color: rgba(243, 244, 246, 0.5);
+  cursor: not-allowed; 
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 10px;
+    text-align: center;
 }
 </style>

@@ -3,6 +3,7 @@ package group_13.game_store.controller;
 import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import group_13.game_store.model.PaymentInformation;
 import group_13.game_store.service.AccountService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 public class CustomerInformationController {
     // Get all the necessary service files
     @Autowired

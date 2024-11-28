@@ -30,6 +30,16 @@ import { RouterLink, RouterView } from 'vue-router';
   </div>
 </template>
 
+<script>
+export default {
+  name: "App",
+  mounted() {
+    // Set default session storage variables if not already set
+     sessionStorage.setItem("loggedInUsername", "guest");
+  }
+};
+</script>
+
 <style scoped>
 * {
   margin: 0;
