@@ -1,7 +1,5 @@
 package group_13.game_store.controller;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +27,7 @@ import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.service.PaymentService;
+import group_13.game_store.service.ReviewService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
@@ -47,6 +46,9 @@ public class UserAccountController {
     
     @Autowired
     private GameStoreManagementService gameStoreManagementService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private AccountService accountService;
@@ -146,8 +148,22 @@ public class UserAccountController {
         accountService.changePassword(request.getPassword(), request.getUsername());
 
         return new UserAccountResponseDto(aUser);
-        
     }
+
+    /**
+     * Checks if a user has a game.
+     *
+     * @param username         The username of the user to check.
+     * @param gameID           The ID of the game to check.
+     * @return True if the user has the game, false otherwise.
+     */
+    @GetMapping("/users/{username}/{gameID}")
+    public Boolean checkIfUserHasGame(@PathVariable String username, @PathVariable int gameID) {
+        
+        return reviewService.checkOwnership(username, gameID);
+    }
+
+
 
     /**
      * Retrieves all orders of a customer.

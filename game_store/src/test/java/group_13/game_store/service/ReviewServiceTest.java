@@ -954,4 +954,109 @@ public class ReviewServiceTest {
         // Verify that the findByReviewID method was called once
         verify(replyRepository, times(1)).findByReview_ReviewID(1);
     }
+
+    @Test
+    public void testCheckOwnership_successful() {
+        // Arrange
+        String reviewerID = "tim_roma";
+        int gameID = 1;
+
+        // Mocking the customer and game repositories
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(customer1);
+        when(gameRepository.findByGameID(gameID)).thenReturn(game1);
+
+        // The customer has the game
+        List<Game> gameList = new ArrayList<>();
+        gameList.add(game1);
+        when(gameRepository.findGamesByCustomer(customer1)).thenReturn(gameList);
+
+        // Mocking the review repository to return the saved review
+        when(reviewRepository.save(any(Review.class))).thenAnswer(invocation -> {
+            Review savedReview = invocation.getArgument(0);
+            savedReview.setReviewID(1); // Set an ID if needed
+            return savedReview;
+        });
+
+        // Act
+        Boolean hasGame = reviewService.checkOwnership(reviewerID, gameID);
+
+        // Assert
+        assertEquals(true, hasGame);
+
+        // Verify that the find methods were called once
+        verify(customerRepo, times(1)).findByUsername(reviewerID);
+    }
+
+    @Test
+    public void testCheckOwnership_unsuccessful() {
+        // Arrange
+        String reviewerID = "tim_roma";
+        int gameID = 1;
+
+        // Mocking the customer and game repositories
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(customer1);
+        when(gameRepository.findByGameID(gameID)).thenReturn(game1);
+
+        // The customer does not have the game
+        List<Game> gameList = new ArrayList<>();
+        when(gameRepository.findGamesByCustomer(customer1)).thenReturn(gameList);
+
+        // Act
+        Boolean hasGame = reviewService.checkOwnership(reviewerID, gameID);
+
+        // Assert
+        assertEquals(false, hasGame);
+
+        // Verify that the find methods were called once
+        verify(customerRepo, times(1)).findByUsername(reviewerID);
+    }
+
+    @Test
+    public void testCheckOwnership_customerNotFound() {
+        // Arrange
+        String reviewerID = "non_existing_user";
+        int gameID = 1;
+
+        // Mocking the customer repository to return null
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.checkOwnership(reviewerID, gameID)
+        );
+
+        // Assert exception details
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Customer not found.", exception.getReason());
+
+        // Verify that the find methods were called once
+        verify(customerRepo, times(1)).findByUsername(reviewerID);
+    }
+
+    @Test
+    public void testCheckOwnership_gameNotFound() {
+        // Arrange
+        String reviewerID = "tim_roma";
+        int gameID = 1211;
+
+        // Mocking the customer repository to return a customer
+        when(customerRepo.findByUsername(reviewerID)).thenReturn(customer1);
+
+        // Mocking the game repository to return null
+        when(gameRepository.findByGameID(gameID)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class,
+            () -> reviewService.checkOwnership(reviewerID, gameID)
+        );
+
+        // Assert exception details
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Reviewed game was not found.", exception.getReason());
+
+        // Verify that the find methods were called once
+        verify(gameRepository, times(1)).findByGameID(gameID);
+    }
 }

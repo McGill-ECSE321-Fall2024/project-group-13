@@ -24,7 +24,7 @@ const router = createRouter({
       component: BrowseView,
     },
     {
-      path: '/game',
+      path: '/game/:gameID', // Dynamic parameter
       name: 'Game',
       component: GameView,
     },

@@ -508,4 +508,36 @@ public class UserAccountIntegrationTests {
 			fail("Response body is not a valid JSON");
 		}
 	}
+
+	@Test
+	@org.junit.jupiter.api.Order(17)
+	public void testCheckIfUserHasGame_GameOwned() {
+
+		String username = "FakeUsername1";
+		int game1Id = game1.getGameID();
+		
+		// act
+		ResponseEntity<Boolean> response = client.getForEntity("/users/" + username + "/" + game1Id, Boolean.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(true, response.getBody());
+	}
+
+	@Test
+	@org.junit.jupiter.api.Order(18)
+	public void testCheckIfUserHasGame_GameNotOwned() {
+
+		String username = "FakeUsername2";
+		int game1Id = game1.getGameID();
+		
+		// act
+		ResponseEntity<Boolean> response = client.getForEntity("/users/" + username + "/" + game1Id, Boolean.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(false, response.getBody());
+	}
 }
