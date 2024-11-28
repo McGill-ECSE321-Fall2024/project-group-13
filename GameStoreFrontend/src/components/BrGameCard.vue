@@ -95,7 +95,7 @@
   <style scoped>
   .game-card {
     width: 215px;
-    height: 240px;
+    height: 230px;
     background-color: #121212;
     color: #FFFFFF;
     border-radius: 10px;
@@ -115,12 +115,12 @@
   .image-wrapper {
     position: relative; 
     width: 100%;
-    height: 140px;
+    height: 130px;
   }
   
   .game-image {
     width: 100%;
-    height: 140px;
+    height: 130px;
     object-fit: cover;
   }
   

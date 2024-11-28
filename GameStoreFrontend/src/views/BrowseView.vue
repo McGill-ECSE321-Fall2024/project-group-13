@@ -52,7 +52,7 @@
                 <!-- Right Group: Category Filter -->
                 <div class="rightGroup">
                     <h3>Search By Category</h3>
-                    <hr style="background-image: none;">
+                    <hr style="background-image: none; padding: 1px; background-color: #333;">
 
                     <!-- Open Source Checkbox, credit: https://uiverse.io/Shoh2008/big-deer-80 -->
                     <svg style="display: none;">
@@ -207,7 +207,7 @@ export default {
     display: flex;
     flex-direction: column;
     margin: 5%;
-    margin-top: 100px;
+    margin-top: 70px;
     margin-bottom: 30px;
     height: calc(100vh - 150px); 
 }
@@ -243,7 +243,7 @@ hr {
 
 /* Left Group: Contains Search Bar and Game Cards */
 .leftGroup {
-    flex: 5;
+    flex: 4.0;
     display: flex;
     flex-direction: column; 
     margin-right: 20px; 
@@ -270,7 +270,7 @@ hr {
     caret-color: #f7f7f8;
     color: #fff;
     padding: 7px 10px;
-    border: 5px solid transparent;
+    border: 2px solid transparent;
     border-top-left-radius: 7px;
     border-bottom-left-radius: 7px;
     margin-right: 1px;
