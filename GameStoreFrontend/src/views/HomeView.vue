@@ -20,22 +20,22 @@
         <div class="cardFlex">
               
             <div class="card"><LpGameCard
-                :image="roundsImage"
-                title="Rounds"
-                price="$19.99"
-                description="Rounds is a 1v1 rogue-lite card game"/></div>
+                :image="roundsGame.img"
+                :title="roundsGame.title"
+                :price="roundsGame.price"
+                :description="roundsGame.description" @click="handleGameClick(roundsGame)"/></div>
 
             <div class="card">
-                <LpGameCard :image="r6Image"
-                    title="Rainbow Six Siege"
-                    price="$24.99"
-                    description="Tom Clancy's Rainbow Six® Siege is a team-based shooter"/>
+                <LpGameCard :image="r6Game.img"
+                    :title="r6Game.title"
+                    :price="r6Game.price"
+                    :description="r6Game.description" @click="handleGameClick(r6Game)"/>
             </div>
             <div class="card">
-                <LpGameCard :image="civ6Image"
-                    title="Civilization VI"
-                    price="$14.99"
-                    description="Expand your empire and be history’s greatest leader"/>
+                <LpGameCard :image="civ6Game.img"
+                    :title="civ6Game.title"
+                    :price="civ6Game.price"
+                    :description="civ6Game.description" @click="handleGameClick(civ6Game)"/>
             </div>
         </div>
 
@@ -47,25 +47,25 @@
         <div class="promotionWrapper">
             <div class="promotionMain"></div>
             <div class="promotionDesc">
-                <div class="promo1">
+                <div class="promo1" @click="handleGameClick(altoGame)">
                     <div class="promosubtext">
                         <div class="promopct">
-                            <span>-35%</span>
+                            <span>-{{altoGame.promotionPercentage}}%</span>
                         </div>
                         <div class="promoprc">
-                            <p class="oldprice">$16.99</p>
-                            <p>$10.99</p>
+                            <p class="oldprice">${{altoGame.price.toFixed(2)}}</p>
+                            <p>${{(altoGame.price - (altoGame.price * altoGame.promotionPercentage / 100)).toFixed(2)}}</p>
                         </div>
                     </div>
                 </div>
-                <div class="promo2">
+                <div class="promo2" @click="handleGameClick(d2Game)">
                     <div class="promosubtext">
                         <div class="promopct">
-                            <span>-35%</span>
+                            <span>-{{d2Game.promotionPercentage}}%</span>
                         </div>
                         <div class="promoprc">
-                            <p class="oldprice">$27.99</p>
-                            <p>$19.99</p>
+                            <p class="oldprice">${{d2Game.price.toFixed(2)}}</p>
+                            <p>${{(d2Game.price - (d2Game.price * d2Game.promotionPercentage / 100)).toFixed(2)}}</p>
                         </div>
                     </div>
                 </div>
@@ -88,14 +88,17 @@
 
 <script>
 import LpGameCard from '@/components/LpGameCard.vue';
-import roundsImage from '../assets/rounds.jpg';
-import r6Image from '../assets/r6.jpg';
-import civ6Image from '../assets/civ6.jpg';
 import xboxlogo from '../assets/xboxlogo.png';
 import ps5logo from '../assets/ps5logo.png';
 import switchlogo from '../assets/nintendologo.png';
 import windowslogo from '../assets/windowslogo.png';
 import wiilogo from '../assets/wiilogo.png';
+
+import axios from 'axios';
+
+const axiosClient = axios.create({
+    baseURL: 'http://localhost:8080'
+});
 
 export default {
   name: 'HomeView',
@@ -104,15 +107,44 @@ export default {
   },
   data() {
     return {
-      roundsImage,
-      r6Image,
-      civ6Image,
       xboxlogo,
       ps5logo,
       switchlogo,
       windowslogo,
-      wiilogo
+      wiilogo,
+      roundsGame: {},
+        r6Game: {},
+        civ6Game: {},
+        altoGame: {},
+        d2Game: {}
     };
+  },
+
+  async created() {
+    // Fetch the displayed games by calling the API
+    try {
+        const [roundsResponse, r6Response, civ6Response, altoResponse, d2Response] = await Promise.all([
+      axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Rounds'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Rainbow Six Siege'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Civilization VI'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Alto\'s Collection'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Destiny 2'}},)
+    ]);
+
+    this.roundsGame = roundsResponse.data.games[0];
+    this.r6Game = r6Response.data.games[0];
+    this.civ6Game = civ6Response.data.games[0];
+    this.altoGame = altoResponse.data.games[0];
+    this.d2Game = d2Response.data.games[0];
+
+    } catch (error) {
+        console.error(error);
+    }
+  },
+  methods: {
+    handleGameClick(game) {
+      console.log('Game clicked: ', game); // later will route to game view
+    }
   }
 }
 </script>
@@ -157,6 +189,7 @@ export default {
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
+        cursor: pointer;
     }
 
     .promo2 {
@@ -167,6 +200,7 @@ export default {
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
+        cursor: pointer;
     }
 
     .promosubtext {

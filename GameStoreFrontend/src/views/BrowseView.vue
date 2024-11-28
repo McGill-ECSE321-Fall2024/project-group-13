@@ -4,10 +4,11 @@
             <!-- Title -->
             <div class="titleWrapper">
                 <h1>Browse Products</h1>
+                 <!-- Horizontal Bar -->
+                <hr>    
             </div>
 
-            <!-- Horizontal Bar -->
-            <hr>
+           
 
             <!-- Group Flex: Contains Left and Right Groups -->
             <div class="groupFlex">
@@ -22,19 +23,35 @@
                                 <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z" fill="#efeff1"></path>
                             </svg>
                         </button>
-                        <button id="clearBtn">Clear</button>
+
+                        <!-- Sort by Price Dropdown -->
+                        <select 
+                            class="sort-dropdown" 
+                            v-model="sortPriceDirection" 
+                            @change="handleSortByPrice"
+                        >
+                            <option disabled value="off">Sort by Price</option>
+                            <option value="asc">Low to High</option>
+                            <option value="desc">High to Low</option>
+                        </select>
+
+
+                        <button id="clearBtn" @click="handleClear">Clear</button>
                     </div>
 
                     <!-- Game Cards -->
                     <div class="gameCardWrapper">
                         <!-- Game cards will be dynamically inserted here -->
-                        <BrGameCard v-for="(game, index) in games" :key="index" :image="game.img" :title="game.title" :price="game.price" :description="game.description" :stock="game.stock" :promotionTitle="game.promotionName" :categoryId="game.categoryId" :gameId="game.gameID" :visibility="game.status"/>
+                        <BrGameCard v-for="(game, index) in games" :key="index" :image="game.img" :title="game.title" 
+                        :price="game.price" :description="game.description" :stock="game.stock" :promotionTitle="game.promotionName" 
+                        :categoryId="game.categoryId" :gameId="game.gameID" :visibility="game.status" :promotionPercentage="game.promotionPercentage" 
+                        :categoryName="game.categoryName" :rating="game.rating" @click="handleGameClick(game.gameID)"/>
                     </div>
                 </div>
 
                 <!-- Right Group: Category Filter -->
                 <div class="rightGroup">
-                    <h2>Category Filters</h2>
+                    <h2>Search By Category</h2>
                     <hr style="background-image: none;">
 
                     <!-- Open Source Checkbox, credit: https://uiverse.io/Shoh2008/big-deer-80 -->
@@ -56,7 +73,7 @@
                     <div class="category-filters">
                         <div class="checkbox-wrapper-12" v-for="(category, index) in categories" :key="index">
                             <div class="cbx">
-                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category.name">
+                                <input type="checkbox" :id="'cbx-12-' + index" v-model="selectedCategories" :value="category.name" @click="handleGetGamesByCategory(category.name, $event)">
                                 <label :for="'cbx-12-' + index"></label>
                                 <svg fill="none" viewBox="0 0 15 14" height="14" width="15">
                                     <path d="M2 8.36364L6.23077 12L13 2"></path>
@@ -91,7 +108,8 @@ export default {
             categories: [],
             selectedCategories: [],
             games: [],
-            searchBar: ''
+            searchBar: '',
+            sortPriceDirection: 'off'
         }
     },
 
@@ -108,7 +126,7 @@ export default {
             this.games = gameResponse.data.games;
             this.categories = categoriesResponse.data.gameCategories;
 
-       } catch (errror) {
+       } catch (error) {
             console.error('Error fetching data:', error);
        }
     },
@@ -116,7 +134,12 @@ export default {
     methods: {
         async handleSearch() {
             try {
-                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: this.searchBar}})
+                this.selectedCategories = [];
+
+                // All titles have first letter of each word capitalized
+                let title = this.searchBar.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
+
+                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: title}})
 
                 console.log("Search bar response: ", gameResponse)
 
@@ -124,9 +147,53 @@ export default {
 
             } catch(error) {
                 console.log("Error searching, " + error);
+                this.games = [];
             }
-        }
-    }
+        },
+
+        async handleClear() {
+        try {
+            const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner'}});
+            this.games = gameResponse.data.games;
+            this.selectedCategories = [];
+            this.searchBar = '';
+            this.sortPriceDirection = 'off';
+        } catch(error) {
+            console.log("Error clearing search, " + error);
+            }},
+
+        async handleGetGamesByCategory(category, event) {
+            try{
+                if (event.target.checked) {
+                    this.selectedCategories = [category];
+                    this.searchBar = '';
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', category: category}});
+                    this.games = gameResponse.data.games;
+                } else {
+                    this.selectedCategories = [];
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner'}});
+                    this.games = gameResponse.data.games;
+                }
+
+
+            } catch(error) {
+                console.log("There was an error getting games by category: ", error);
+                this.games = [];
+            }
+        },
+        handleGameClick(gameId) {
+            console.log("Game clicked: ", gameId); // replace with router push later
+        },
+        handleSortByPrice() {
+            console.log("Sort by price clicked");
+
+                if (this.sortPriceDirection === 'asc') {
+                     this.games.sort((a, b) => a.price - b.price);
+                } else if (this.sortPriceDirection === 'desc') {
+                      this.games.sort((a, b) => b.price - a.price);
+            }
+}
+    },
 }
 </script>
 
@@ -160,7 +227,7 @@ hr {
     border: 0;
     height: 1px;
     background: #333;
-    background-image: linear-gradient(to right, #ccc, purple, #ccc);
+    background-image: linear-gradient(to right, #272525, purple, #272525);
     margin-top: 10px;
 }
 
@@ -286,6 +353,8 @@ hr {
     grid-template-columns: repeat(4, 225px); 
     justify-content: center; 
     gap : 40px; 
+    
+    max-height: 575px;
 }
 
 .rightGroup {
@@ -297,6 +366,7 @@ hr {
     display: flex; 
     flex-direction: column;
     overflow-y: auto;
+    max-height: 645px;
 }
 
 /* Category Filters Container */
@@ -453,6 +523,28 @@ hr {
 .rightGroup {
     scrollbar-width: thin;
     scrollbar-color: #555 #1e1e1e;
+}
+
+/* Sort Dropdown */
+.sort-dropdown {
+    background-color: #313134;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.sort-dropdown:hover {
+    background-color: #4a4a4a;
+}
+
+.sort-dropdown:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
 
 
