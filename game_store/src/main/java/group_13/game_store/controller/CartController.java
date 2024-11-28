@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import group_13.game_store.dto.CartResponseDto;
 import group_13.game_store.dto.GameResponseDto;
+import group_13.game_store.dto.CartItemResponseDto;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.BrowsingService;
 import group_13.game_store.service.ReviewService;
@@ -69,12 +70,12 @@ public class CartController {
             // create a GameResponseDto
             String promotionTitle = (game.getPromotion() != null) ? game.getPromotion().getTitle() : "";
 
-            GameResponseDto gameResponseDto = new GameResponseDto(game.getGameID(), game.getTitle(),
+            CartItemResponseDto gameResponseDto = new CartItemResponseDto(game.getGameID(), game.getTitle(),
                     game.getDescription(), game.getImg(), game.getStock(), game.getPrice(), game.getParentalRating(),
                     game.getStatus().toString(), game.getCategory().getCategoryID(), promotionTitle, 
                     game.getCategory().getName(), 
                     (game.getPromotion() != null) ? game.getPromotion().getPercentage() : 0, 
-                    reviewService.getGameRating(game.getGameID()));
+                    reviewService.getGameRating(game.getGameID()), item.getQuantity());
 
             // add the GameResponseDto to the list
             games.add(gameResponseDto);
