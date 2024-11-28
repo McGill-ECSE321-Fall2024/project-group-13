@@ -100,10 +100,11 @@
     background-color: #BB86FC;
     color: #FFFFFF;
     border: none;
-    padding: 12px;
+    padding: 10px;
+    margin-top: 10px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.9em;
   }
   
   .buy-button:hover {

@@ -98,6 +98,9 @@ const axiosClient = axios.create({
     baseURL: 'http://localhost:8080'
 });
 
+const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
+const PERMISSIONLEVEL = sessionStorage.getItem('permissionLevel');
+
 export default {
     name: 'BrowseView',
     components: {
@@ -114,11 +117,14 @@ export default {
     },
 
     async created() {
+        console.log("Logged in username is: ", LOGGEDINUSERNAME);
+        console.log("Permission level is: ", PERMISSIONLEVEL);
+
        try {
             // Fetch the games and the categories
             const [gameResponse, categoriesResponse] = await Promise.all([
-                axiosClient.get('/games', { params: { loggedInUsername: 'owner' } }), // replace this when sessions works
-                axiosClient.get('/categories', { params: { loggedInUsername: 'owner' } }) // replace this when sessions works
+                axiosClient.get('/games', { params: { loggedInUsername: LOGGEDINUSERNAME } }), 
+                axiosClient.get('/categories', { params: { loggedInUsername: LOGGEDINUSERNAME } })
             ]);
 
             console.log(gameResponse.data, categoriesResponse.data); 
@@ -139,7 +145,7 @@ export default {
                 // All titles have first letter of each word capitalized
                 let title = this.searchBar.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
 
-                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', title: title}})
+                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME, title: title}})
 
                 console.log("Search bar response: ", gameResponse)
 
@@ -153,7 +159,7 @@ export default {
 
         async handleClear() {
         try {
-            const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner'}});
+            const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME}});
             this.games = gameResponse.data.games;
             this.selectedCategories = [];
             this.searchBar = '';
@@ -167,11 +173,11 @@ export default {
                 if (event.target.checked) {
                     this.selectedCategories = [category];
                     this.searchBar = '';
-                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner', category: category}});
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME, category: category}});
                     this.games = gameResponse.data.games;
                 } else {
                     this.selectedCategories = [];
-                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: 'owner'}});
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME}});
                     this.games = gameResponse.data.games;
                 }
 
@@ -182,7 +188,9 @@ export default {
             }
         },
         handleGameClick(gameId) {
-            console.log("Game clicked: ", gameId); // replace with router push later
+            console.log("Game clicked: ", gameId); 
+            // Navigate to the Game View based on the gameId
+            this.$router.push({ name: 'Game', params: { gameID: gameId } });
         },
         handleSortByPrice() {
             console.log("Sort by price clicked");
@@ -293,7 +301,7 @@ hr {
     background-color: rgba(42, 42, 45, 1);
     border-top-right-radius: 7px;
     border-bottom-right-radius: 7px;
-    height: 100%;
+    height: 90%;
     width: 30px;
     display: flex;
     justify-content: center;

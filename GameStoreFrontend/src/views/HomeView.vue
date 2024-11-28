@@ -100,6 +100,8 @@ const axiosClient = axios.create({
     baseURL: 'http://localhost:8080'
 });
 
+const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
+
 export default {
   name: 'HomeView',
   components: {
@@ -121,14 +123,15 @@ export default {
   },
 
   async created() {
+    console.log("Logged in username: ", LOGGEDINUSERNAME);
     // Fetch the displayed games by calling the API
     try {
         const [roundsResponse, r6Response, civ6Response, altoResponse, d2Response] = await Promise.all([
-      axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Rounds'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Rainbow Six Siege'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Civilization VI'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Alto\'s Collection'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Destiny 2'}},)
+      axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Rounds'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Rainbow Six Siege'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Civilization VI'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Alto\'s Collection'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Destiny 2'}},)
     ]);
 
     this.roundsGame = roundsResponse.data.games[0];
@@ -144,6 +147,7 @@ export default {
   methods: {
     handleGameClick(game) {
       console.log('Game clicked: ', game); // later will route to game view
+      this.$router.push({name: 'Game', params: {gameID: game.gameID}});
     }
   }
 }
