@@ -61,6 +61,18 @@
           <button class="log-in-buttons">Sign up</button>
         </div>
       </div>
+
+      <div class="action-options" v-if="permissionLevel == 2">
+        <div>
+          <button class="archive-request-buttons">Request to Archive</button>
+        </div>
+      </div>
+
+      <div class="action-options" v-if="permissionLevel == 3">
+        <div>
+          <button class="archive-buttons">Archive</button>
+        </div>
+      </div>
       
 
     </section>
@@ -145,7 +157,7 @@ export default {
     },
     async fetchUserDetails() {
       try {
-        this.permissionLevel = 1;
+        this.permissionLevel = 3;
 
         axiosClient
           .get("/users/owner", {
@@ -342,6 +354,34 @@ export default {
 
         &:active {
           background-color: #51994f;
+          padding: 11px 10px 12px;
+        }
+    }
+
+    .archive-request-buttons {
+        background-color: #1c50eb;
+
+        &:hover {
+          background-color: #37a8ff;
+          padding: 13px 12px 11px;
+        }
+
+        &:active {
+          background-color: #37a8ff;
+          padding: 11px 10px 12px;
+        }
+    }
+
+    .archive-buttons {
+        background-color: #ff0000;
+
+        &:hover {
+          background-color: #ff4d4d;
+          padding: 13px 12px 11px;
+        }
+
+        &:active {
+          background-color: #ff0000;
           padding: 11px 10px 12px;
         }
     }
