@@ -51,7 +51,7 @@
 
                 <!-- Right Group: Category Filter -->
                 <div class="rightGroup">
-                    <h2>Search By Category</h2>
+                    <h3>Search By Category</h3>
                     <hr style="background-image: none;">
 
                     <!-- Open Source Checkbox, credit: https://uiverse.io/Shoh2008/big-deer-80 -->
@@ -206,7 +206,7 @@ export default {
 .browseFlex {
     display: flex;
     flex-direction: column;
-    margin: 10%;
+    margin: 5%;
     margin-top: 100px;
     margin-bottom: 30px;
     height: calc(100vh - 150px); 
@@ -352,7 +352,7 @@ hr {
     display: grid;
     grid-template-columns: repeat(4, 225px); 
     justify-content: center; 
-    gap : 40px; 
+    gap : 30px; 
     
     max-height: 575px;
 }

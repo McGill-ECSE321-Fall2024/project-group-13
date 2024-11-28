@@ -279,22 +279,24 @@ export default {
     margin-left: 5px;
     }
 
-    .cardFlex{
-        height: 550px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-evenly;
-    } 
+    .cardFlex {
+    height: 500px; 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-left: 10px; 
+    margin-right: 10px; 
+}
 
-    .card{
-        height: 500px;
-        width: 450px;
-        background-color: black;
-        margin: 10px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+    .card {
+    height: 450px; 
+    width: 400px; 
+    background-color: black;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
     .platforms {
         display: flex;
