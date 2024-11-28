@@ -16,7 +16,7 @@
           
           <!-- will need to add games here-->
           <div v-for="(game, index) in wishlistItems" :key="index" class="wishlist-item">
-            <img :src=resolveImagePath(game.image) alt="Game Image" class="game-image" />
+            <img :src=resolveImagePath(game.img) alt="Game Image" class="game-image" />
 
             <div class="game-details">
               <h2 class="game-title">{{ game.title }}</h2>
@@ -86,7 +86,7 @@ export default {
        try {
             // Fetch the games from logged in user's wishlist (if they are a customer)
             const loggedInUsername = 'defaultCustomer'; // need a way to somehow extract the username of the currently logged in user
-            const wishlistGamesResponse = await axiosClient.get('/customers/${loggedInUsername}/wishlist');
+            const wishlistGamesResponse = await axiosClient.get('/customers/defaultCustomer/wishlist');
             
             console.log(wishlistGamesResponse.data); 
             this.wishlistItems = wishlistGamesResponse.data.games
