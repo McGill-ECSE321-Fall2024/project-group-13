@@ -14,8 +14,8 @@ export const session = reactive({
     logout() {
         this.username = 'guest';
         this.permissionLevel = 0;
-        sessionStorage.removeItem('loggedInUsername');
-        sessionStorage.removeItem('permissionLevel');   
+        sessionStorage.setItem('loggedInUsername', 'guest');
+        sessionStorage.setItem('permissionLevel', 0);
     }
 });
 

@@ -13,7 +13,7 @@ import {session} from './session.js';
             <RouterLink to="/" class="nav-item">Home</RouterLink> 
             <RouterLink to="/browse" class="nav-item">Browse</RouterLink>
             <RouterLink to="/login" class="nav-item" v-if="session.permissionLevel==0">Login/Register</RouterLink>
-            <button class="nav-item" v-if="session.permissionLevel!=0" @click="session.logout" style="background: none; border: none; cursor: pointer;">Logout</button>
+            <button class="nav-item" v-if="session.permissionLevel != 0" @click="handleLogout">Logout</button>
             <RouterLink to="/account" class="nav-item" v-if="session.permissionLevel!=0">Account</RouterLink>
             <RouterLink to="/cart" class="nav-item" v-if="session.permissionLevel==1">Cart</RouterLink>
             <RouterLink to="/wishlist" class="nav-item" v-if="session.permissionLevel==1">Wishlist</RouterLink>
@@ -37,7 +37,13 @@ export default {
     // Set default session storage variables if not already set
      sessionStorage.setItem("loggedInUsername", "guest");
       sessionStorage.setItem("permissionLevel", 0);
-  }
+  },
+  methods: {
+    handleLogout() {
+      session.logout();
+      this.$router.push("/");
+    },
+  },
 };
 </script>
 
@@ -112,5 +118,24 @@ main {
   margin: 0 auto;
   width: 100%;
 }
+
+button.nav-item {
+  all: unset; /* Reset button styles */
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+button.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+button.nav-item:focus {
+  outline: none;
+}
+
 
 </style>

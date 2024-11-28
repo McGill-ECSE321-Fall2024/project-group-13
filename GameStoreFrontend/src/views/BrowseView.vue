@@ -98,9 +98,6 @@ const axiosClient = axios.create({
     baseURL: 'http://localhost:8080'
 });
 
-const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
-const PERMISSIONLEVEL = sessionStorage.getItem('permissionLevel');
-
 export default {
     name: 'BrowseView',
     components: {
@@ -117,6 +114,9 @@ export default {
     },
 
     async created() {
+        // Get the logged in username and permission level from the session storage
+        const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
+        const PERMISSIONLEVEL = sessionStorage.getItem('permissionLevel');
         console.log("Logged in username is: ", LOGGEDINUSERNAME);
         console.log("Permission level is: ", PERMISSIONLEVEL);
 
