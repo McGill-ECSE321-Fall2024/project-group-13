@@ -93,9 +93,49 @@
 </template>
 
 <script>
+import axios from "axios";
+
+const axiosClient = axios.create({
+	baseURL: "http://localhost:8080"
+});
+
 export default {
     name: 'GameView',
-}
+
+    data() {
+        return {
+            game: null,
+            reviews: []
+        }
+    },
+
+    created() {
+        this.fetchGameDetails(this.$route.params.gameID);
+    },
+
+    methods: {
+        async fetchGameDetails(gameID) {
+            try {
+                // Fetch the games and the categories
+                const [gameResponse, reviewListResponse] = await Promise.all([
+                    axiosClient.get(`/games/${gameID}`, { params: { loggedInUsername: 'owner' } }), // replace this when sessions works
+                    axiosClient.get(`/games/${gameID}/reviews`)
+                ]);
+
+                console.log(gameResponse.data, reviewListResponse.data); 
+
+                this.game = gameResponse.data;
+                this.reviews = reviewListResponse.data;
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+    }
+
+
+};
+
 </script>
 
 <style scoped>
