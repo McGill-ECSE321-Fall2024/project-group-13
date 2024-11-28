@@ -7,7 +7,7 @@
     <section class="game-header">
       <div class="game-overview">
         <img
-          :src="`./src/assets/${game.img}`"
+          :src="`../src/assets/${game.img}`"
           :alt="game.title"
           width="480"
           height="270"
@@ -75,7 +75,7 @@
         </h3>
         <img
           id="chill-guy"
-          :src="`./src/assets/chillguy.jpg`"
+          :src="`../src/assets/chillguy.jpg`"
           :alt="'Chill Guy'"
           width="480"
           height="270"
@@ -122,8 +122,8 @@ export default {
     };
   },
   created() {
-    // this.fetchGameDetails(this.$route.params.gameID);
-    this.fetchGameDetails(11752);
+    this.fetchGameDetails(this.$route.params.gameID);
+    // this.fetchGameDetails(2352);
     this.fetchUserDetails();
   },
   methods: {
@@ -325,11 +325,11 @@ export default {
     }
 
     #buy-now:hover + #price {
-      padding: 14px 12px 11px;
+      padding: 14px 12px 12px;
     }
 
     #buy-now:active + #price {
-      padding: 12px 10px 12px;
+      padding: 12px 10px 13px;
     }
 
     .log-in-buttons {
@@ -355,7 +355,7 @@ export default {
 
     #price {
       color: white;
-      padding: 11px 10px 10px;
+      padding: 11px 10px 11px;
       border-radius: 0px 5px 5px 0px;
       border-bottom: 1px solid #7347ff;
       background-color: #997aff;
