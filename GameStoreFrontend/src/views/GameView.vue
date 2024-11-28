@@ -281,31 +281,35 @@ export default {
 
             /* Button States */
 
-            &hover {
+            &:hover {
                 background-color: #a970ff;
-                transform: scale(1.05); 
+                padding: 13px 12px 11px;
             }
 
-            :active {
+            &:active {
                 background-color: #8c3de3; 
-                transform: scale(0.98); 
+                padding: 11px 10px 12px;
             }
+        }
 
-            :focus {
-                outline: none; 
-                box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5); 
-            }
+        #buy-now:hover + #price{
+            padding: 14px 12px 11px;
+        }
+        
+        #buy-now:active + #price {
+            padding: 11px 10px 12px;
         }
 
         #buy-now {
             border-radius: 5px 0 0 5px;
+            border: 0px;
             background-color: #7347ff;
             color: white;
         }
 
         #price {
             color: white;
-            padding: 10px 10px 10px;
+            padding: 11px 10px 10px;
             border-radius: 0px 5px 5px 0px;
             border-bottom: 1px solid #7347ff;
             background-color: #997aff;
