@@ -8,17 +8,25 @@
             </div>
             <div class="input">
                 <label for="password">Password</label>
-                <input type="text" name="password" id="password" placeholder="" required v-model="password">
+                <input type="password" name="password" id="password" placeholder="" required v-model="password">
             </div>
-            <button class="sign-in" @click="attemptLogin">Sign in</button>
+            <button class="sign-in" @click="attemptLogin" v-bind:disabled="!isInputValid()">Sign in</button>
         </form>
         <p class="create-account">Don't have an account?
             <RouterLink to="/Register" class="nav-item">Sign up</RouterLink>
+            <p v-if="errorMessage" class="error-message">{{  errorMessage }}</p>
         </p>
     </div>
 </template>
 
 <script>
+import axios from "axios";
+
+const axiosClient = axios.create({
+	// NOTE: it's baseURL, not baseUrl
+	baseURL: "http://localhost:8080"
+});
+
 export default {
     name: 'LoginView',
 
@@ -26,15 +34,70 @@ export default {
 		return {
 			username: null,
 			password: null,
-            permissionLevel: 1
+            permissionLevel: 0,
+            errorMessage: null
 		};
 	},
-
     methods: {
-        async attemptLogin() {
-            sessionStorage.setItem("loggedInUsername", this.username);
-            sessionStorage.setItem("permissionLevel", this.permissionLevel);
-        }
+		async attemptLogin() {
+            event.preventDefault();  // Prevent the form from submitting and updating the URL
+
+			const newLoginDTO = {
+				username: this.username,
+				password: this.password,
+			};
+			try {
+                console.log(sessionStorage.getItem("loggedInUsername"))
+                console.log(newLoginDTO)
+                console.log(this.username)
+				const response = await axiosClient.post("/login", newLoginDTO, {
+                    params: { loggedInUsername: sessionStorage.getItem("loggedInUsername") }   // Add the query parameter
+                });
+                this.username = response.data.username;
+                this.permissionLevel = response.data.permissionLevel;
+                sessionStorage.setItem("loggedInUsername", this.username);
+                sessionStorage.setItem("permissionLevel", this.permissionLevel);
+                this.clearInputs();
+                console.log("loggedInUsername is now:", sessionStorage.getItem("loggedInUsername"));
+                console.log("permissionLevel is now:", sessionStorage.getItem("permissionLevel"));
+                this.$router.push("/");
+			}
+			catch (error) {
+                console.log("hey")
+                // Check if the error is a server response with a status code
+                if (error.response) {
+                    const status = error.response.status;
+                    const message = error.response.data?.message || "An error occurred.";
+                    
+                    // Display user-friendly messages based on status codes or backend message
+                    if (status === 400 || status === 404) {
+                        this.errorMessage = message; // Example: Invalid credentials
+                        console.log(message);
+                    } else if (status === 403) {
+                        this.errorMessage = "Access denied. Please contact support.";
+                    } else {
+                        this.errorMessage = "An unexpected error occurred.";
+                    }
+                } else {
+                    // Network or unexpected error
+                    console.error(error);
+                    this.errorMessage = "Unable to connect to the server.";
+                }
+            }
+
+
+		},
+		clearInputs() {
+			this.username = null,
+			this.password = null,
+            this.permissionLevel = 0,
+            this.errorMessage = null
+		},
+		isInputValid() {
+			return this.username   
+                && this.password
+		},
+
     }
 }
 </script>
@@ -43,6 +106,7 @@ export default {
 <style scoped>
 .login {
   width: 500px;
+  margin-top: 100px;
   margin-left: auto;
   margin-right: auto;
   border-radius: 0.75rem;
@@ -99,6 +163,12 @@ export default {
   text-decoration: underline rgba(167, 139, 250, 1);
 }
 
+.sign-in:disabled {
+  background-color: rgba(75, 85, 99, 1);
+  color: rgba(243, 244, 246, 0.5);
+  cursor: not-allowed;
+}
+
 .sign-in {
   margin-top: 10px;
   display: block;
@@ -115,6 +185,13 @@ export default {
 
 .sign-in:hover {
   text-decoration: underline rgba(55, 65, 81, 1);
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 10px;
+    text-align: center;
 }
 
 .create-account {

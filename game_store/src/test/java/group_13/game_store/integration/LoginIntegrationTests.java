@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import group_13.game_store.dto.LoginRequestDto;
+import group_13.game_store.dto.LoginResponseDto;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Employee;
 import group_13.game_store.repository.CustomerRepository;
@@ -153,12 +154,13 @@ public class LoginIntegrationTests {
         String url = "/login?loggedInUsername=guest";
 
         // Act
-        ResponseEntity<String> response = client.postForEntity(url, loginInfo, String.class);
+        ResponseEntity<LoginResponseDto> response = client.postForEntity(url, loginInfo, LoginResponseDto.class);
 
         // Assert
         assertNotNull(response);
         assertNotNull(response.getBody());
-        assertEquals(response.getBody(), validUsername);
+        assertEquals(response.getBody().getUsername(), validUsername);
+        assertEquals(response.getBody().getPermissionLevel(), accountService.findPermissionLevelByUsername(validUsername));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         
 
