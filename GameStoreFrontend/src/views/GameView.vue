@@ -7,7 +7,7 @@
         <section class="game-header">
             <div class="game-overview">
                 <img
-                    :src="game.img"
+                    :src="`./src/assets/${game.img}`" 
                     :alt="game.title"
                     width="480"
                     height="270"
@@ -91,7 +91,8 @@ export default {
     };
   },
   created() {
-    this.fetchGameDetails(this.$route.params.gameID);
+    // this.fetchGameDetails(this.$route.params.gameID);
+    this.fetchGameDetails(11752);
   },
   methods: {
     async fetchGameDetails(gameID) {
