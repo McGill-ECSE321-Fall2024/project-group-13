@@ -61,6 +61,8 @@
           <button class="log-in-buttons">Sign up</button>
         </div>
       </div>
+      
+
     </section>
 
     <section class="review-section" v-if="game">
@@ -116,12 +118,13 @@ export default {
       reviews: [],
       error: null,
       permissionLevel: 0,
+      hasGame: false,
     };
   },
   created() {
     // this.fetchGameDetails(this.$route.params.gameID);
     this.fetchGameDetails(11752);
-    this.fetchPermissionLevel();
+    this.fetchUserDetails();
   },
   methods: {
     async fetchGameDetails(gameID) {
@@ -140,9 +143,18 @@ export default {
         this.error = "Failed to load game details.";
       }
     },
-    async fetchPermissionLevel() {
+    async fetchUserDetails() {
       try {
-        this.permissionLevel = 0;
+        this.permissionLevel = 1;
+
+        axiosClient
+          .get("/users/owner", {
+            params: { loggedInUsername: "owner" },
+          })
+          .then((response) => {
+            this.permissionLevel = response.data.permissionLevel;
+          });
+        
       } catch (error) {
         console.error("Error fetching data:", error);
         this.error = "Failed to load permission level.";
@@ -293,7 +305,7 @@ export default {
     display: flex;
     flex-direction: row;
 
-    gap: 10px;
+    gap: 20px;
 
     button {
       background-color: #619bda;
@@ -317,7 +329,21 @@ export default {
     }
 
     #buy-now:active + #price {
-      padding: 11px 10px 12px;
+      padding: 12px 10px 12px;
+    }
+
+    .log-in-buttons {
+        background-color: #51994f;
+
+        &:hover {
+          background-color: #7fcb8a;
+          padding: 13px 12px 11px;
+        }
+
+        &:active {
+          background-color: #51994f;
+          padding: 11px 10px 12px;
+        }
     }
 
     #buy-now {
