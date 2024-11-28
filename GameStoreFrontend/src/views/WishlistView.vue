@@ -15,26 +15,25 @@
         <div class="wishlist-items">
           
           <!-- will need to add games here-->
-          <div v-for="(game, index) in games" :key="index" class="wishlist-item">
-                
-            <img :src="game.image" alt="Game Image" class="game-image" />
-                
+          <div v-for="(game, index) in wishlistItems" :key="index" class="wishlist-item">
+            <img :src=resolveImagePath(game.image) alt="Game Image" class="game-image" />
+
             <div class="game-details">
               <h2 class="game-title">{{ game.title }}</h2>
               <p class="game-description">{{ game.description }}</p>
             </div>
-                
+                  
             <div class="game-actions">
               <button class="action-button">Add to Cart</button>
               <button class="action-button">Remove from Wishlist</button>
             </div>
+          </div>      
 
           </div>
 
         </div>
       
       </div>
-    </div>
 </template>
 
 <!-- will be removing these games once I begin adding functionality-->
@@ -87,17 +86,29 @@ export default {
        try {
             // Fetch the games from logged in user's wishlist (if they are a customer)
             const loggedInUsername = 'defaultCustomer'; // need a way to somehow extract the username of the currently logged in user
-            const wishlistGamesResponse = await Promise.all(
-                axiosClient.get('/customers/${loggedInUsername}/wishlist')
-            );
-
+            const wishlistGamesResponse = await axiosClient.get('/customers/${loggedInUsername}/wishlist');
+            
             console.log(wishlistGamesResponse.data); 
-            this.wishlistItems = wishlistGamesResponse.data.wishlistItems
+            this.wishlistItems = wishlistGamesResponse.data.games
 
        } catch (error) {
             console.error('Error fetching data:', error);
+            this.wishlistItems = [];
        }
     },
+
+    methods: {
+      resolveImagePath(image) {
+        try {
+          // Resolve path using import.meta.URL
+          return new URL(`../assets/${image}`, import.meta.url).href;
+        } catch (error) {
+          // Fail
+          console.log("Error resolving image path: ", error);
+          return '';
+      }
+    },
+  },
 
     // one for adding to cart
     // one for removing from wishlist
