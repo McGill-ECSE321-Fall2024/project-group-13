@@ -19,7 +19,8 @@
                         {{ game.description }}
                     </p>
                     <div class="rating-category">
-                        <p id="game-rating">Audience Rating: {{ game.rating }}</p>
+                        <p id="game-rating" v-if="game.rating != 0">Audience Rating: {{ game.rating }}</p>
+                        <p id="game-rating" v-if="game.rating == 0">Audience Rating: None</p>
                         <p id="category">Game Category: {{ game.categoryName }}</p>
                         <p id="parental-rating">Parental Rating: {{ game.parentalRating }}</p>
                         <p id="stock">Current Stock: {{ game.stock }}</p>
@@ -48,7 +49,21 @@
         
         <section class="review-section" v-if="game">
             <h1>Reviews</h1>
-    
+
+            <div v-if="reviews.length === 0">
+                <h3 id="chill-header"> 
+                    No reviews yet. It's chill, sometimes games are just underground and misunderstood.
+                </h3>
+                <img
+                    id="chill-guy"
+                    :src="`./src/assets/chillguy.jpg`" 
+                    :alt="'Chill Guy'"
+                    width="480"
+                    height="270"
+                    @error="handleImageError"
+                />
+            </div>
+
             <div class="reviews">
                 <div
                 class="review"
@@ -127,7 +142,7 @@ export default {
 #game-page {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 5rem 8rem;
+    padding: 5rem 6rem;
     font-weight: normal;
 }
 
@@ -263,6 +278,23 @@ export default {
         button {
             background-color: #619bda;
             color: white;
+
+            /* Button States */
+
+            &hover {
+                background-color: #a970ff;
+                transform: scale(1.05); 
+            }
+
+            :active {
+                background-color: #8c3de3; 
+                transform: scale(0.98); 
+            }
+
+            :focus {
+                outline: none; 
+                box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5); 
+            }
         }
 
         #buy-now {
@@ -309,6 +341,19 @@ export default {
 
     h1 {
         color: white;
+    }
+
+    #chill-header {
+        color: white;
+        text-align: center;
+
+        margin: 40px 0px;
+    }
+
+    #chill-guy {
+        border-radius: 5px;
+        margin: 0 auto;
+        display: block;
     }
 
     .reviews {
