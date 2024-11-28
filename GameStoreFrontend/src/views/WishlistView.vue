@@ -1,21 +1,39 @@
 <template>
     <div class="wishlist">
-        <h1 class="title">My Wishlist</h1>
-        <hr class="below-title"> 
-        <div class="wishlist-items">
-            <div v-for="(game, index) in games" :key="index" class="wishlist-item">
-                <img :src="game.image" alt="Game Image" class="game-image" />
-                <div class="game-details">
-                    <h2 class="game-title">{{ game.title }}</h2>
-                    <p class="game-description">{{ game.description }}</p>
-                </div>
-                <p class="game-description">{{ game.price }}</p>
-                <div class="game-actions">
-                    <button class="action-button">Add to Cart</button>
-                    <button class="action-button">Remove from Wishlist</button>
-                </div>
-            </div>
+      <div class="wishlist-page-view">
+
+        <div>
+          <h1 class="title">My Wishlist</h1>
         </div>
+        
+        <hr class="below-title"> 
+
+        <div>
+          <button id="clearBtn"> Clear Wishlist</button>
+        </div>
+
+        <div class="wishlist-items">
+          
+          <div v-for="(game, index) in games" :key="index" class="wishlist-item">
+                
+            <img :src="game.image" alt="Game Image" class="game-image" />
+                
+            <div class="game-details">
+              <h2 class="game-title">{{ game.title }}</h2>
+              <p class="game-description">{{ game.description }}</p>
+            </div>
+                
+            <p class="game-description">{{ game.price }}</p>
+            <div class="game-actions">
+              <button class="action-button">Add to Cart</button>
+              <button class="action-button">Remove from Wishlist</button>
+            </div>
+
+          </div>
+
+        </div>
+      
+      </div>
     </div>
 </template>
 
@@ -24,6 +42,12 @@
     import fortnite from '../assets/fortnite.jpg';
     import overwatch from '../assets/overwatch.jpeg';
     import gta from '../assets/GTA.png';
+
+    import axios from 'axios';
+
+    const axiosClient = axios.create({
+        baseURL: 'http://localhost:8080'
+    });
   
 export default {
     name: 'WishlistView',
@@ -47,41 +71,68 @@ export default {
           },
             ]
         }
+    },
 
-    }
+    async created() {
+       try {
+            // Fetch the games from logged in user's wishlist (if they are a customer)
+            const loggedInUsername = 'defaultCustomer'; // need a way to somehow extract the username of the currently logged in user
+            const [gameResponse] = await Promise.all([
+                axiosClient.get('/customers/${loggedInUsername}/wishlist') 
+            ]);
+
+            console.log(gameResponse.data); 
+
+            this.games = gameResponse.data.games;
+
+       } catch (error) {
+            console.error('Error fetching data:', error);
+       }
+    },
+    
 }
 </script>
 
 <style scoped>
 .wishlist {
-  margin: 20px;
+  margin-top: 50px;
   background-color: #1e1e1e;
-  border-radius: 1%;
+  margin-right: 150px;
+  margin-left: 150px;
+  border-radius: 2%;
   color: white;
+}
+
+.wishlist-page-view {
+  display: flex;
+  flex-direction: column;
+  margin-top: 100px; 
+  
 }
 
 .title {
   text-align: left;
-  padding: 2%;
-  font-weight: bold;
+  color: white;
+  font-size: 30px;
+  height: 50px;
+  width: 100%;
+  margin: 2%;
+  height: 20px;
 }
 
 .below-title {
-    height: 2px;
-    border: none;
-    border-radius: 6px;
-    background: linear-gradient(
-    90deg,
-    rgba(13, 8, 96, 1) 0%,
-    rgba(9, 9, 121, 1) 21%,
-    rgba(6, 84, 170, 1) 51%,
-    rgba(0, 255, 113, 1) 100%
-  );
+    border: 0;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, purple, #ccc);
+    margin-top: 10px;
+    margin-left: 2%;
+    margin-right: 2%;
 }
 
 .wishlist-items {
-  margin-top: 1%;
-  padding: 1%;
+  padding: 0%;
+  margin: 2%;
 }
 
 .game-details {
@@ -136,5 +187,37 @@ export default {
 
 .action-button:hover {
   background-color: #0056b3; /* Darker blue */
+}
+
+#clearBtn {
+    background-color: #9351f7;
+    color: #ffffff; 
+    border: none;
+    border-radius: 8px; 
+    padding: 10px 20px; 
+    margin-left: 2%; 
+    margin-top: 1%;
+    cursor: pointer;
+    font-size: 16px; 
+    transition: background-color 0.3s ease, transform 0.2s ease; 
+    align-items: center;
+    justify-content: center;
+    min-width: 100px; 
+}
+
+/* Button States */
+#clearBtn:hover {
+    background-color: #a970ff;
+    transform: scale(1.05); 
+}
+
+#clearBtn:active {
+    background-color: #8c3de3; 
+    transform: scale(0.98); 
+}
+
+#clearBtn:focus {
+    outline: none; 
+    box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5); 
 }
 </style>
