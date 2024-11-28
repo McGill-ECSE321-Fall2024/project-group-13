@@ -1,22 +1,28 @@
 <template>
     <main id="game-page">
         <section class="header-container">
-                <h1 id="title">Sid Meier's Civilization VI</h1>
+                <h1 id="title">{{ game.title }}</h1>
         </section>
     
         <section class="game-header">
             <div class="game-overview">
-                <img src="../assets/civ6.jpg" alt="Civilization VI" width="480" height="270">
+                <img
+                    :src="game.img"
+                    :alt="game.title"
+                    width="480"
+                    height="270"
+                    @error="handleImageError"
+                />
 
                 <div id="game-info">
-                    <p id="descirption">
-                        Civilization VI offers new ways to interact with your world, expand your empire across the map, advance your culture, and compete against history’s greatest leaders to build a civilization that will stand the test of time. Play as one of 20 historical leaders including Roosevelt (America) and Victoria (England).
+                    <p id="description">
+                        {{ game.description }}
                     </p>
                     <div class="rating-category">
-                        <p id="game-rating">Audience Rating: 4/5</p>
-                        <p id="category">Game Category: Strategy</p>
-                        <p id="parental-rating">Parental Rating: 14+</p>
-                        <p id="stock">Current Stock: 10</p>
+                        <p id="game-rating">Audience Rating: {{ game.rating }}</p>
+                        <p id="category">Game Category: {{ game.categoryName }}</p>
+                        <p id="parental-rating">Parental Rating: {{ game.parentalRating }}</p>
+                        <p id="stock">Current Stock: {{ game.stock }}</p>
                     </div>
     
                 </div>
@@ -26,7 +32,7 @@
         <section class="game-actions">
             <div class="purchasing-options">
                 <div>
-                    <button id="buy-now">Add to cart</button><span id="price">10.49$ </span> <span id="promotion">-10%</span>
+                    <button id="buy-now">Add to cart</button><span id="price">{{ game.price }}</span> <span id="promotion">{{ game.promotion ? "-" + game.promotionPercentage + "%" : '' }}</span>
                 </div>
     
                 <div>
@@ -44,47 +50,23 @@
             <h1>Reviews</h1>
     
             <div class="reviews">
-                <div class="review">
-                    <div class="review-header">
-                        <p class="username">Mr. Fluffy</p>
-                        <div class="likes-container">
-                            <button class="like-button">Like</button>
-                            <p class="likes">Likes: 10</p>
-                        </div>
-                    </div>
-                    <p class="content">Great game, I love it!</p>
-                    <div class="review-footer">
-                        <p class="rating">Rating: 5/5</p>
-                        <p class="date">Date: 2021-10-10</p>
+                <div
+                class="review"
+                v-for="(review, index) in reviews"
+                :key="index"
+                >
+                <div class="review-header">
+                    <p class="username">{{ review.username }}</p>
+                    <div class="likes-container">
+                    <button class="like-button">Like</button>
+                    <p class="likes">Likes: {{ review.likes }}</p>
                     </div>
                 </div>
-                <div class="review">
-                    <div class="review-header">
-                        <p class="username">Anonymous</p>
-                        <div class="likes-container">
-                            <button class="like-button">Like</button>
-                            <p class="likes">Likes: 7</p>
-                        </div>
-                    </div>
-                    <p class="content">It's a good game, but it's not for everyone.</p>
-                    <div class="review-footer">
-                        <p class="rating">Rating: 3/5</p>
-                        <p class="date">Date: 2021-10-09</p>
-                    </div>
+                <p class="content">{{ review.content }}</p>
+                <div class="review-footer">
+                    <p class="rating">Rating: {{ review.rating }}/5</p>
+                    <p class="date">Date: {{ formatDate(review.date) }}</p>
                 </div>
-                <div class="review">
-                    <div class="review-header">
-                        <p class="username">Gamer123</p>
-                        <div class="likes-container">
-                            <button class="like-button">Like</button>
-                            <p class="likes">Likes: 5</p>
-                        </div>
-                    </div>
-                    <p class="content">It's a great game, but it's not for everyone.</p>
-                    <div class="review-footer">
-                        <p class="rating">Rating: 4/5</p>
-                        <p class="date">Date: 2021-10-08</p>
-                    </div>
                 </div>
             </div>
         </section>
@@ -96,46 +78,47 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-	baseURL: "http://localhost:8080"
+  baseURL: "http://localhost:8080",
 });
 
 export default {
-    name: 'GameView',
+  name: 'GameView',
+  data() {
+    return {
+      game: null,
+      reviews: [],
+      error: null,
+    };
+  },
+  created() {
+    this.fetchGameDetails(this.$route.params.gameID);
+  },
+  methods: {
+    async fetchGameDetails(gameID) {
+      try {
+        const [gameResponse, reviewListResponse] = await Promise.all([
+          axiosClient.get(`/games/${gameID}`, {
+            params: { loggedInUsername: 'owner' },
+          }),
+          axiosClient.get(`/games/${gameID}/reviews`),
+        ]);
 
-    data() {
-        return {
-            game: null,
-            reviews: []
-        }
+        this.game = gameResponse.data;
+        this.reviews = reviewListResponse.data.reviews || [];
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        this.error = 'Failed to load game details.';
+      }
     },
-
-    created() {
-        this.fetchGameDetails(this.$route.params.gameID);
+    handleImageError(event) {
+      event.target.src = '../assets/placeholder.jpg';
     },
-
-    methods: {
-        async fetchGameDetails(gameID) {
-            try {
-                // Fetch the games and the categories
-                const [gameResponse, reviewListResponse] = await Promise.all([
-                    axiosClient.get(`/games/${gameID}`, { params: { loggedInUsername: 'owner' } }), // replace this when sessions works
-                    axiosClient.get(`/games/${gameID}/reviews`)
-                ]);
-
-                console.log(gameResponse.data, reviewListResponse.data); 
-
-                this.game = gameResponse.data;
-                this.reviews = reviewListResponse.data;
-
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }
-    }
-
-
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+  },
 };
-
 </script>
 
 <style scoped>
