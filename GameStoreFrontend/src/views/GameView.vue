@@ -157,17 +157,13 @@ export default {
     },
     async fetchUserDetails() {
       try {
-        this.permissionLevel = 3;
-
-        axiosClient
-          .get("/users/owner", {
-            params: { loggedInUsername: "owner" },
-          })
-          .then((response) => {
-            this.permissionLevel = response.data.permissionLevel;
-          });
-        
+        this.permissionLevel = sessionStorage.getItem("permissionLevel");
+        this.username = sessionStorage.getItem("loggedInUsername"); 
+ 
       } catch (error) {
+        this.permissionLevel = 0;
+        this.username = "guest";
+
         console.error("Error fetching data:", error);
         this.error = "Failed to load permission level.";
       }
@@ -299,128 +295,137 @@ export default {
 }
 
 .game-actions {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  margin-top: 20px;
-
-  button {
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .action-options {
     display: flex;
     flex-direction: row;
-
-    gap: 20px;
+    justify-content: space-between;
+    margin-top: 20px;
 
     button {
-      background-color: #619bda;
-      color: white;
-
-      /* Button States */
-
-      &:hover {
-        background-color: #a970ff;
-        padding: 13px 12px 11px;
-      }
-
-      &:active {
-        background-color: #8c3de3;
-        padding: 11px 10px 12px;
-      }
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: background-color 0.2s, transform 0.1s;
     }
 
-    #buy-now:hover + #price {
-      padding: 14px 12px 12px;
-    }
+    .action-options {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
 
-    #buy-now:active + #price {
-      padding: 12px 10px 13px;
-    }
-
-    .log-in-buttons {
-        background-color: #51994f;
-
-        &:hover {
-          background-color: #7fcb8a;
-          padding: 13px 12px 11px;
+        button {
+            background-color: #619bda;
+            color: white;
         }
 
-        &:active {
-          background-color: #51994f;
-          padding: 11px 10px 12px;
+        /* Hover and Active States */
+        button:hover {
+            background-color: #a970ff;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            background-color: #8c3de3;
+            transform: scale(0.95);
+        }
+
+        /* Specific Button Styles */
+        .log-in-buttons {
+            background-color: #51994f;
+        }
+
+        .log-in-buttons:hover {
+            background-color: #7fcb8a;
+            transform: scale(1.05);
+        }
+
+        .log-in-buttons:active {
+            background-color: #51994f;
+            transform: scale(0.95);
+        }
+
+        .archive-request-buttons {
+            background-color: #1c50eb;
+        }
+
+        .archive-request-buttons:hover {
+            background-color: #37a8ff;
+            transform: scale(1.05);
+        }
+
+        .archive-request-buttons:active {
+            background-color: #37a8ff;
+            transform: scale(0.95);
+        }
+
+        .archive-buttons {
+            background-color: #ff0000;
+        }
+
+        .archive-buttons:hover {
+            background-color: #ff4d4d;
+            transform: scale(1.05);
+        }
+
+        .archive-buttons:active {
+            background-color: #ff0000;
+            transform: scale(0.95);
+        }
+
+        /* Specific Styles for #buy-now and #price */
+        #buy-now {
+            border-radius: 5px 0 0 5px;
+            background-color: #7347ff;
+            color: white;
+        }
+
+        #buy-now:hover {
+            background-color: #a970ff;
+            transform: scale(1.05);
+        }
+
+        #buy-now:active {
+            background-color: #8c3de3;
+        }
+
+        #price {
+            color: white;
+            padding: 7px 10px;
+            border-radius: 0 5px 5px 0;
+            background-color: #997aff;
+            display: inline-block;
+            box-sizing: border-box;
+            transition: transform 0.1s;
+        }
+
+        /* Scale #price along with #buy-now */
+        #buy-now:hover + #price {
+            transform: scale(1.05);
+        }
+
+        #promotion {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #5ba022;
+        }
+
+        #add-wishlist {
+            background-color: #7347ff;
+            color: white;
         }
     }
 
-    .archive-request-buttons {
-        background-color: #1c50eb;
-
-        &:hover {
-          background-color: #37a8ff;
-          padding: 13px 12px 11px;
-        }
-
-        &:active {
-          background-color: #37a8ff;
-          padding: 11px 10px 12px;
-        }
+    #view-wishlist {
+        background-color: #92c3e4;
+        color: white;
     }
-
-    .archive-buttons {
-        background-color: #ff0000;
-
-        &:hover {
-          background-color: #ff4d4d;
-          padding: 13px 12px 11px;
-        }
-
-        &:active {
-          background-color: #ff0000;
-          padding: 11px 10px 12px;
-        }
-    }
-
-    #buy-now {
-      border-radius: 5px 0 0 5px;
-      border: 0px;
-      background-color: #7347ff;
-      color: white;
-    }
-
-    #price {
-      color: white;
-      padding: 11px 10px 11px;
-      border-radius: 0px 5px 5px 0px;
-      border-bottom: 1px solid #7347ff;
-      background-color: #997aff;
-    }
-
-    #promotion {
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #5ba022;
-    }
-
-    #add-wishlist {
-      background-color: #7347ff;
-      color: white;
-    }
-  }
-
-  #view-wishlist {
-    background-color: #92c3e4;
-    color: white;
-  }
 }
+
 
 .review-section {
   font-size: 1.3rem;
