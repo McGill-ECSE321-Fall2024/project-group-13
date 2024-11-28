@@ -1,111 +1,223 @@
-import axios from 'axios';
 <template>
-  <div id="dashboard">
-    <!-- Games Section -->
-    <section class="box">
-      <h2>Games</h2>
-      <div class="controls">
-        <button @click="addGame">Add Game</button>
-        <input type="text" placeholder="Filter games..." v-model="gameFilter" />
+  <div class="dashboard">
+    <div class="dashboardFlex">
+      <!-- Title -->
+      <div class="titleWrapper">
+        <h1>Owner Dashboard</h1>
       </div>
-      <ul class="list">
-        <li v-for="game in filteredGames" :key="game.id">
-          <div v-if="!game.isNew">
-            {{ game.name }}
-            <button @click="deleteGame(game.id)">Delete</button>
-          </div>
-          <div v-else>
-            <input type="text" v-model="game.tempName" placeholder="Enter game name" />
-            <button @click="saveGame(game.id)">Save</button>
-            <button @click="cancelGame(game.id)">Cancel</button>
-          </div>
-        </li>
-      </ul>
-    </section>
 
-    <!-- Promotions Section -->
-    <section class="box">
-      <h2>Promotions</h2>
-      <div class="controls">
-        <button @click="addPromotion">Add Promotion</button>
-      </div>
-      <ul class="list">
-        <li v-for="promotion in promotions" :key="promotion.id">
-          <div v-if="!promotion.isNew">
-            {{ promotion.name }}
-          </div>
-          <div v-else>
-            <input type="text" v-model="promotion.tempName" placeholder="Enter promotion name" />
-            <button @click="savePromotion(promotion.id)">Save</button>
-            <button @click="cancelPromotion(promotion.id)">Cancel</button>
-          </div>
-        </li>
-      </ul>
-    </section>
+      <!-- Horizontal Bar -->
+      <hr style="margin-bottom: 20px;" />
 
-    <!-- Categories Section -->
-    <section class="box">
-      <h2>Categories</h2>
-      <div class="controls">
-        <button @click="addCategory">Add Category</button>
-      </div>
-      <ul class="list">
-        <!-- Iterate over categories -->
-        <li v-for="(category, index) in categories" :key="index">
-          <!-- Display existing category -->
-          <div v-if="!category.isNew">
-            <strong>{{ category.name }}</strong>: {{ category.description }}
-            <button @click="deleteCategory(index)">Delete</button>
+      <!-- Section Grid -->
+      <div class="sectionGrid">
+        <!-- Games Section -->
+        <section class="box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 style="margin: 0;">Games</h2>
+            <button class="action__btn" @click="addGame">Add Game</button>
           </div>
-          <!-- Add or edit a category -->
-          <div v-else>
-            <input
-              type="text"
-              v-model="category.tempName"
-              placeholder="Enter category name"
-            />
-            <input
-              type="text"
-              v-model="category.tempDescription"
-              placeholder="Enter category description"
-            />
-            <button @click="saveCategory(index)">Save</button>
-            <button @click="cancelCategory(index)">Cancel</button>
+          <div class="controls">
+            <input type="text" placeholder="Filter games..." v-model="gameFilter" />
           </div>
-        </li>
-      </ul>
-    </section>
+          <ul class="list" style="list-style: none; padding: 0; margin: 0;">
+            <li v-for="game in games" :key="game.id" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 5px 0;">
+              <!-- Game Details -->
+              <div style="flex: 1; text-align: left;">
+                <strong>{{ game.title }}</strong><br />
+                <span>Description: {{ game.description }}</span><br />
+                <span>Price: ${{ game.price.toFixed(2) }}</span><br />
+                <span>Stock: {{ game.stock }}</span><br />
+                <span>Parental Rating: {{ game.parentalRating }}</span><br />
+                <span>Status: {{ game.status }}</span><br />
+                <span>Category ID: {{ game.categoryId }}</span><br />
+                <img :src="game.img" alt="Game Image" style="max-width: 150px; margin-top: 5px;" />
+              </div>
+              <!-- Delete Button -->
+              <button class="action__btn" @click="deleteGame(game.id)" style="margin-left: 10px;">Delete</button>
+            </li>
+          </ul>
+        </section>
 
-    <!-- Employees Section -->
-    <section class="box">
-      <h2>Employees</h2>
-      <div class="controls">
-        <button @click="addEmployee">Add Employee</button>
+
+        <!-- Promotions Section -->
+        <section class="box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 style="margin: 0;">Promotions</h2>
+            <button class="action__btn" @click="toggleAddPromotion">Add Promotion</button>
+          </div>
+
+          <!-- Conditional Fields for Adding Promotion -->
+          <div v-if="isAddingPromotion" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <div style="margin-bottom: 10px;">
+              <label for="game-select">Select Game:</label>
+              <select v-model="newPromotion.gameID" id="game-select">
+                <option v-for="game in games" :value="game.id" :key="game.id">
+                  {{ game.title }}
+                </option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="title">Title:</label>
+              <input v-model="newPromotion.title" id="title" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="description">Description:</label>
+              <textarea v-model="newPromotion.description" id="description"></textarea>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="percentage">Percentage (%):</label>
+              <input v-model="newPromotion.percentage" id="percentage" type="number" min="1" max="100" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="start-date">Start Date:</label>
+              <input v-model="newPromotion.startDate" id="start-date" type="date" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="end-date">End Date:</label>
+              <input v-model="newPromotion.endDate" id="end-date" type="date" />
+            </div>
+
+            <button class="action__btn" @click="savePromotion">Save</button>
+          </div>
+
+          <!-- List of Promotions -->
+          <ul class="list" style="list-style: none; padding: 0; margin: 0;">
+            <li
+              v-for="promotion in promotions"
+              :key="promotion.id"
+              style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 5px 0;"
+            >
+              <div style="flex: 1; text-align: left;">
+                <strong>{{ promotion.title }}</strong><br />
+                <span>Description: {{ promotion.description }}</span><br />
+                <span>Percentage: {{ promotion.percentage }}%</span><br />
+                <span>Start Date: {{ promotion.startDate }}</span><br />
+                <span>End Date: {{ promotion.endDate }}</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+
+        <!-- Categories Section -->
+        <section class="box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 style="margin: 0;">Categories</h2>
+            <button class="action__btn" @click="toggleAddCategory">Add Category</button>
+          </div>
+
+          <!-- Conditional Fields for Adding Category -->
+          <div v-if="isAddingCategory" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <div style="margin-bottom: 10px;">
+              <label for="category-name">Category Name:</label>
+              <input v-model="newCategory.name" id="category-name" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="category-description">Description:</label>
+              <textarea v-model="newCategory.description" id="category-description"></textarea>
+            </div>
+
+            <button class="action__btn" @click="saveCategory">Save</button>
+          </div>
+
+          <!-- List of Categories -->
+          <ul class="list" style="list-style: none; padding: 0; margin: 0;">
+            <li
+              v-for="(category, index) in categories"
+              :key="index"
+              style="display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0;"
+            >
+              <!-- Left-aligned name and description -->
+              <div style="flex: 1; text-align: left;">
+                <strong>{{ category.name }}</strong>: {{ category.description }}
+              </div>
+            </li>
+          </ul>
+        </section>
+
+
+
+
+        <!-- Employees Section -->
+        <section class="box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 style="margin: 0;">Employees</h2>
+            <button class="action__btn" @click="toggleAddEmployee">Add Employee</button>
+          </div>
+
+          <!-- Conditional Fields for Adding Employee -->
+          <div v-if="isAddingEmployee" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <div style="margin-bottom: 10px;">
+              <label for="username">Username:</label>
+              <input v-model="newEmployee.username" id="username" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="name">Name:</label>
+              <input v-model="newEmployee.name" id="name" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="email">Email:</label>
+              <input v-model="newEmployee.email" id="email" type="email" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="password">Password:</label>
+              <input v-model="newEmployee.password" id="password" type="password" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="phone-number">Phone Number:</label>
+              <input v-model="newEmployee.phoneNumber" id="phone-number" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="is-active">Active:</label>
+              <input v-model="newEmployee.isActive" id="is-active" type="checkbox" />
+            </div>
+
+            <button class="action__btn" @click="saveEmployee">Save</button>
+          </div>
+
+          <!-- List of Employees -->
+          <ul class="list" style="list-style: none; padding: 0; margin: 0;">
+            <li
+              v-for="employee in activeEmployees"
+              :key="employee.username"
+              style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 5px 0;"
+            >
+              <!-- Employee Details -->
+              <div style="flex: 1; text-align: left;">
+                <strong>Name:</strong> {{ employee.name }}<br />
+                <strong>Username:</strong> {{ employee.username }}<br />
+                <strong>Email:</strong> {{ employee.email }}<br />
+                <strong>Phone:</strong> {{ employee.phoneNumber }}<br />
+                <strong>Permission Level:</strong> {{ employee.permissionLevel }}<br />
+                <strong>Status:</strong> {{ employee.isActive ? 'Active' : 'Inactive' }}
+              </div>
+              <!-- Delete Button -->
+              <button class="action__btn" @click="deleteEmployee(employee.username)" style="margin-left: 10px;">Delete</button>
+            </li>
+          </ul>
+        </section>
       </div>
-      <ul class="list">
-        <li v-for="employee in employees" :key="employee.id">
-          <div v-if="!employee.isNew">
-            {{ employee.name }}
-            <button @click="deleteEmployee(employee.id)">Delete</button>
-          </div>
-          <div v-else>
-            <input type="text" v-model="employee.tempName" placeholder="Enter employee name" />
-            <button @click="saveEmployee(employee.id)">Save</button>
-            <button @click="cancelEmployee(employee.id)">Cancel</button>
-          </div>
-        </li>
-      </ul>
-    </section>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
+import axios from "axios";
 const axiosClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: "http://localhost:8080",
 });
-
 export default {
   data() {
     return {
@@ -114,132 +226,468 @@ export default {
       categories: [],
       employees: [],
       gameFilter: "",
+      isAddingPromotion: false, // Tracks whether the "Add Promotion" form is visible
+      newPromotion: {
+        gameID: null,
+        title: "",
+        description: "",
+        percentage: null,
+        startDate: "",
+        endDate: "",
+      },
+      isAddingEmployee: false, // Tracks whether the "Add Employee" form is visible
+      newEmployee: {
+        username: "",
+        name: "",
+        email: "",
+        password: "",
+        phoneNumber: "",
+        permissionLevel: 1, // Default permission level
+        isActive: true, // Default status is active
+      },
+      isAddingCategory: false, // Tracks whether the "Add Category" form is visible
+      newCategory: {
+        name: "",
+        description: "",
+      },
     };
   },
   computed: {
-    filteredGames() {
-      return this.games.filter((game) =>
-        game.name && game.name.toLowerCase().includes(this.gameFilter.toLowerCase())
-      );
+    activeEmployees() {
+      return this.employees.filter((employee) => employee.isActive);
     },
   },
   mounted() {
     this.fetchGames();
     this.fetchCategories();
+    this.fetchPromotions();
+    this.fetchEmployees();
   },
   methods: {
     async fetchGames() {
       try {
-        const response = await axios.get('/games', {
-          params: { loggedInUsername: 'owner' },
+        const response = await axiosClient.get("/games", {
+          params: { loggedInUsername: "owner" },
         });
-        this.games = response.data.games;
+        console.log("Games response:", response.data.games); // Debugging
+        this.games = response.data.games.map((game) => ({
+          id: game.gameID,
+          title: game.title,
+          description: game.description,
+          img: game.img,
+          stock: game.stock,
+          price: game.price,
+          parentalRating: game.parentalRating,
+          status: game.status,
+          categoryId: game.categoryId,
+        }));
       } catch (error) {
-        console.error('Error fetching games:', error);
+        console.error("Error fetching games:", error);
       }
     },
     async fetchCategories() {
       try {
-        // Fetch categories from the backend
-        const categoriesResponse = await axiosClient.get('/categories', {
-          params: { loggedInUsername: 'owner' },
+        const categoriesResponse = await axiosClient.get("/categories", {
+          params: { loggedInUsername: "owner" },
         });
-
-        //console.log(categoriesResponse.data);
-        
-
-        // Map the response to the categories array
         this.categories = categoriesResponse.data.gameCategories.map((category) => ({
+          id: category.categoryID,
           name: category.name,
           description: category.description,
-          isNew: false, // Add a flag to track editable state
+          isNew: false,
         }));
-
-        console.log(this.categories);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
       }
     },
-    async addGame() {
-      const newGame = {
-        tempName: "",
-        isNew: true,
-      };
-      this.games.push(newGame);
-    },
-    async saveGame(id) {
-      const game = this.games.find((game) => game.id === id || game.isNew);
-      if (game && game.tempName.trim()) {
-        try {
-          if (game.isNew) {
-            const response = await axios.post('/games',
-              {
-                title: game.tempName,
-              },
-              { params: { loggedInUsername: 'owner' } }
-            );
-            Object.assign(game, response.data);
-            game.isNew = false;
-          } else {
-            await axios.put(`/games/${id}`,
-              {
-                title: game.tempName,
-              },
-              { params: { loggedInUsername: 'owner' } }
-            );
-            game.name = game.tempName;
-          }
-          game.tempName = "";
-        } catch (error) {
-          console.error('Error saving game:', error);
-        }
-      } else {
-        alert("Game name cannot be empty");
-      }
-    },
-    async deleteGame(id) {
+    async fetchPromotions() {
       try {
-        await axios.delete(`/games/${id}`, {
-          params: { loggedInUsername: 'owner' },
+        const response = await axiosClient.get("/games/promotions", {
+          params: { loggedInUsername: "owner" },
         });
-        this.games = this.games.filter((game) => game.id !== id);
+
+        const currentDate = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD
+
+        // Filter and map promotions
+        this.promotions = response.data.promotions
+          .filter((promotion) => {
+            console.log("Comparing promotion end date:", promotion.endDate, "with current date:", currentDate); // Debugging
+            return promotion.endDate >= currentDate; // Compare as strings
+          })
+          .map((promotion) => ({
+            title: promotion.title,
+            description: promotion.description,
+            percentage: promotion.percentage,
+            startDate: promotion.startDate.split("T")[0], // Keep only the date
+            endDate: promotion.endDate.split("T")[0], // Keep only the date
+          }));
       } catch (error) {
-        console.error('Error deleting game:', error);
+        console.error("Error fetching promotions:", error);
       }
     },
-    async cancelGame(id) {
-      this.games = this.games.filter((game) => game.id !== id || game.isNew);
+    async fetchEmployees() {
+      try {
+        const response = await axiosClient.get("/employees", {
+          params: { loggedInUsername: "owner" },
+        });
+        this.employees = response.data.employees.map((employee) => ({
+          username: employee.username,
+          name: employee.name,
+          email: employee.email,
+          phoneNumber: employee.phoneNumber,
+          permissionLevel: employee.permissionLevel,
+          isActive: employee.isActive,
+        }));
+        console.log("Fetched Employees:", this.employees); // Debugging
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    },
+    toggleAddPromotion() {
+      this.isAddingPromotion = !this.isAddingPromotion;
+    },
+    async savePromotion() {
+      console.log("Game ID:", this.newPromotion.gameID);
+      console.log("Title:", this.newPromotion.title);
+      console.log("Description:", this.newPromotion.description);
+      console.log("Percentage:", this.newPromotion.percentage);
+      console.log("Start Date:", this.newPromotion.startDate);
+      console.log("End Date:", this.newPromotion.endDate);
+      if (
+        !this.newPromotion.gameID ||
+        !this.newPromotion.title ||
+        !this.newPromotion.description ||
+        !this.newPromotion.percentage ||
+        !this.newPromotion.startDate ||
+        !this.newPromotion.endDate
+      ) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        // Step 1: Create Promotion
+        const createResponse = await axiosClient.post(
+          "/games/promotions",
+          {
+            title: this.newPromotion.title,
+            description: this.newPromotion.description,
+            percentage: this.newPromotion.percentage,
+            startDate: this.newPromotion.startDate,
+            endDate: this.newPromotion.endDate,
+          },
+          {
+            params: { loggedInUsername: "owner" },
+          }
+        );
+        console.log("Create Promotion Response:", createResponse.data);
+        const newPromotionID = createResponse.data.promotionID;
+
+        // Step 2: Attach Promotion to Game
+        const attachResponse = await axiosClient.post(
+          `/games/${this.newPromotion.gameID}/promotions/${newPromotionID}`,
+          null,
+          {
+            params: { loggedInUsername: "owner" },
+          }
+        );
+
+        console.log("Attach Promotion Response:", attachResponse.data);
+
+        // Add to promotions list
+        this.promotions.push({
+          ...attachResponse.data,
+          startDate: attachResponse.data.startDate.split("T")[0],
+          endDate: attachResponse.data.endDate.split("T")[0],
+        });
+
+        // Reset and hide form
+        this.resetNewPromotion();
+        this.isAddingPromotion = false;
+
+        alert("Promotion added successfully!");
+      } catch (error) {
+        console.error("Error adding promotion:", error);
+        alert(
+          error.response?.data?.message ||
+            "An error occurred while adding the promotion."
+        );
+      }
+    },
+    toggleAddEmployee() {
+      this.isAddingEmployee = !this.isAddingEmployee;
+    },
+    async saveEmployee() {
+      console.log("New Employee Details:", this.newEmployee);
+
+      if (
+        !this.newEmployee.username ||
+        !this.newEmployee.name ||
+        !this.newEmployee.email ||
+        !this.newEmployee.password ||
+        !this.newEmployee.phoneNumber
+      ) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        const response = await axiosClient.put(
+          `/employees/${this.newEmployee.username}`,
+          {
+            name: this.newEmployee.name,
+            email: this.newEmployee.email,
+            password: this.newEmployee.password,
+            phoneNumber: this.newEmployee.phoneNumber,
+            isActive: this.newEmployee.isActive,
+          },
+          {
+            params: {
+              loggedInUsername: "owner", // Adjust according to logged-in user
+              isUpdate: false, // This is for creating a new employee
+            },
+          }
+        );
+
+        console.log("Create Employee Response:", response.data);
+
+        // Add the new employee to the active list
+        this.employees.push({
+          username: response.data.username,
+          name: response.data.name,
+          email: response.data.email,
+          phoneNumber: response.data.phoneNumber,
+          permissionLevel: response.data.permissionLevel,
+          isActive: response.data.isActive,
+        });
+
+        // Reset and hide form
+        this.resetNewEmployee();
+        this.isAddingEmployee = false;
+
+        alert("Employee added successfully!");
+      } catch (error) {
+        console.error("Error adding employee:", error);
+        alert(
+          error.response?.data?.message ||
+            "An error occurred while adding the employee."
+        );
+      }
+    },
+    toggleAddCategory() {
+      this.isAddingCategory = !this.isAddingCategory;
+    },
+    async saveCategory() {
+      console.log("New Category Details:", this.newCategory);
+
+      if (!this.newCategory.name || !this.newCategory.description) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        const response = await axiosClient.post(
+          "/categories",
+          {
+            name: this.newCategory.name,
+            description: this.newCategory.description,
+          },
+          {
+            params: {
+              loggedInUsername: "owner", // Adjust based on the logged-in user
+            },
+          }
+        );
+
+        console.log("Create Category Response:", response.data);
+
+        // Add the new category to the list
+        this.categories.push({
+          name: response.data.name,
+          description: response.data.description,
+        });
+
+        // Reset and hide form
+        this.resetNewCategory();
+        this.isAddingCategory = false;
+
+        alert("Category added successfully!");
+      } catch (error) {
+        console.error("Error adding category:", error);
+        alert(
+          error.response?.data?.message ||
+            "An error occurred while adding the category."
+        );
+      }
+    },
+    resetNewCategory() {
+      this.newCategory = {
+        name: "",
+        description: "",
+      };
+    },
+    resetNewEmployee() {
+      this.newEmployee = {
+        username: "",
+        name: "",
+        email: "",
+        password: "",
+        phoneNumber: "",
+        permissionLevel: 1,
+        isActive: true,
+      };
+    },
+    resetNewPromotion() {
+      this.newPromotion = {
+        gameID: null,
+        title: "",
+        description: "",
+        percentage: null,
+        startDate: "",
+        endDate: "",
+      };
+    },
+    deleteGame(id) {
+      axiosClient
+        .delete(`/games/${id}`, {
+          params: { loggedInUsername: "owner" },
+        })
+        .then(() => {
+          this.games = this.games.filter((game) => game.id !== id);
+        });
+    },
+    deleteEmployee(username) {
+      axiosClient
+        .delete(`/employees/${username}`, {
+          params: { loggedInUsername: "owner" },
+        })
+        .then(() => {
+          this.employees = this.employees.filter((employee) => employee.username !== username);
+        })
+        .catch((error) => {
+          console.error("Error deleting employee:", error);
+        });
     },
   },
 };
 </script>
 
-<style>
-#dashboard {
+<style scoped>
+.dashboard {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.dashboardFlex {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  margin: 5%;
+  margin-top: 100px;
+  margin-bottom: 30px;
+}
+
+.titleWrapper {
+  height: 50px;
+  width: 100%;
+  text-align: left;
+}
+
+.titleWrapper > h1 {
+  color: white;
+  font-size: 30px;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #333;
+  background-image: linear-gradient(to right, #ccc, purple, #ccc);
+  margin-top: 10px;
+}
+
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
+
 .box {
   border: 1px solid #ccc;
+  background-color: #1e1e1e;
+  border-radius: 10px;
   padding: 20px;
-  border-radius: 5px;
-  flex: 1 1 calc(50% - 40px);
+  color: white;
 }
+
 .controls {
   margin-bottom: 10px;
 }
+
 .list {
   max-height: 200px;
   overflow-y: auto;
-  list-style: none;
-  padding: 0;
 }
+
+.list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+}
+
+.list::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}
+
 .list li {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  padding: 5px;
-  border-bottom: 1px solid #eee;
+  display: flex; /* Align items in a row */
+  justify-content: space-between; /* Space between text and button */
+  align-items: center; /* Vertically center text and button */
+  padding: 8px 0; /* Add spacing between items */
 }
+
+.list li div {
+  flex-grow: 1; /* Allow text to take up available space */
+}
+
+.list button {
+  margin-left: 10px; /* Add spacing between button and text if needed */
+}
+
+.action__btn {
+  background-color: #9351f7;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin: 0 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action__btn:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.action__btn:active {
+  background-color: #8c3de3;
+  transform: scale(0.98);
+}
+
+.action__btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
+}
+
 </style>
