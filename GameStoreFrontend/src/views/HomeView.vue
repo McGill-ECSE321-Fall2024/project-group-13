@@ -253,7 +253,7 @@ export default {
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
-        height: 825px;
+        height: 725px;
         width: 100%;
     }  
 
