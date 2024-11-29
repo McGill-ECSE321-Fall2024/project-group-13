@@ -8,7 +8,9 @@ import {session} from './session.js';
     <header>
       <nav class="navbar">
         <div class="nav-container">
-          <RouterLink to="/" class="nav-logo">Logo</RouterLink>
+            <RouterLink to="/" class="nav-logo">
+            <img src="@/assets/navlogo3.png" alt="Logo" class="logo-image" />
+            </RouterLink>
           <div class="nav-links">
             <RouterLink to="/" class="nav-item">Home</RouterLink> 
             <RouterLink to="/browse" class="nav-item">Browse</RouterLink>
@@ -75,19 +77,21 @@ header {
   max-width: 1200px; 
   margin: 0 auto;
   padding: 0.5rem 1rem;
+  margin-left: 10%; 
 }
 
 .nav-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .nav-logo {
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  /* Move the logo further to the left */
+  margin-left: -85px;
 }
 
 .nav-links {
@@ -98,17 +102,28 @@ header {
 .nav-item {
   color: #fff;
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(147, 81, 247, 0.2);
+  transform: scale(1.05);
+}
+
+.nav-item:active {
+  background-color: rgba(147, 81, 247, 0.3);
+  transform: scale(0.98);
+}
+
+.nav-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
 
 .router-link-exact-active.nav-item {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(147, 81, 247, 0.3);
 }
 
 main {
@@ -118,23 +133,34 @@ main {
   width: 100%;
 }
 
+.logo-image {
+  height: 35px;
+  width: auto;
+  display: block;
+}
+
 button.nav-item {
-  all: unset; /* Reset button styles */
+  all: unset; 
   color: #fff;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
   cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button.nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(147, 81, 247, 0.2);
+  transform: scale(1.05);
+}
+
+button.nav-item:active {
+  background-color: rgba(147, 81, 247, 0.3);
+  transform: scale(0.98);
 }
 
 button.nav-item:focus {
   outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
-
-
 </style>
+
