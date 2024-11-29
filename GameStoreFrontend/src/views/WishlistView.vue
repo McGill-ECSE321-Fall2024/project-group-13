@@ -27,8 +27,8 @@
             </div>
                   
             <div class="game-actions">
-              <button class="action-button">Add to Cart</button>
-              <button @click="clearCartItem(game.gameID)" class="action-button">Remove from Wishlist</button>
+              <button class="individual-wishlist-item-button">Add to Cart</button>
+              <button @click="clearCartItem(game.gameID)" class="individual-wishlist-item-button">Remove from Wishlist</button>
             </div>
           </div>      
 
@@ -246,6 +246,34 @@ export default {
 
 .action-button:hover {
   background-color: #0056b3; /* Darker blue */
+}
+
+.individual-wishlist-item-button {
+  margin-bottom: 10px;
+  background-color: #9351f7;
+  color: #ffffff; 
+  border: none;
+  border-radius: 4px; 
+  padding: 8px 12px;   
+  cursor: pointer;   
+  transition: background-color 0.3s ease, transform 0.2s ease; 
+  align-items: center;
+  justify-content: center; 
+}
+
+.individual-wishlist-item-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+#individual-wishlist-item-button:active {
+    background-color: #8c3de3; 
+    transform: scale(0.98); 
+}
+
+#individual-wishlist-item-button:focus {
+    outline: none; 
+    box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5); 
 }
 
 #clearBtn {
