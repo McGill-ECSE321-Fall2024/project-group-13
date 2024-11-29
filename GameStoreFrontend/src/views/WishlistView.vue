@@ -7,13 +7,16 @@
         </div>
         
         <hr class="below-title"> 
-
+        
         <div>
-          <button id="clearBtn"> Clear Wishlist</button>
+          <button @click="clearCart" v-if="isACustomer" id="clearBtn"> Clear Wishlist</button>
         </div>
 
         <div class="wishlist-items">
           
+          <!-- div only appears if not a customer-->
+          <div v-if="!isACustomer" id="notACustomer"> Must be a logged in customer to view your own wishlist </div>
+
           <!-- will need to add games here-->
           <div v-for="(game, index) in wishlistItems" :key="index" class="wishlist-item">
             <img :src=resolveImagePath(game.img) alt="Game Image" class="game-image" />
@@ -25,7 +28,7 @@
                   
             <div class="game-actions">
               <button class="action-button">Add to Cart</button>
-              <button class="action-button">Remove from Wishlist</button>
+              <button @click="clearCartItem(game.gameID)" class="action-button">Remove from Wishlist</button>
             </div>
           </div>      
 
@@ -38,10 +41,6 @@
 
 <!-- will be removing these games once I begin adding functionality-->
 <script>
-    import fortnite from '../assets/fortnite.jpg';
-    import overwatch from '../assets/overwatch.jpeg';
-    import gta from '../assets/GTA.png';
-
     import axios from 'axios';
 
     const axiosClient = axios.create({
@@ -50,50 +49,55 @@
   
 export default {
     name: 'WishlistView',
-    // data() {
-    //     return {
-    //         games: [
-    //         {
-    //         image: fortnite,
-    //         title: 'Fortnite',
-    //         description: 'A battle royale game where you fight to be the last one standing.',
-    //       },
-    //       {
-    //         image: overwatch,
-    //         title: 'Overwatch',
-    //         description: 'A team-based multiplayer first-person shooter.',
-    //       },
-    //       {
-    //         image: gta,
-    //         title: 'Grand Theft Auto V',
-    //         description: 'An action-adventure game set in an open world.',
-    //       },
-    //         ]
-    //     }
-    // },
-
+    
     data() {
        return {
-         wishlistItems: []
-         //gameName: null,
-         //gameDescription: null,
-         //gamePicture: null,
+         wishlistItems: [],
          //errorMessage: null
+         isACustomer: false
        };
      },
 
     async created() {
-       try {
-            // Fetch the games from logged in user's wishlist (if they are a customer)
-            const loggedInUsername = 'defaultCustomer'; // need a way to somehow extract the username of the currently logged in user
-            const wishlistGamesResponse = await axiosClient.get('/customers/defaultCustomer/wishlist');
-            
-            console.log(wishlistGamesResponse.data); 
-            this.wishlistItems = wishlistGamesResponse.data.games
-
+      // Fetch the games from logged in user's wishlist (if they are a customer)
+      // FIX THIS ISSUE WITH GUEST
+      const username = sessionStorage.getItem("loggedInUsername") 
+      const permission = parseInt(sessionStorage.getItem("permissionLevel"))
+      console.log("loggedInUsername is now:" , username);
+      console.log("permissionLevel is now: ", permission);
+    
+      try {
+            if (permission === 1) {
+              const wishlistGamesResponse = await axiosClient.get('/customers/' + username + '/wishlist');
+              // if not a customer, display that you must a logged in customer
+              console.log(wishlistGamesResponse.data); 
+              this.wishlistItems = wishlistGamesResponse.data.games
+              this.isACustomer = true;
+            } else {
+              console.log("User must be a customer account");
+            }
        } catch (error) {
-            console.error('Error fetching data:', error);
+          console.error('Error fetching data:', error);
+          this.wishlistItems = [];
+
+          if (error.response) {
+            const status = error.response.status;
+            const message = error.response.data?.message || "An error occurred.";
+                    
+            // Display user-friendly messages based on status codes or backend message
+            if (status == 403) {
+              this.errorMessage = message; // Example: Invalid credentials
+              console.log(message);
+            } else {
+              this.errorMessage = "An unexpected error occurred.";
+            }
             this.wishlistItems = [];
+            } else {
+              // Network or unexpected error
+              console.error(error);
+              this.errorMessage = "Unable to connect to the server.";
+              this.wishlistItems = [];
+            }
        }
     },
 
@@ -106,13 +110,45 @@ export default {
           // Fail
           console.log("Error resolving image path: ", error);
           return '';
+        }
+      },
+
+      async clearCart() {
+        const username = sessionStorage.getItem("loggedInUsername") 
+        const permission = parseInt(sessionStorage.getItem("permissionLevel"))
+        console.log("loggedInUsername is now:" , username);
+        console.log("permissionLevel is now: ", permission);
+        try {
+          const wishlistGamesResponse = await axiosClient.delete('/customers/' + username + '/wishlist');
+          // if not a customer, display that you must a logged in customer
+          console.log("items are now deleted");  
+          this.wishlistItems = wishlistGamesResponse.data.games
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      },
+
+      async clearCartItem(gameID) {
+        const username = sessionStorage.getItem("loggedInUsername") 
+        const permission = parseInt(sessionStorage.getItem("permissionLevel"))
+        //const gameId 
+        console.log("loggedInUsername is now:" , username);
+        console.log("permissionLevel is now: ", permission);
+
+        try {
+          const wishlistGamesResponse = await axiosClient.delete('/customers/' + username + '/wishlist/' + gameID);
+          this.wishlistItems = this.wishlistItems.filter(wishlistItemToDelete => Number(wishlistItemToDelete.gameID) !== Number(gameID));
+          // if not a customer, display that you must a logged in customer
+          console.log("item is now deleted");  
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
       }
-    },
-  },
 
     // one for adding to cart
     // one for removing from wishlist
-    
+
+    }, 
 }
 </script>
 
@@ -242,5 +278,15 @@ export default {
 #clearBtn:focus {
     outline: none; 
     box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5); 
+}
+
+#notACustomer {
+  text-align: center;
+  color: white;
+  font-size: 30px;
+  height: 50px;
+  width: 100%;
+  margin: 1%;
+  height: 20px;
 }
 </style>
