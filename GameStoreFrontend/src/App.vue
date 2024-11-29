@@ -1,6 +1,25 @@
 <script setup>
-import { RouterLink, RouterView} from 'vue-router';
-import {session} from './session.js';
+import { RouterLink, RouterView } from 'vue-router';
+import { session } from './session.js';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+onMounted(() => {
+  // Initialize session storage if not set
+  if (!session.loggedInUsername) {
+    session.loggedInUsername = "guest";
+  }
+  if (!session.permissionLevel) {
+    session.permissionLevel = 0;
+  }
+});
+
+function handleLogout() {
+  session.logout();
+  router.push("/");
+}
 </script>
 
 <template>
@@ -8,17 +27,17 @@ import {session} from './session.js';
     <header>
       <nav class="navbar">
         <div class="nav-container">
-            <RouterLink to="/" class="nav-logo">
+          <RouterLink to="/" class="nav-logo">
             <img src="@/assets/navlogo3.png" alt="Logo" class="logo-image" />
-            </RouterLink>
+          </RouterLink>
           <div class="nav-links">
             <RouterLink to="/" class="nav-item">Home</RouterLink> 
             <RouterLink to="/browse" class="nav-item">Browse</RouterLink>
-            <RouterLink to="/cart" class="nav-item" v-if="session.permissionLevel==1">Cart</RouterLink>
-            <RouterLink to="/wishlist" class="nav-item" v-if="session.permissionLevel==1">Wishlist</RouterLink>
-            <RouterLink to="/owner-dashboard" class="nav-item" v-if="session.permissionLevel==3">Owner Dashboard</RouterLink>
-            <RouterLink to="/account" class="nav-item" v-if="session.permissionLevel!=0">Account</RouterLink>
-            <RouterLink to="/login" class="nav-item" v-if="session.permissionLevel==0">Login/Register</RouterLink>
+            <RouterLink to="/cart" class="nav-item" v-if="session.permissionLevel == 1">Cart</RouterLink>
+            <RouterLink to="/wishlist" class="nav-item" v-if="session.permissionLevel == 1">Wishlist</RouterLink>
+            <RouterLink to="/owner-dashboard" class="nav-item" v-if="session.permissionLevel == 3">Owner Dashboard</RouterLink>
+            <RouterLink to="/account" class="nav-item" v-if="session.permissionLevel != 0">Account</RouterLink>
+            <RouterLink to="/login" class="nav-item" v-if="session.permissionLevel == 0">Login/Register</RouterLink>
             <button class="nav-item" v-if="session.permissionLevel != 0" @click="handleLogout">Logout</button>
           </div>
         </div>
@@ -30,27 +49,6 @@ import {session} from './session.js';
     </main>
   </div>
 </template>
-
-<script>
-export default {
-  name: "App",
-  mounted() {
-    // Set default session storage variables if not already set
-    if (sessionStorage.getItem("loggedInUsername") == null) {
-      sessionStorage.setItem("loggedInUsername", "guest");
-    }
-    if (sessionStorage.getItem("permissionLevel") == null) {
-      sessionStorage.setItem("permissionLevel", 0);
-    }
-  },
-  methods: {
-    handleLogout() {
-      session.logout();
-      this.$router.push("/");
-    },
-  },
-};
-</script>
 
 <style scoped>
 * {
@@ -94,7 +92,6 @@ header {
 .nav-logo {
   display: flex;
   align-items: center;
-  /* Move the logo further to the left */
   margin-left: -85px;
 }
 
@@ -109,6 +106,7 @@ header {
   padding: 10px 15px;
   border-radius: 8px;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  background-color: transparent; 
 }
 
 .nav-item:hover {
@@ -128,6 +126,10 @@ header {
 
 .router-link-exact-active.nav-item {
   background-color: rgba(147, 81, 247, 0.3);
+}
+
+.router-link-active.nav-item {
+  background-color: transparent; 
 }
 
 main {
@@ -150,6 +152,7 @@ button.nav-item {
   padding: 10px 15px;
   border-radius: 8px;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  background-color: transparent; 
 }
 
 button.nav-item:hover {
@@ -167,4 +170,3 @@ button.nav-item:focus {
   box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
 </style>
-
