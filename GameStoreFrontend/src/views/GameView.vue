@@ -99,22 +99,22 @@
       <div class="reviews">
         <div class="review" v-for="(review, index) in reviews" :key="index">
           <div class="review-header">
-            <p class="username">{{ review.username }}</p>
+            <p class="username">{{ capitalizeFirstLetter(review.reviewerUsername) }}</p>
             <div class="likes-container">
-              <button class="like-button">Like</button>
+              <button class="like-button" v-if="this.permissionLevel == 1" @click="likeReview(review.reviewID)">Like</button>
               <p class="likes">Likes: {{ review.likes }}</p>
             </div>
           </div>
-          <p class="content">{{ review.content }}</p>
+          <p class="content">{{ review.description }}</p>
           <div class="review-footer">
-            <p class="rating">Rating: {{ review.rating }}/5</p>
+            <p class="rating">Rating: {{ review.score }}/5</p>
             <p class="date">Date: {{ formatDate(review.date) }}</p>
           </div>
         </div>
       </div>
 
       <!-- Add Review Section -->
-      <div v-if="!canReview">
+      <div v-if="canReview">
         <!-- Add Review Button -->
         <button class="add-review-button" @click="buttonWasPressed = true" v-if="!buttonWasPressed">Add a Review</button>
 
@@ -190,6 +190,9 @@ export default {
           axiosClient.get(`/games/${gameID}/reviews`),
         ]);
 
+        console.log('Game Response:', gameResponse.data);
+        console.log('Review List Response:', reviewListResponse.data);
+
         this.game = gameResponse.data;
         this.reviews = reviewListResponse.data.reviews || [];
       } catch (error) {
@@ -227,7 +230,7 @@ export default {
 
     async checkCanReview() {
       try {
-        if (this.psermiussionLevel !== 1) {
+        if (this.permissionLevel != 1) {
           console.log('Only customers can review.');
           this.canReview = false;
           return;
@@ -236,8 +239,8 @@ export default {
         console.log('Checking canReview for username:', this.username, 'and gameID:', this.gameID);
 
         const response = await axiosClient.get(`/users/${this.username}/${this.gameID}`, {});
-        console.log('Response data:', response.data);
 
+        console.log('Response data:', response.data);
         this.canReview = response.data;
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -266,9 +269,10 @@ export default {
         };
 
         console.log('Review Request:', reviewRequest);
-        console.log('Hi');
-        console.log('Bye');
+        console.log('Game ID:', this.gameID);
         console.log('Username:', this.username);
+
+        console.log('Submitting review...');
 
         // Send POST request to the API
         const response = await axiosClient.post(
@@ -285,8 +289,7 @@ export default {
         this.canReview = false;
 
         // Handle successful submission
-        console.log('Review submitted:', response.data.getStatusCode());
-        console.log('Answer:', response.data.getBody());
+        console.log('Review submitted:', response.data);
 
         // Reset form and hide it
         this.resetForm();
@@ -303,6 +306,10 @@ export default {
       this.buttonWasPressed = false;
       this.reviewText = '';
       this.reviewScore = '';
+    },
+
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
     handleImageError(event) {
@@ -355,6 +362,23 @@ export default {
           console.log('Response:', response.data);
       } catch (error) {
           console.error('Error archiving game:', error);
+      }
+    },
+    
+    async likeReview(reviewID) {
+      try {
+        const response = await axiosClient.post(`/games/${this.gameID}/reviews/${reviewID}/likes`,
+          null, // No request body is needed
+          {
+            params: {
+              loggedInUsername: this.username,
+            },
+          }
+        );
+        
+        console.log('Response:', response.data);
+      } catch (error) {
+        console.error('Error liking review:', error);
       }
     },
   },
