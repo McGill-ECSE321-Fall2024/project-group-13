@@ -4,7 +4,7 @@
       <h1 id="title">{{ game.title }}</h1>
     </section>
 
-    <section class="game-header">
+    <section class="game-header" v-if="game">
       <div class="game-overview">
         <img
           :src="`../src/assets/${game.img}`"
@@ -38,39 +38,40 @@
     <section class="game-actions" v-if="game">
       <div class="action-options" v-if="permissionLevel == 1">
         <div>
-          <button class="action-buttons" id="buy-now">Add to cart</button
-          ><span id="price">{{ game.price }}</span>
+          <button class="action-buttons" id="buy-now" @click="addToCart">Add to cart</button
+          ><span id="price">${{ game.price }}</span>
           <span id="promotion">{{
             game.promotion ? "-" + game.promotionPercentage + "%" : ""
           }}</span>
         </div>
 
         <div>
-          <button class="action-buttons" id="add-wishlist">
-            Add to your wishlist
+          <button class="action-buttons" id="add-wishlist" @click="addToWishlist">
+            Add to wishlist
           </button>
         </div>
       </div>
 
       <div class="action-options" v-if="permissionLevel == 0">
         <div>
-          <button class="log-in-buttons">Log in</button>
+          <RouterLink to="/login" class="log-in-buttons">Login</RouterLink>
         </div>
 
         <div>
-          <button class="log-in-buttons">Sign up</button>
+          <RouterLink id="register-button" to="/register" class="log-in-buttons">Register</RouterLink>
         </div>
+        
       </div>
 
       <div class="action-options" v-if="permissionLevel == 2">
         <div>
-          <button class="archive-request-buttons">Request to Archive</button>
+          <button class="archive-request-buttons" @click="archiveGame">Request to Archive</button>
         </div>
       </div>
 
       <div class="action-options" v-if="permissionLevel == 3">
         <div>
-          <button class="archive-buttons">Archive</button>
+          <button class="archive-buttons" @click="archiveGame">Archive</button>
         </div>
       </div>
       
@@ -111,6 +112,36 @@
           </div>
         </div>
       </div>
+
+      <!-- Add Review Section -->
+      <div v-if="!canReview">
+        <!-- Add Review Button -->
+        <button class="add-review-button" @click="buttonWasPressed = true" v-if="!buttonWasPressed">Add a Review</button>
+
+        <!-- Review Form -->
+        <div v-if="buttonWasPressed" class="review-form-container">
+          <form @submit.prevent="submitReview" class="review-form">
+
+            <div class="form-group">
+              <label for="reviewText">Review:</label>
+              <textarea id="reviewText" v-model="reviewText" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="reviewScore">Score:</label>
+              <select id="reviewScore" v-model.number="reviewScore" required>
+                <option disabled value="">Select a score</option>
+                <option v-for="score in scores" :key="score" :value="score">{{ score }}</option>
+              </select>
+            </div>
+
+            <div class="form-buttons">
+              <button type="submit" class="submit-review-button">Submit Review</button>
+              <button type="button" class="cancel-review-button" @click="cancelReview">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </section>
   </main>
 </template>
@@ -127,23 +158,34 @@ export default {
   data() {
     return {
       game: null,
+      gameID: null,
       reviews: [],
       error: null,
       permissionLevel: 0,
-      hasGame: false,
+
+      // Review Form section
+      reviewText: '',
+      reviewScore: '',
+      canReview: false,
+      buttonWasPressed: false,
+      scores: [1, 2, 3, 4, 5], // Possible scores for reviews
     };
   },
+
   created() {
-    this.fetchGameDetails(this.$route.params.gameID);
-    // this.fetchGameDetails(2352);
+    this.gameID = this.$route.params.gameID;
     this.fetchUserDetails();
+    this.fetchGameDetails(this.gameID);
+    this.checkCanReview();
+    console.log('Permission:', this.permissionLevel);
+    console.log('Can Review:', this.canReview);
   },
   methods: {
     async fetchGameDetails(gameID) {
       try {
         const [gameResponse, reviewListResponse] = await Promise.all([
           axiosClient.get(`/games/${gameID}`, {
-            params: { loggedInUsername: "owner" },
+            params: { loggedInUsername: this.username },
           }),
           axiosClient.get(`/games/${gameID}/reviews`),
         ]);
@@ -155,29 +197,165 @@ export default {
         this.error = "Failed to load game details.";
       }
     },
-    async fetchUserDetails() {
-      try {
-        this.permissionLevel = 3;
 
-        axiosClient
-          .get("/users/owner", {
-            params: { loggedInUsername: "owner" },
-          })
-          .then((response) => {
-            this.permissionLevel = response.data.permissionLevel;
-          });
+    fetchUserDetails() {
+      try {
+        this.username = sessionStorage.getItem("loggedInUsername");
+        if (this.username === null) {
+          this.username = "guest";
+        }
+
+        this.permissionLevel = sessionStorage.getItem("permissionLevel");
+        if (this.permissionLevel === null || this.username === "guest") {
+          this.permissionLevel = 0;
+        }
+
         
+
+        console.log('Username:', this.username);
+
+        // Now that username is set, call checkCanReview
+        this.checkCanReview();
       } catch (error) {
+        this.permissionLevel = 0;
+        this.username = "guest";
         console.error("Error fetching data:", error);
         this.error = "Failed to load permission level.";
       }
     },
+
+
+    async checkCanReview() {
+      try {
+        if (this.psermiussionLevel !== 1) {
+          console.log('Only customers can review.');
+          this.canReview = false;
+          return;
+        }
+        
+        console.log('Checking canReview for username:', this.username, 'and gameID:', this.gameID);
+
+        const response = await axiosClient.get(`/users/${this.username}/${this.gameID}`, {});
+        console.log('Response data:', response.data);
+
+        this.canReview = response.data;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        this.error = "Failed to check if user can review.";
+        this.canReview = false;
+      }
+    },
+
+
+    async submitReview() {
+      try {
+        if (!this.reviewText || !this.reviewScore) {
+          console.error('Review text and score are required.');
+          return;
+        }
+
+        if(this.username === 'guest') {
+          console.error('Guests cannot submit reviews.');
+          return;
+        }
+
+        // Prepare the review request dto
+        const reviewRequest = {
+          description: this.reviewText,
+          score: this.reviewScore,
+        };
+
+        console.log('Review Request:', reviewRequest);
+        console.log('Hi');
+        console.log('Bye');
+        console.log('Username:', this.username);
+
+        // Send POST request to the API
+        const response = await axiosClient.post(
+          `/games/${this.gameID}/reviews`,
+          reviewRequest,
+          {
+            params: {
+              loggedInUsername: this.username, // Replace with the actual username variable
+            },
+          }
+        );
+
+        // Disable the review form after submission
+        this.canReview = false;
+
+        // Handle successful submission
+        console.log('Review submitted:', response.data.getStatusCode());
+        console.log('Answer:', response.data.getBody());
+
+        // Reset form and hide it
+        this.resetForm();
+      } catch (error) {
+        console.error('Error submitting review:', error);
+      }
+    },
+
+    cancelReview() {
+      this.resetForm();
+    },
+
+    resetForm() {
+      this.buttonWasPressed = false;
+      this.reviewText = '';
+      this.reviewScore = '';
+    },
+
     handleImageError(event) {
       event.target.src = "../assets/placeholder.jpg";
     },
+
     formatDate(dateString) {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+
+    async addToCart() {
+      try {
+          const response = await axiosClient.put(
+            `/customers/${this.username}/cart/${this.gameID}`,
+            null, // No request body is needed
+            {
+              params: {
+                quantity: 1, // Add the game to the cart once
+              },
+            }
+          );
+
+          console.log('Response:', response.data);
+      } catch (error) {
+          console.error('Error adding to cart:', error);
+      }
+    },
+
+    async addToWishlist() {
+      try {
+          const response = await axiosClient.put(`/customers/${this.username}/wishlist/${this.gameID}`);
+
+          console.log('Response:', response.data);
+      } catch (error) {
+          console.error('Error adding to wishlist:', error);
+      }
+    },
+
+    async archiveGame() {
+      try {
+          const response = await axiosClient.delete(`/games/${this.gameID}`,
+            {
+              params: {
+                loggedInUsername: this.username,
+              },
+            }
+          );
+
+          console.log('Response:', response.data);
+      } catch (error) {
+          console.error('Error archiving game:', error);
+      }
     },
   },
 };
@@ -210,7 +388,7 @@ export default {
 }
 
 #title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: white;
   margin: 0;
 }
@@ -299,128 +477,146 @@ export default {
 }
 
 .game-actions {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  margin-top: 20px;
-
-  button {
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .action-options {
     display: flex;
     flex-direction: row;
-
-    gap: 20px;
+    justify-content: space-between;
+    margin-top: 20px;
 
     button {
-      background-color: #619bda;
-      color: white;
-
-      /* Button States */
-
-      &:hover {
-        background-color: #a970ff;
-        padding: 13px 12px 11px;
-      }
-
-      &:active {
-        background-color: #8c3de3;
-        padding: 11px 10px 12px;
-      }
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: background-color 0.2s, transform 0.1s;
     }
 
-    #buy-now:hover + #price {
-      padding: 14px 12px 12px;
-    }
+    .action-options {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
 
-    #buy-now:active + #price {
-      padding: 12px 10px 13px;
-    }
-
-    .log-in-buttons {
-        background-color: #51994f;
-
-        &:hover {
-          background-color: #7fcb8a;
-          padding: 13px 12px 11px;
+        button {
+            background-color: #619bda;
+            color: white;
         }
 
-        &:active {
-          background-color: #51994f;
-          padding: 11px 10px 12px;
+        /* Hover and Active States */
+        button:hover {
+            background-color: #a970ff;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            background-color: #8c3de3;
+            transform: scale(0.95);
+        }
+
+        /* Specific Button Styles */
+        .log-in-buttons {
+            background-color: #51994f;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
+            position: relative;
+        }
+
+        .log-in-buttons:hover {
+            background-color: #7fcb8a;
+            padding: 11px;
+        }
+
+        .log-in-buttons:active {
+            background-color: #51994f;
+        }
+
+        .archive-request-buttons {
+            background-color: #1c50eb;
+        }
+
+        .archive-request-buttons:hover {
+            background-color: #37a8ff;
+            transform: scale(1.05);
+        }
+
+        .archive-request-buttons:active {
+            background-color: #37a8ff;
+            transform: scale(0.95);
+        }
+
+        .archive-buttons {
+            background-color: #ff0000;
+        }
+
+        .archive-buttons:hover {
+            background-color: #ff4d4d;
+            transform: scale(1.05);
+        }
+
+        .archive-buttons:active {
+            background-color: #ff0000;
+            transform: scale(0.95);
+        }
+
+        /* Specific Styles for #buy-now and #price */
+        #buy-now {
+            border-radius: 5px 0 0 5px;
+            background-color: #7347ff;
+            color: white;
+        }
+
+        #buy-now:hover {
+            background-color: #a970ff;
+            transform: scale(1.05);
+        }
+
+        #buy-now:active {
+            background-color: #8c3de3;
+        }
+
+        #price {
+            color: white;
+            padding: 8px 10px 6px 10px;
+            border-radius: 0 5px 5px 0;
+            background-color: #997aff;
+            display: inline-block;
+            box-sizing: border-box;
+            transition: transform 0.1s;
+        }
+
+        /* Scale #price along with #buy-now */
+        #buy-now:hover + #price {
+            transform: scale(1.05);
+            padding-bottom:  7px;
+        }
+
+        #promotion {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #5ba022;
+        }
+
+        #add-wishlist {
+            background-color: #7347ff;
+            color: white;
         }
     }
 
-    .archive-request-buttons {
-        background-color: #1c50eb;
-
-        &:hover {
-          background-color: #37a8ff;
-          padding: 13px 12px 11px;
-        }
-
-        &:active {
-          background-color: #37a8ff;
-          padding: 11px 10px 12px;
-        }
+    #view-wishlist {
+        background-color: #92c3e4;
+        color: white;
     }
-
-    .archive-buttons {
-        background-color: #ff0000;
-
-        &:hover {
-          background-color: #ff4d4d;
-          padding: 13px 12px 11px;
-        }
-
-        &:active {
-          background-color: #ff0000;
-          padding: 11px 10px 12px;
-        }
-    }
-
-    #buy-now {
-      border-radius: 5px 0 0 5px;
-      border: 0px;
-      background-color: #7347ff;
-      color: white;
-    }
-
-    #price {
-      color: white;
-      padding: 11px 10px 11px;
-      border-radius: 0px 5px 5px 0px;
-      border-bottom: 1px solid #7347ff;
-      background-color: #997aff;
-    }
-
-    #promotion {
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #5ba022;
-    }
-
-    #add-wishlist {
-      background-color: #7347ff;
-      color: white;
-    }
-  }
-
-  #view-wishlist {
-    background-color: #92c3e4;
-    color: white;
-  }
 }
+
 
 .review-section {
   font-size: 1.3rem;
@@ -512,5 +708,105 @@ export default {
       }
     }
   }
+}
+
+/* Add Review Button */
+.add-review-button {
+  background-color: #7347ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-bottom: 20px;
+}
+
+.add-review-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.add-review-button:active {
+  background-color: #8c3de3;
+  transform: scale(0.95);
+}
+
+/* Review Form Container */
+.review-form-container {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* Review Form */
+.review-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: white;
+}
+
+/* Input Focus Styles */
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #a970ff;
+  box-shadow: 0 0 5px rgba(169, 112, 255, 0.5);
+}
+
+/* Form Buttons */
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.submit-review-button,
+.cancel-review-button {
+  background-color: #7347ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.submit-review-button:hover,
+.cancel-review-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.submit-review-button:active,
+.cancel-review-button:active {
+  background-color: #8c3de3;
+  transform: scale(0.95);
 }
 </style>
