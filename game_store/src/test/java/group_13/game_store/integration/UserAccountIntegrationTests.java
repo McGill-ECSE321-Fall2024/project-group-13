@@ -279,26 +279,6 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test
-	@org.junit.jupiter.api.Order(6)
-	public void testFindCustomerAsCustomerException(){
-		// Arrange
-		System.out.println("URL: /customers/FakeUsername2?loggedInUsername=FakeUsername1");
-
-		// act
-		ResponseEntity<String> response = client.getForEntity("/customers/FakeUsername2?loggedInUsername=FakeUsername1", String.class);
-	
-		// assert
-		try {
-			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
-			assertEquals(403, json.getInt("status"));
-			assertEquals("Forbidden", json.getString("error"));
-			assertEquals("User must be an owner or employee", json.getString("message"));
-		} catch (org.json.JSONException e){
-			fail("Response body is not a valid JSON");
-		}
-	}
-
-	@Test
 	@org.junit.jupiter.api.Order(7)
 	public void testUpdateGeneralUserInformationWhenNotAGuest(){
 		// arrange

@@ -77,7 +77,7 @@ export default {
                 sessionStorage.setItem("loggedInUsername", this.username);
                 sessionStorage.setItem("permissionLevel", 1);
                 this.clearInputs();
-                sessionStorage.updateSession(response.data.username, response.data.permissionLevel);
+                session.updateSession(response.data.username, response.data.permissionLevel);
                 console.log("loggedInUsername is now:", sessionStorage.getItem("loggedInUsername"));
                 console.log("permissionLevel is now:", sessionStorage.getItem("permissionLevel"));
                 this.$router.push("/account");
