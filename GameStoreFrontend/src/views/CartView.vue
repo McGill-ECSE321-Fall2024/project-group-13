@@ -1,7 +1,15 @@
 <template>
   <div class="cart">
-    <h1 class="title">My Cart</h1>
-
+    <div class="cart-header">
+      <h1 class="title">My Cart</h1>
+      <button
+      class="clear-cart-button"
+      @click="confirmClearCart"
+      :disabled="games.length === 0"
+    >
+      Clear Cart
+    </button>
+    </div>
     <!-- Check if the cart is empty -->
     <div v-if="games.length > 0">
       <!-- Existing cart items -->
@@ -120,7 +128,11 @@
 
   async increaseQuantity(gameID, currentQuantity, stock) {
     if (currentQuantity >= stock) {
-      alert('Cannot increase quantity beyond available stock');
+      this.$swal({
+                title: 'Error',
+                text: 'Cannot increase quantity beyond available stock',
+                icon: 'error',
+              });
       return;
     }
     const newQuantity = currentQuantity + 1;
@@ -140,7 +152,11 @@
       }
     } catch (error) {
       console.error('Error increasing quantity:', error);
-      alert('There was an issue updating the quantity, please try again');
+      this.$swal({
+                title: 'Error',
+                text: 'There was an issue updating the quantity, please try again',
+                icon: 'error',
+              });
     }
   },
 
@@ -167,10 +183,26 @@
       }
     } catch (error) {
       console.error('Error decreasing quantity:', error);
-      alert('There was an issue updating the quantity, please try again');
+      this.$swal({
+                title: 'Error',
+                text: 'There was an issue updating the quantity, please try again',
+                icon: 'error',
+              });
     }
   },
-
+    confirmClearCart() {
+      this.$swal({
+        title: 'Are you sure?',
+        text: 'This will remove all items from your cart.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, clear it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.clearCart();
+        }
+      });
+    },
     async removeFromCart(gameID) {
     try {
       await axios.delete(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart/${gameID}`);
@@ -180,7 +212,28 @@
       this.subtotalPrice = this.games.reduce((sum, game) => sum + game.price * game.quantity, 0);
     } catch (error) {
       console.error('Error removing game from cart:', error);
-      alert('There was an issue removing the cart item, please try again');
+      this.$swal({
+                title: 'Error',
+                text: 'There was an issue removing the cart item, please try again',
+                icon: 'error',
+              });
+    }
+  },
+
+  async clearCart() {
+    try {
+      await axios.delete(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart`);
+      // Remove the game from the games array
+      this.games = []
+      // Recalculate the subtotal price
+      this.subtotalPrice = 0;
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      this.$swal({
+                title: 'Error',
+                text: 'There was an issue clearing the cart, please try again',
+                icon: 'error',
+              });
     }
   }
     },
@@ -203,8 +256,37 @@
   margin-top: 100px;
 }
 
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .title {
   text-align: left;
+}
+
+.clear-cart-button {
+  background-color: #dc3545; /* Red background for destructive action */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.clear-cart-button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+.clear-cart-button:disabled:hover {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+.clear-cart-button:hover {
+  background-color: #c82333; /* Darker red */
 }
 
 .cart-items {
@@ -278,7 +360,7 @@
 .action-button {
   margin-bottom: 10px;
   /* Apply common button styles */
-  background-color: #BB86FC; /* Blue background */
+  background-color: #dc3545;; /* Blue background */
   color: white;              /* White text */
   border: none;
   padding: 8px 12px;
@@ -288,6 +370,16 @@
 
 .action-button:last-child {
   margin-bottom: 0;
+}
+
+.action-button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+/* Optionally, adjust text color and other styles when disabled */
+.action-button:disabled:hover {
+  background-color: grey; /* Prevent hover effect */
 }
 
 .checkout-button {
@@ -308,7 +400,7 @@
 }
 
 .action-button:hover {
-  background-color: #0056b3; /* Darker blue */
+  background-color: #c82333;; /* Darker blue */
 }
 
 .checkout-button:hover {
