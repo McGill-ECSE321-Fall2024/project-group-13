@@ -23,11 +23,12 @@
 
             <div class="game-details">
               <h2 class="game-title">{{ game.title }}</h2>
+              <!-- NEED TO FIX SITUATION IN WHICH PARAGRAPH IS TOO LONG-->
               <p class="game-description">{{ game.description }}</p>
             </div>
                   
             <div class="game-actions">
-              <button class="individual-wishlist-item-button">Add to Cart</button>
+              <button @click="addWishlistItemToCart(game.gameID)" class="individual-wishlist-item-button">Add to Cart</button>
               <button @click="clearCartItem(game.gameID)" class="individual-wishlist-item-button">Remove from Wishlist</button>
             </div>
           </div>      
@@ -143,6 +144,23 @@ export default {
         } catch (error) {
           console.error('Error fetching data:', error);
         }
+      },
+
+      async addWishlistItemToCart(gameID) {
+        const username = sessionStorage.getItem("loggedInUsername") 
+        const permission = parseInt(sessionStorage.getItem("permissionLevel"))
+        //const gameId 
+        console.log("loggedInUsername is now:" , username);
+        console.log("permissionLevel is now: ", permission);
+
+        try {
+          const wishlistGamesResponse = await axiosClient.put('/customers/' + username + '/cart/' + gameID, null, { params: { quantity: 1 } });
+          this.wishlistItems = this.wishlistItems.filter(wishlistItemToDelete => Number(wishlistItemToDelete.gameID) !== Number(gameID));
+          // if not a customer, display that you must a logged in customer
+          console.log("item has been added to cart");  
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
       }
 
     // one for adding to cart
@@ -158,7 +176,7 @@ export default {
   background-color: #1e1e1e;
   margin-right: 150px;
   margin-left: 150px;
-  border-radius: 2%;
+  border-radius: 10px;
   color: white;
 }
 
@@ -215,7 +233,7 @@ export default {
   margin-bottom: 2%;
   background-color: rgba(84, 84, 84, 0.65);
   padding: 20px;
-  border-radius: 3%;
+  border-radius: 10px;
 
 }
 
@@ -224,7 +242,7 @@ export default {
   height: 150px;
   object-fit: cover;
   margin-right: 20px;
-  border-radius: 2%;
+  border-radius: 10px;
 }
 
 .game-actions {
