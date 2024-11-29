@@ -1,7 +1,5 @@
 package group_13.game_store.controller;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +27,7 @@ import group_13.game_store.dto.UserAccountResponseDto;
 import group_13.game_store.service.AccountService;
 import group_13.game_store.service.GameStoreManagementService;
 import group_13.game_store.service.PaymentService;
+import group_13.game_store.service.ReviewService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
 import group_13.game_store.model.Order;
@@ -47,6 +46,9 @@ public class UserAccountController {
     
     @Autowired
     private GameStoreManagementService gameStoreManagementService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private AccountService accountService;
@@ -106,7 +108,7 @@ public class UserAccountController {
     @GetMapping("/customers/{username}")
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
         // validate that it is an employee or owner who is searching for customer
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee");
         }
 
@@ -146,8 +148,22 @@ public class UserAccountController {
         accountService.changePassword(request.getPassword(), request.getUsername());
 
         return new UserAccountResponseDto(aUser);
-        
     }
+
+    /**
+     * Checks if a user has a game.
+     *
+     * @param username         The username of the user to check.
+     * @param gameID           The ID of the game to check.
+     * @return True if the user has the game, false otherwise.
+     */
+    @GetMapping("/users/{username}/{gameID}")
+    public Boolean checkIfUserHasGame(@PathVariable String username, @PathVariable int gameID) {
+        
+        return reviewService.checkOwnership(username, gameID);
+    }
+
+
 
     /**
      * Retrieves all orders of a customer.

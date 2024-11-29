@@ -1,5 +1,6 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterLink, RouterView} from 'vue-router';
+import {session} from './session.js';
 </script>
 
 <template>
@@ -7,18 +8,18 @@ import { RouterLink, RouterView } from 'vue-router';
     <header>
       <nav class="navbar">
         <div class="nav-container">
-          <RouterLink to="/" class="nav-logo">Logo</RouterLink>
+            <RouterLink to="/" class="nav-logo">
+            <img src="@/assets/navlogo3.png" alt="Logo" class="logo-image" />
+            </RouterLink>
           <div class="nav-links">
-            <RouterLink to="/" class="nav-item">Home</RouterLink>
+            <RouterLink to="/" class="nav-item">Home</RouterLink> 
             <RouterLink to="/browse" class="nav-item">Browse</RouterLink>
-            <RouterLink to="/game" class="nav-item">Game</RouterLink>
-            <RouterLink to="/login" class="nav-item">Login</RouterLink>
-            <RouterLink to="/register" class="nav-item">Register</RouterLink>
-            <RouterLink to="/account" class="nav-item">Account</RouterLink>
-            <RouterLink to="/cart" class="nav-item">Cart</RouterLink>
-            <RouterLink to="/wishlist" class="nav-item">Wishlist</RouterLink>
-            <RouterLink to="/checkout" class="nav-item">Checkout</RouterLink>
-            <RouterLink to="/owner-dashboard" class="nav-item">Owner Dashboard</RouterLink>
+            <RouterLink to="/cart" class="nav-item" v-if="session.permissionLevel==1">Cart</RouterLink>
+            <RouterLink to="/wishlist" class="nav-item" v-if="session.permissionLevel==1">Wishlist</RouterLink>
+            <RouterLink to="/owner-dashboard" class="nav-item" v-if="session.permissionLevel==3">Owner Dashboard</RouterLink>
+            <RouterLink to="/account" class="nav-item" v-if="session.permissionLevel!=0">Account</RouterLink>
+            <RouterLink to="/login" class="nav-item" v-if="session.permissionLevel==0">Login/Register</RouterLink>
+            <button class="nav-item" v-if="session.permissionLevel != 0" @click="handleLogout">Logout</button>
           </div>
         </div>
       </nav>
@@ -35,8 +36,19 @@ export default {
   name: "App",
   mounted() {
     // Set default session storage variables if not already set
-     sessionStorage.setItem("loggedInUsername", "guest");
-  }
+    if (sessionStorage.getItem("loggedInUsername") == null) {
+      sessionStorage.setItem("loggedInUsername", "guest");
+    }
+    if (sessionStorage.getItem("permissionLevel") == null) {
+      sessionStorage.setItem("permissionLevel", 0);
+    }
+  },
+  methods: {
+    handleLogout() {
+      session.logout();
+      this.$router.push("/");
+    },
+  },
 };
 </script>
 
@@ -69,19 +81,21 @@ header {
   max-width: 1200px; 
   margin: 0 auto;
   padding: 0.5rem 1rem;
+  margin-left: 10%; 
 }
 
 .nav-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .nav-logo {
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  /* Move the logo further to the left */
+  margin-left: -85px;
 }
 
 .nav-links {
@@ -92,17 +106,28 @@ header {
 .nav-item {
   color: #fff;
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(147, 81, 247, 0.2);
+  transform: scale(1.05);
+}
+
+.nav-item:active {
+  background-color: rgba(147, 81, 247, 0.3);
+  transform: scale(0.98);
+}
+
+.nav-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
 
 .router-link-exact-active.nav-item {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(147, 81, 247, 0.3);
 }
 
 main {
@@ -112,4 +137,34 @@ main {
   width: 100%;
 }
 
+.logo-image {
+  height: 35px;
+  width: auto;
+  display: block;
+}
+
+button.nav-item {
+  all: unset; 
+  color: #fff;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button.nav-item:hover {
+  background-color: rgba(147, 81, 247, 0.2);
+  transform: scale(1.05);
+}
+
+button.nav-item:active {
+  background-color: rgba(147, 81, 247, 0.3);
+  transform: scale(0.98);
+}
+
+button.nav-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
+}
 </style>
+

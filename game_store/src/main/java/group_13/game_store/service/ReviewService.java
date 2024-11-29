@@ -118,6 +118,54 @@ public class ReviewService {
 
     }
 
+    // Method to check if a customer owns a game or not
+    // false if it the ucstomer does not own the game and true if it does
+    @Transactional
+    public Boolean checkOwnership(String reviewerID, int gameID) {
+        // Find the reviewer based on the reviewerId provided. If its not a customer it
+        // wont find it and because it retunrs null no review will be left
+        Customer aReviewer = customerRepo.findByUsername(reviewerID);
+
+        // If no reviewer were found throw an exception
+        if (aReviewer == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found.");
+        }
+
+        // Get the list of games associated to the customer
+        List<Game> games = gameRepository.findGamesByCustomer(aReviewer);
+
+        Game aReviewedGame = gameRepository.findByGameID(gameID);
+
+        // If no game were found return null and do nothing
+        if (aReviewedGame == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reviewed game was not found.");
+        }
+
+        // Go through the list of games associated to the customer and check if the
+        // reviewed game is there
+        boolean customerHasGame = false;
+        for (Game game : games) {
+            if (game.getGameID() == aReviewedGame.getGameID()) {
+                customerHasGame = true;
+            }
+        }
+
+        if(customerHasGame == false){
+            return customerHasGame;
+        }
+
+        boolean customerNotReviewed = false;
+        List<Review> reviews = reviewRepository.findByReviewedGame_GameID(gameID);
+        for (Review review : reviews) {
+            if (review.getReviewer().getUsername().equals(reviewerID)) {
+                customerNotReviewed = true;
+            }
+        }
+
+        // If the customer does not already have a review, return true as we can leave a review
+        return !customerNotReviewed;
+    }
+
     // Update an existing review
     @Transactional
     public Review updateReview(int reviewID, String aDescription, int aScore, String reviewerID) {

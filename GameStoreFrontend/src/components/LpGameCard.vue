@@ -47,17 +47,17 @@
   </script>
   
   <style scoped>
-  .game-card {
-    width: 450px;
-    height: 500px;
-    background-color: #121212; 
-    color: #FFFFFF; 
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
-  }
+.game-card {
+  width: 400px; 
+  height: 450px; 
+  background-color: #121212; 
+  color: #FFFFFF; 
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+}
   
   .game-image {
     width: 100%;
@@ -100,10 +100,11 @@
     background-color: #BB86FC;
     color: #FFFFFF;
     border: none;
-    padding: 12px;
+    padding: 10px;
+    margin-top: 10px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.9em;
   }
   
   .buy-button:hover {

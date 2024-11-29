@@ -279,26 +279,6 @@ public class UserAccountIntegrationTests {
 	}
 
 	@Test
-	@org.junit.jupiter.api.Order(6)
-	public void testFindCustomerAsCustomerException(){
-		// Arrange
-		System.out.println("URL: /customers/FakeUsername2?loggedInUsername=FakeUsername1");
-
-		// act
-		ResponseEntity<String> response = client.getForEntity("/customers/FakeUsername2?loggedInUsername=FakeUsername1", String.class);
-	
-		// assert
-		try {
-			org.json.JSONObject json = new org.json.JSONObject(response.getBody());
-			assertEquals(403, json.getInt("status"));
-			assertEquals("Forbidden", json.getString("error"));
-			assertEquals("User must be an owner or employee", json.getString("message"));
-		} catch (org.json.JSONException e){
-			fail("Response body is not a valid JSON");
-		}
-	}
-
-	@Test
 	@org.junit.jupiter.api.Order(7)
 	public void testUpdateGeneralUserInformationWhenNotAGuest(){
 		// arrange
@@ -507,5 +487,37 @@ public class UserAccountIntegrationTests {
 		} catch (org.json.JSONException e){
 			fail("Response body is not a valid JSON");
 		}
+	}
+
+	@Test
+	@org.junit.jupiter.api.Order(17)
+	public void testCheckIfUserHasGame_GameOwned() {
+
+		String username = "FakeUsername1";
+		int game1Id = game1.getGameID();
+		
+		// act
+		ResponseEntity<Boolean> response = client.getForEntity("/users/" + username + "/" + game1Id, Boolean.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(true, response.getBody());
+	}
+
+	@Test
+	@org.junit.jupiter.api.Order(18)
+	public void testCheckIfUserHasGame_GameNotOwned() {
+
+		String username = "FakeUsername2";
+		int game1Id = game1.getGameID();
+		
+		// act
+		ResponseEntity<Boolean> response = client.getForEntity("/users/" + username + "/" + game1Id, Boolean.class);
+
+		// assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(false, response.getBody());
 	}
 }

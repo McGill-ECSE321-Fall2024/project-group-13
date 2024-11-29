@@ -23,13 +23,18 @@
             <input type="text" name="phone-number" id="phone-number" placeholder="" required v-model="phoneNumber">
         </div>
             <button class="sign-in nav-item" @click="attemptSignUp" v-bind:disabled="!isInputValid()">Create Account</button>
-            <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+            <p class="login">Already have an account?
+            <RouterLink to="/Login" class="nav-item">Login</RouterLink>
+            <p v-if="errorMessage" class="error-message">{{  errorMessage }}</p>
+        </p>
     </form>
     </div>
 </template>
 
 <script>
 import axios from "axios";
+import { session } from '../session.js'
+
 
 const axiosClient = axios.create({
 	// NOTE: it's baseURL, not baseUrl
@@ -72,6 +77,7 @@ export default {
                 sessionStorage.setItem("loggedInUsername", this.username);
                 sessionStorage.setItem("permissionLevel", 1);
                 this.clearInputs();
+                session.updateSession(response.data.username, response.data.permissionLevel);
                 console.log("loggedInUsername is now:", sessionStorage.getItem("loggedInUsername"));
                 console.log("permissionLevel is now:", sessionStorage.getItem("permissionLevel"));
                 this.$router.push("/account");
@@ -124,7 +130,7 @@ export default {
   margin-top: 100px;
   margin-left: auto;
   margin-right: auto;
-  border-radius: 0.75rem;
+  border-radius: 10px;
   background-color: #1e1e1e;
   padding: 2rem;
   color: rgba(243, 244, 246, 1);
@@ -208,5 +214,12 @@ export default {
     font-size: 0.875rem;
     margin-top: 10px;
     text-align: center;
+}
+
+.login {
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: rgba(156, 163, 175, 1);
 }
 </style>
