@@ -106,7 +106,7 @@
         <!-- Save Button -->
         <div class="form-group">
           <button type="button" @click="saveDeliveryInfo">
-            {{ deliveryInfoExists ? 'Update Delivery Information' : 'Save New Delivery Information' }}
+            {{ deliveryInfoExists ? 'Update Address' : 'Save New Address' }}
           </button>
         </div>
       </form>
@@ -182,7 +182,7 @@
               <span>${{ deliveryFee.toFixed(2) }}</span>
           </div>
           <div class="breakdown-item">
-              <span>QST (15%): </span>
+              <span>QST (10%): </span>
               <span>${{ taxes.toFixed(2) }}</span>
           </div>
           <div class="breakdown-total">
@@ -241,7 +241,7 @@ export default {
       },
       subtotal: 0,
       deliveryFee: 5,
-      taxRate: 0.15, // 15% QST
+      taxRate: 0.10, // 10% QST
           };
       },
       created() {
@@ -530,7 +530,7 @@ export default {
             console.log(this.paymentInfo.addressId);
             this.$swal({
                 title: 'Success',
-                text: 'Delivery information updated successfully.',
+                text: 'Address updated successfully.',
                 icon: 'success',
               });
           } else {
@@ -538,7 +538,7 @@ export default {
             const response = await axios.post(`${urlBase}?loggedInUsername=${this.LOGGEDINUSERNAME}`, this.deliveryInfo);
             this.$swal({
                 title: 'Success',
-                text: 'Delivery information saved successfully.',
+                text: 'Address saved successfully.',
                 icon: 'success',
               });
 
