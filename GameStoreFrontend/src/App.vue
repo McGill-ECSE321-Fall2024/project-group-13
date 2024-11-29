@@ -36,8 +36,12 @@ export default {
   name: "App",
   mounted() {
     // Set default session storage variables if not already set
-     sessionStorage.setItem("loggedInUsername", "guest");
+    if (sessionStorage.getItem("loggedInUsername") == null) {
+      sessionStorage.setItem("loggedInUsername", "guest");
+    }
+    if (sessionStorage.getItem("permissionLevel") == null) {
       sessionStorage.setItem("permissionLevel", 0);
+    }
   },
   methods: {
     handleLogout() {
