@@ -38,7 +38,7 @@
     <section class="game-actions" v-if="game">
       <div class="action-options" v-if="permissionLevel == 1">
         <div>
-          <button class="action-buttons" id="buy-now">Add to cart</button
+          <button class="action-buttons" id="buy-now" @click="addToCart">Add to cart</button
           ><span id="price">{{ game.price }}</span>
           <span id="promotion">{{
             game.promotion ? "-" + game.promotionPercentage + "%" : ""
@@ -46,7 +46,7 @@
         </div>
 
         <div>
-          <button class="action-buttons" id="add-wishlist">
+          <button class="action-buttons" id="add-wishlist" @click="addToWishlist">
             Add to your wishlist
           </button>
         </div>
@@ -54,12 +54,13 @@
 
       <div class="action-options" v-if="permissionLevel == 0">
         <div>
-          <button class="log-in-buttons">Log in</button>
+          <RouterLink to="/login" class="log-in-buttons">Login</RouterLink>
         </div>
 
         <div>
-          <button class="log-in-buttons">Sign up</button>
+          <RouterLink id="register-button" to="/register" class="log-in-buttons">Register</RouterLink>
         </div>
+        
       </div>
 
       <div class="action-options" v-if="permissionLevel == 2">
@@ -172,8 +173,7 @@ export default {
   },
 
   created() {
-    // this.gameID = this.$route.params.gameID;
-    this.gameID = 1552;
+    this.gameID = this.$route.params.gameID;
     this.fetchUserDetails();
     this.fetchGameDetails(this.gameID);
     this.checkCanReview();
@@ -200,15 +200,17 @@ export default {
 
     fetchUserDetails() {
       try {
-        this.permissionLevel = sessionStorage.getItem("permissionLevel");
-        if (this.permissionLevel === null) {
-          this.permissionLevel = 0;
-        }
-
         this.username = sessionStorage.getItem("loggedInUsername");
         if (this.username === null) {
           this.username = "guest";
         }
+
+        this.permissionLevel = sessionStorage.getItem("permissionLevel");
+        if (this.permissionLevel === null || this.username === "guest") {
+          this.permissionLevel = 0;
+        }
+
+        
 
         console.log('Username:', this.username);
 
@@ -310,6 +312,34 @@ export default {
     formatDate(dateString) {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+
+    async addToCart() {
+      try {
+          const response = await axiosClient.put(
+            `/customers/${this.username}/cart/${this.gameID}`,
+            null, // No request body is needed
+            {
+              params: {
+                quantity: 1, // Add the game to the cart once
+              },
+            }
+          );
+
+          console.log('Response:', response.data);
+      } catch (error) {
+          console.error('Error adding to cart:', error);
+      }
+    },
+
+    async addToWishlist() {
+      try {
+          const response = await axiosClient.put(`/customers/${this.username}/wishlist/${this.gameID}`);
+
+          console.log('Response:', response.data);
+      } catch (error) {
+          console.error('Error adding to wishlist:', error);
+      }
     },
   },
 };
@@ -470,16 +500,24 @@ export default {
         /* Specific Button Styles */
         .log-in-buttons {
             background-color: #51994f;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
+            position: relative;
         }
 
         .log-in-buttons:hover {
             background-color: #7fcb8a;
-            transform: scale(1.05);
+            padding: 11px;
         }
 
         .log-in-buttons:active {
             background-color: #51994f;
-            transform: scale(0.95);
         }
 
         .archive-request-buttons {
@@ -528,17 +566,18 @@ export default {
 
         #price {
             color: white;
-            padding: 7px 10px;
+            padding: 8px 10px 6px 10px;
             border-radius: 0 5px 5px 0;
             background-color: #997aff;
             display: inline-block;
-          box-sizing: border-box;
+            box-sizing: border-box;
             transition: transform 0.1s;
         }
 
         /* Scale #price along with #buy-now */
         #buy-now:hover + #price {
             transform: scale(1.05);
+            padding-bottom:  7px;
         }
 
         #promotion {
