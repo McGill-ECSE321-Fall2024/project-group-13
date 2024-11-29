@@ -115,16 +115,14 @@ export default {
 
     async created() {
         // Get the logged in username and permission level from the session storage
-        const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
-        const PERMISSIONLEVEL = sessionStorage.getItem('permissionLevel');
-        console.log("Logged in username is: ", LOGGEDINUSERNAME);
-        console.log("Permission level is: ", PERMISSIONLEVEL);
+        console.log("Logged in username is: ", sessionStorage.getItem('loggedInUsername'));
+        console.log("Permission level is: ", sessionStorage.getItem('permissionLevel'));
 
        try {
             // Fetch the games and the categories
             const [gameResponse, categoriesResponse] = await Promise.all([
-                axiosClient.get('/games', { params: { loggedInUsername: LOGGEDINUSERNAME } }), 
-                axiosClient.get('/categories', { params: { loggedInUsername: LOGGEDINUSERNAME } })
+                axiosClient.get('/games', { params: { loggedInUsername: sessionStorage.getItem('loggedInUsername') } }), 
+                axiosClient.get('/categories', { params: { loggedInUsername: sessionStorage.getItem('loggedInUsername') } })
             ]);
 
             console.log(gameResponse.data, categoriesResponse.data); 
@@ -145,7 +143,7 @@ export default {
                 // All titles have first letter of each word capitalized
                 let title = this.searchBar.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
 
-                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME, title: title}})
+                const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: sessionStorage.getItem('loggedInUsername'), title: title}})
 
                 console.log("Search bar response: ", gameResponse)
 
@@ -159,7 +157,7 @@ export default {
 
         async handleClear() {
         try {
-            const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME}});
+            const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: sessionStorage.getItem('loggedInUsername')}});
             this.games = gameResponse.data.games;
             this.selectedCategories = [];
             this.searchBar = '';
@@ -173,11 +171,11 @@ export default {
                 if (event.target.checked) {
                     this.selectedCategories = [category];
                     this.searchBar = '';
-                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME, category: category}});
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: sessionStorage.getItem('loggedInUsername'), category: category}});
                     this.games = gameResponse.data.games;
                 } else {
                     this.selectedCategories = [];
-                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: LOGGEDINUSERNAME}});
+                    const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: sessionStorage.getItem('loggedInUsername')}});
                     this.games = gameResponse.data.games;
                 }
 
