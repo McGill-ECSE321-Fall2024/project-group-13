@@ -108,7 +108,7 @@ public class UserAccountController {
     @GetMapping("/customers/{username}")
     public CustomerResponseDto findCustomer(@PathVariable String username, @RequestParam String loggedInUsername) {
         // validate that it is an employee or owner who is searching for customer
-        if (!accountService.hasPermissionAtLeast(loggedInUsername, 2)) {
+        if (!accountService.hasPermissionAtLeast(loggedInUsername, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User must be an owner or employee");
         }
 

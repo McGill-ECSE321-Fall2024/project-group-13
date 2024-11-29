@@ -72,11 +72,9 @@ export default {
                     const message = error.response.data?.message || "An error occurred.";
                     
                     // Display user-friendly messages based on status codes or backend message
-                    if (status === 400 || status === 404) {
+                    if (status === 400 || status === 404 || status === 403) {
                         this.errorMessage = message; // Example: Invalid credentials
                         console.log(message);
-                    } else if (status === 403) {
-                        this.errorMessage = "Access denied. Please contact support.";
                     } else {
                         this.errorMessage = "An unexpected error occurred.";
                     }
