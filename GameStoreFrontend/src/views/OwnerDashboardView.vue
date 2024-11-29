@@ -159,6 +159,9 @@
                 <span>Start Date: {{ promotion.startDate }}</span><br />
                 <span>End Date: {{ promotion.endDate }}</span>
               </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="action__btn" @click="updatePromotion(promotion)">Update</button>
+              </div>
             </li>
           </ul>
         </section>
@@ -255,12 +258,12 @@
             >
               <!-- Employee Details -->
               <div style="flex: 1; text-align: left;">
-                <strong>Name:</strong> {{ employee.name }}<br />
-                <strong>Username:</strong> {{ employee.username }}<br />
-                <strong>Email:</strong> {{ employee.email }}<br />
-                <strong>Phone:</strong> {{ employee.phoneNumber }}<br />
-                <strong>Permission Level:</strong> {{ employee.permissionLevel }}<br />
-                <strong>Status:</strong> {{ employee.isActive ? 'Active' : 'Inactive' }}
+                <strong>{{ employee.name }}</strong><br />
+                <span>Username: {{ employee.username }}</span><br />
+                <span>Email: {{ employee.email }}</span><br />
+                <span>Phone: {{ employee.phoneNumber }}</span><br />
+                <span>Permission Level: {{ employee.permissionLevel }}</span><br />
+                <span>Status: {{ employee.isActive ? 'Active' : 'Inactive' }}</span>
               </div>
               <!-- Delete Button -->
               <button class="action__btn" @click="deleteEmployee(employee.username)" style="margin-left: 10px;">Delete</button>
@@ -361,7 +364,7 @@ export default {
           params: { loggedInUsername: "owner" },
         });
         this.categories = categoriesResponse.data.gameCategories.map((category) => ({
-          id: category.categoryId,
+          id: category.id,
           name: category.name,
           description: category.description,
           status: category.status,
@@ -780,7 +783,7 @@ hr {
 }
 
 .list {
-  max-height: 200px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
@@ -806,6 +809,8 @@ hr {
   justify-content: space-between; /* Space between text and button */
   align-items: center; /* Vertically center text and button */
   padding: 8px 0; /* Add spacing between items */
+  margin-bottom: 10px; /* Optional: spacing between items */
+  background-color: #2e2e2e; /* Optional: background for better visibility */
 }
 
 .list li div {
@@ -814,6 +819,12 @@ hr {
 
 .list button {
   margin-left: 10px; /* Add spacing between button and text if needed */
+}
+
+.list li div strong {
+  font-size: 18px; /* Adjust the size as needed */
+  font-weight: bold;
+  color: #ffffff;
 }
 
 .action__btn {
@@ -846,4 +857,49 @@ hr {
   box-shadow: 0 0 0 3px rgba(147, 81, 247, 0.5);
 }
 
+/* Input Fields */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #313134;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  outline: none;
+  margin-bottom: 10px;
+  transition: border 0.2s ease, background-color 0.2s ease;
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+input[type="date"]:hover,
+input[type="email"]:hover,
+textarea:hover,
+select:hover {
+  border: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+  border: 2px solid #a970ff;
+  background-color: #0e0e10;
+}
+
+/* Labels */
+label {
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 5px;
+  display: block;
+}
 </style>
