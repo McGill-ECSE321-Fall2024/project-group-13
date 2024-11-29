@@ -178,6 +178,7 @@ export default {
     this.fetchGameDetails(this.gameID);
     this.checkCanReview();
     console.log('Permission:', this.permissionLevel);
+    console.log('Can Review:', this.canReview);
   },
   methods: {
     async fetchGameDetails(gameID) {
@@ -224,6 +225,12 @@ export default {
 
     async checkCanReview() {
       try {
+        if (this.username === 'guest') {
+          console.log('Guests cannot review.');
+          this.canReview = false;
+          return;
+        }
+        
         console.log('Checking canReview for username:', this.username, 'and gameID:', this.gameID);
 
         const response = await axiosClient.get(`/users/${this.username}/${this.gameID}`, {});
@@ -240,6 +247,15 @@ export default {
 
     async submitReview() {
       try {
+        if (!this.reviewText || !this.reviewScore) {
+          console.error('Review text and score are required.');
+          return;
+        }
+
+        if(this.username === 'guest') {
+          console.error('Guests cannot submit reviews.');
+          return;
+        }
 
         // Prepare the review request dto
         const reviewRequest = {
