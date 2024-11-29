@@ -22,18 +22,22 @@
 
     <div v-if="activeTab === 'profile'" class="active" id="profile">
         <div class="profile-info">
-        <p class="title">Profile</p>
+        <p class="title profile-title">User Profile</p>
             <div class="info">
                 <label for="name">Name:</label>
+                <span class="profile-field">{{ name }}</span>
             </div>
             <div class="info">
                 <label for="card-number">Username:</label>
+                <span class="profile-field">{{ username }}</span>
             </div>
             <div class="info">
                 <label for="expiry-date">Email:</label>
+                <span class="profile-field">{{ email }}</span>
             </div>
             <div class="info">
                 <label for="cvv">Phone Number:</label>
+                <span class="profile-field">{{ phoneNumber }}</span>
             </div>
         </div>
     </div>
@@ -44,35 +48,31 @@
         <form class="form">
             <div class="input">
                 <label for="street">Street</label>
-                <input type="text" name="street" id="street" placeholder="" required>
+                <input type="text" name="street" id="street" placeholder="" required v-model="street">
             </div>
             <div class="input">
                 <label for="number">Street No.</label>
-                <input type="number" name="number" id="number" placeholder="" step="1" required>
+                <input type="number" name="number" id="number" placeholder="" step="1" required v-model="addressNumber">
             </div>
             <div class="input">
                 <label for="apartment-number">Apartment No.</label>
-                <input type="number" name="apartment-number" id="apartment-number" step="1" placeholder="">
+                <input type="number" name="apartment-number" id="apartment-number" step="1" placeholder="" v-model="apartmentNumber">
             </div>
             <div class="input">
                 <label for="city">City</label>
-                <input type="text" name="city" id="city" placeholder="" required>
+                <input type="text" name="city" id="city" placeholder="" required v-model="city">
             </div>
             <div class="input">
                 <label for="state-province">State/Province</label>
-                <input type="text" name="state-province" id="state-province" placeholder="" required>
-            </div>
-            <div class="input">
-                <label for="phone-number">Phone Number</label>
-                <input type="text" name="phone-number" id="phone-number" placeholder="" required>
+                <input type="text" name="state-province" id="state-province" placeholder="" required v-model="stateProvince">
             </div>
             <div class="input">
                 <label for="country">Country</label>
-                <input type="text" name="country" id="country" placeholder="" required>
+                <input type="text" name="country" id="country" placeholder="" required v-model="country">
             </div>
             <div class="input">
                 <label for="postal">Postal Code</label>
-                <input type="text" name="postal" id="postal" placeholder="" required>
+                <input type="text" name="postal" id="postal" placeholder="" required v-model="postalCode">
             </div>
             <button class="button">Update Address</button>
         </form>
@@ -82,20 +82,20 @@
         <form class="form">
             <div class="input">
                 <label for="name">Cardholder Name</label>
-                <input type="text" name="name" id="name" placeholder="" required>
+                <input type="text" name="name" id="name" placeholder="" required v-model="billingName">
             </div>
             <div class="input">
                 <label for="card-number">Card Number</label>
-                <input type="text" name="card-number" id="card-number" placeholder="" required>
+                <input type="text" name="card-number" id="card-number" placeholder="" required v-model="creditCardNumber">
             </div>
             <div class="input">
                 <label for="expiry-date">Expiry Date</label>
-                <input type="date" name="expiry-date" id="expiry-date" placeholder="" required>
+                <input type="date" name="expiry-date" id="expiry-date" placeholder="" required v-model="expiryDate">
             </div>
 
             <div class="input">
                 <label for="cvv">CVV Code</label>
-                <input type="number" name="cvv" id="cvv" placeholder="" required>
+                <input type="number" name="cvv" id="cvv" placeholder="" required v-model="cvv">
             </div>
             <button class="button">Update Payment Information</button>
         </form>
@@ -122,9 +122,162 @@ const axiosClient = axios.create({
   data() {
     return {
       activeTab: "profile", // Default tab
+      username: null,
+      name: null,
+      email: null,
+      phoneNumber: null,
+      addressId: null,
+      paymentInfoId: null,
+      paymentInfo: {
+        billingName: null,
+        creditCardNumber: null,
+        expiryDate: null,
+        cvv: null,
+        billingAddress: null,
+      },
+      address: {
+        street: null,
+        addressNumber: null,
+        apartmentNumber: null,
+        city: null,
+        provinceState: null,
+        country: null,
+        postalCode: null,
+      }
+
     };
   },
+
+  methods: {
+    async fetchData() {
+        
+        try {
+            const loggedInUsername = sessionStorage.getItem("loggedInUsername");
+            const endpoint = ("/customers/" + loggedInUsername)
+            const response = await axiosClient.get(endpoint, {
+                params: { loggedInUsername: sessionStorage.getItem("loggedInUsername") }   // Add the query parameter
+            });
+
+            this.username = response.data.username;
+            this.name = response.data.name;
+            this.email = response.data.email;
+            this.phoneNumber = response.data.phoneNumber;
+        }
+        catch (error) {
+            console.log("hey")
+            // Check if the error is a server response with a status code
+            if (error.response) {
+                const status = error.response.status;
+                const message = error.response.data?.message || "An error occurred.";
+                
+                // Display user-friendly messages based on status codes or backend message
+                if (status === 400 || status === 404) {
+                    this.errorMessage = message; // Example: Invalid credentials
+                    console.log(message);
+                } else if (status === 403) {
+                    this.errorMessage = "Access denied. Please contact support.";
+                } else {
+                    this.errorMessage = "An unexpected error occurred.";
+                }
+            } else {
+                // Network or unexpected error
+                console.error(error);
+                this.errorMessage = "Unable to connect to the server.";
+            }
+        }
+    },
+
+    async saveDeliveryInfo() {
+        try {
+            const loggedInUsername = sessionStorage.getItem("loggedInUsername");
+            const endpoint = "/customers/" + loggedInUsername + "/address";
+            // Update existing delivery information
+            const response = await axiosClient.put(endpoint, this.paymentInfo, {
+                params: { loggedInUsername: sessionStorage.getItem("loggedInUsername") }   // Add the query parameter
+            });
+            this.paymentInfo.addressId = response.data.addressID;
+
+            console.log(response.data.addressID);
+            this.paymentInfo.billingAddress = this.address
+            console.log(this.paymentInfo.addressId);
+        } catch (error) {
+            console.log("hey")
+            // Check if the error is a server response with a status code
+            if (error.response) {
+                const status = error.response.status;
+                const message = error.response.data?.message || "An error occurred.";
+                
+                // Display user-friendly messages based on status codes or backend message
+                if (status === 400 || status === 404) {
+                    this.errorMessage = message; // Example: Invalid credentials
+                    console.log(message);
+                } else if (status === 403) {
+                    this.errorMessage = "Access denied. Please contact support.";
+                } else {
+                    this.errorMessage = "An unexpected error occurred.";
+                }
+            } else {
+                // Network or unexpected error
+                console.error(error);
+                this.errorMessage = "Unable to connect to the server.";
+            }
+        }
+    },
+
+    async savePaymentInfo() {
+        if (!this.paymentInfo.addressId) {
+          this.$swal({
+            title: 'Error',
+            text: 'Please set address before adding payment information.',
+            icon: 'error',
+          });
+          return;
+        }
+        if (this.validatePaymentInfo()) {
+          try {
+            console.log(this.paymentInfo.addressId);
+            const urlBase = `http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/paymentInfo`;
+            const paymentInfoToSend = { ...this.paymentInfo };
+            paymentInfoToSend.expiryDate = this.convertExpiryDateToYYYYMMDD(this.paymentInfo.expiryDate);
+            if (this.paymentInfoExists) {
+              // Update existing payment information
+              const response = await axios.put(`${urlBase}/${this.paymentInfoId}`, paymentInfoToSend);
+              this.$swal({
+                title: 'Success',
+                text: 'Payment information updated successfully.',
+                icon: 'success',
+              });
+            } else {
+              // Add new payment information
+              const response = await axios.post(urlBase, paymentInfoToSend);
+              this.$swal({
+                title: 'Success',
+                text: 'Payment information saved successfully.',
+                icon: 'success',
+              });
+
+              // Set paymentInfoExists to true and store the new paymentInfoId
+              this.paymentInfoExists = true;
+              this.paymentInfoId = response.data.id;
+            }
+          } catch (error) {
+            console.error('Error saving payment information:', error);
+            this.$swal({
+              title: 'Error',
+              text: 'Error saving new payment information.',
+              icon: 'error',
+            });
+          }
+        }
+    },
+  },
+
+  mounted() {
+    this.fetchData(); // Populate the profile page
+  },
 };
+
+
 </script>
 
 <style scoped>
@@ -152,6 +305,11 @@ const axiosClient = axios.create({
   line-height: 2rem;
   font-weight: 700;
   color: rgba(243, 244, 246, 1);
+}
+
+.profile-title {
+    padding-bottom: 20px;
+    font-size: 1.5rem;
 }
 
 .form {
@@ -232,7 +390,7 @@ body {
     margin-right: auto;
     width: 500px;
     background-color: #1e1e1e;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -242,6 +400,7 @@ body {
     padding: 1rem 2rem;
     cursor: pointer;
     border: none;
+    border-radius: 10px;
     background-color: #1e1e1e;
     color: rgba(243, 244, 246, 1);
     transition: background-color 0.3s;
@@ -277,9 +436,24 @@ body {
     display: block;
 }
 
-.info{
-    padding-top: 20px;
+.info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.info label {
+    flex: 0 0 150px;
     text-align: right;
-    margin-right: 330px;
+    margin-right: 25px;
+    font-size: 1.25rem;
+    color: rgba(167, 139, 250, 1);
+}
+
+.profile-field {
+    flex: 1;
+    text-align: left;
+    font-size: 1.25rem;
+    color: rgb(78, 191, 109, 1);
 }
 </style>
