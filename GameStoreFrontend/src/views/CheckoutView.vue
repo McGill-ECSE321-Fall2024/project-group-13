@@ -690,6 +690,7 @@ export default {
   padding: 10px 15px;
   cursor: pointer;
   background-color: #BB86FC;
+  border-radius: 0.375rem;
 }
 
 .payment-info h3,
@@ -727,5 +728,6 @@ width: 100%;
 font-size: 16px;
 cursor: pointer;
 background-color:  #BB86FC;
+border-radius: 0.375rem;
 }
 </style>
