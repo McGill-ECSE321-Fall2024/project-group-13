@@ -65,13 +65,13 @@
 
       <div class="action-options" v-if="permissionLevel == 2">
         <div>
-          <button class="archive-request-buttons">Request to Archive</button>
+          <button class="archive-request-buttons" @click="archiveGame">Request to Archive</button>
         </div>
       </div>
 
       <div class="action-options" v-if="permissionLevel == 3">
         <div>
-          <button class="archive-buttons">Archive</button>
+          <button class="archive-buttons" @click="archiveGame">Archive</button>
         </div>
       </div>
       
@@ -227,8 +227,8 @@ export default {
 
     async checkCanReview() {
       try {
-        if (this.username === 'guest') {
-          console.log('Guests cannot review.');
+        if (this.psermiussionLevel !== 1) {
+          console.log('Only customers can review.');
           this.canReview = false;
           return;
         }
@@ -339,6 +339,22 @@ export default {
           console.log('Response:', response.data);
       } catch (error) {
           console.error('Error adding to wishlist:', error);
+      }
+    },
+
+    async archiveGame() {
+      try {
+          const response = await axiosClient.delete(`/games/${this.gameID}`,
+            {
+              params: {
+                loggedInUsername: this.username,
+              },
+            }
+          );
+
+          console.log('Response:', response.data);
+      } catch (error) {
+          console.error('Error archiving game:', error);
       }
     },
   },
