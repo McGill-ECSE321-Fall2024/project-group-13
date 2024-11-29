@@ -4,7 +4,7 @@
       <h1 id="title">{{ game.title }}</h1>
     </section>
 
-    <section class="game-header">
+    <section class="game-header" v-if="game">
       <div class="game-overview">
         <img
           :src="`../src/assets/${game.img}`"
@@ -111,6 +111,36 @@
           </div>
         </div>
       </div>
+
+      <!-- Add Review Section -->
+      <div v-if="!canReview">
+        <!-- Add Review Button -->
+        <button class="add-review-button" @click="buttonWasPressed = true" v-if="!buttonWasPressed">Add a Review</button>
+
+        <!-- Review Form -->
+        <div v-if="buttonWasPressed" class="review-form-container">
+          <form @submit.prevent="submitReview" class="review-form">
+
+            <div class="form-group">
+              <label for="reviewText">Review:</label>
+              <textarea id="reviewText" v-model="reviewText" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="reviewScore">Score:</label>
+              <select id="reviewScore" v-model.number="reviewScore" required>
+                <option disabled value="">Select a score</option>
+                <option v-for="score in scores" :key="score" :value="score">{{ score }}</option>
+              </select>
+            </div>
+
+            <div class="form-buttons">
+              <button type="submit" class="submit-review-button">Submit Review</button>
+              <button type="button" class="cancel-review-button" @click="cancelReview">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </section>
   </main>
 </template>
@@ -127,16 +157,26 @@ export default {
   data() {
     return {
       game: null,
+      gameID: null,
       reviews: [],
       error: null,
       permissionLevel: 0,
-      hasGame: false,
+
+      // Review Form section
+      reviewText: '',
+      reviewScore: '',
+      canReview: false,
+      buttonWasPressed: false,
+      scores: [1, 2, 3, 4, 5], // Possible scores for reviews
     };
   },
+
   created() {
-    this.fetchGameDetails(this.$route.params.gameID);
+    this.gameID = this.$route.params.gameID;
+    this.fetchGameDetails(this.gameID);
     // this.fetchGameDetails(2352);
     this.fetchUserDetails();
+    this.checkCanReview();
   },
   methods: {
     async fetchGameDetails(gameID) {
@@ -155,11 +195,11 @@ export default {
         this.error = "Failed to load game details.";
       }
     },
+
     async fetchUserDetails() {
       try {
         this.permissionLevel = sessionStorage.getItem("permissionLevel");
         this.username = sessionStorage.getItem("loggedInUsername"); 
- 
       } catch (error) {
         this.permissionLevel = 0;
         this.username = "guest";
@@ -168,9 +208,74 @@ export default {
         this.error = "Failed to load permission level.";
       }
     },
+
+    async checkCanReview() {
+      try {
+        const response = await axiosClient.get(`/users/${this.username}/${this.gameID}"`, {});
+
+        this.canReview = response.data.canReview;
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        this.error = "Failed to check if user can review.";
+        this.canReview = false;
+      }
+    },
+
+    async submitReview() {
+      try {
+
+        // Prepare the review request dto
+        const reviewRequest = {
+          description: this.reviewText,
+          score: this.reviewScore,
+        };
+
+        console.log('Review Request:', reviewRequest);
+        console.log('Hi');
+        console,log('Game ID:', this.gameID);
+        console.log('Bye');
+        console.log('Username:', this.username);
+
+        // Send POST request to the API
+        const response = await axios.post(
+          `/games/${this.gameID}/reviews`,
+          reviewRequest,
+          {
+            params: {
+              loggedInUsername: this.username, // Replace with the actual username variable
+            },
+          }
+        );
+
+        // Disable the review form after submission
+        this.canReview = false;
+
+        // Handle successful submission
+        console.log('Review submitted:', response.data.getStatusCode());
+        console.log('Answer:', response.data.getBody());
+
+        // Reset form and hide it
+        this.resetForm();
+      } catch (error) {
+        console.error('Error submitting review:', error);
+      }
+    },
+
+    cancelReview() {
+      this.resetForm();
+    },
+
+    resetForm() {
+      this.buttonWasPressed = false;
+      this.reviewText = '';
+      this.reviewScore = '';
+    },
+
     handleImageError(event) {
       event.target.src = "../assets/placeholder.jpg";
     },
+
     formatDate(dateString) {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
@@ -396,7 +501,7 @@ export default {
             border-radius: 0 5px 5px 0;
             background-color: #997aff;
             display: inline-block;
-            box-sizing: border-box;
+          box-sizing: border-box;
             transition: transform 0.1s;
         }
 
@@ -517,5 +622,105 @@ export default {
       }
     }
   }
+}
+
+/* Add Review Button */
+.add-review-button {
+  background-color: #7347ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-bottom: 20px;
+}
+
+.add-review-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.add-review-button:active {
+  background-color: #8c3de3;
+  transform: scale(0.95);
+}
+
+/* Review Form Container */
+.review-form-container {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* Review Form */
+.review-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: white;
+}
+
+/* Input Focus Styles */
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #a970ff;
+  box-shadow: 0 0 5px rgba(169, 112, 255, 0.5);
+}
+
+/* Form Buttons */
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.submit-review-button,
+.cancel-review-button {
+  background-color: #7347ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.submit-review-button:hover,
+.cancel-review-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.submit-review-button:active,
+.cancel-review-button:active {
+  background-color: #8c3de3;
+  transform: scale(0.95);
 }
 </style>
