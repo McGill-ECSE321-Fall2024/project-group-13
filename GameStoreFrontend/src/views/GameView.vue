@@ -172,18 +172,19 @@ export default {
   },
 
   created() {
-    this.gameID = this.$route.params.gameID;
-    this.fetchGameDetails(this.gameID);
-    // this.fetchGameDetails(2352);
+    // this.gameID = this.$route.params.gameID;
+    this.gameID = 1552;
     this.fetchUserDetails();
+    this.fetchGameDetails(this.gameID);
     this.checkCanReview();
+    console.log('Permission:', this.permissionLevel);
   },
   methods: {
     async fetchGameDetails(gameID) {
       try {
         const [gameResponse, reviewListResponse] = await Promise.all([
           axiosClient.get(`/games/${gameID}`, {
-            params: { loggedInUsername: "owner" },
+            params: { loggedInUsername: this.username },
           }),
           axiosClient.get(`/games/${gameID}/reviews`),
         ]);
@@ -196,31 +197,46 @@ export default {
       }
     },
 
-    async fetchUserDetails() {
+    fetchUserDetails() {
       try {
         this.permissionLevel = sessionStorage.getItem("permissionLevel");
-        this.username = sessionStorage.getItem("loggedInUsername"); 
+        if (this.permissionLevel === null) {
+          this.permissionLevel = 0;
+        }
+
+        this.username = sessionStorage.getItem("loggedInUsername");
+        if (this.username === null) {
+          this.username = "guest";
+        }
+
+        console.log('Username:', this.username);
+
+        // Now that username is set, call checkCanReview
+        this.checkCanReview();
       } catch (error) {
         this.permissionLevel = 0;
         this.username = "guest";
-
         console.error("Error fetching data:", error);
         this.error = "Failed to load permission level.";
       }
     },
 
+
     async checkCanReview() {
       try {
-        const response = await axiosClient.get(`/users/${this.username}/${this.gameID}"`, {});
+        console.log('Checking canReview for username:', this.username, 'and gameID:', this.gameID);
 
-        this.canReview = response.data.canReview;
+        const response = await axiosClient.get(`/users/${this.username}/${this.gameID}`, {});
+        console.log('Response data:', response.data);
 
+        this.canReview = response.data;
       } catch (error) {
         console.error("Error fetching data:", error);
         this.error = "Failed to check if user can review.";
         this.canReview = false;
       }
     },
+
 
     async submitReview() {
       try {
@@ -233,12 +249,11 @@ export default {
 
         console.log('Review Request:', reviewRequest);
         console.log('Hi');
-        console,log('Game ID:', this.gameID);
         console.log('Bye');
         console.log('Username:', this.username);
 
         // Send POST request to the API
-        const response = await axios.post(
+        const response = await axiosClient.post(
           `/games/${this.gameID}/reviews`,
           reviewRequest,
           {
