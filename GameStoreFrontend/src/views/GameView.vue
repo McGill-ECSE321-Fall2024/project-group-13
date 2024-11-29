@@ -39,7 +39,7 @@
       <div class="action-options" v-if="permissionLevel == 1">
         <div>
           <button class="action-buttons" id="buy-now" @click="addToCart">Add to cart</button
-          ><span id="price">{{ game.price }}</span>
+          ><span id="price">${{ game.price }}</span>
           <span id="promotion">{{
             game.promotion ? "-" + game.promotionPercentage + "%" : ""
           }}</span>
@@ -47,7 +47,7 @@
 
         <div>
           <button class="action-buttons" id="add-wishlist" @click="addToWishlist">
-            Add to your wishlist
+            Add to wishlist
           </button>
         </div>
       </div>
@@ -388,7 +388,7 @@ export default {
 }
 
 #title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: white;
   margin: 0;
 }
