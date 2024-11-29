@@ -94,8 +94,8 @@
   
   <style scoped>
   .game-card {
-    width: 225px;
-    height: 250px;
+    width: 215px;
+    height: 230px;
     background-color: #121212;
     color: #FFFFFF;
     border-radius: 10px;
@@ -115,12 +115,12 @@
   .image-wrapper {
     position: relative; 
     width: 100%;
-    height: 150px;
+    height: 130px;
   }
   
   .game-image {
     width: 100%;
-    height: 150px;
+    height: 130px;
     object-fit: cover;
   }
   
@@ -154,19 +154,19 @@
   }
   
   .game-title {
-    font-size: 1.25em;
+    font-size: 1.20em;
     margin: 0;
     color: #BB86FC;
   }
   
   .game-price {
-    font-size: 1.0em;
+    font-size: 0.9em;
     color: #ece6e6;
     margin: 5px 0;
   }
   
   .game-old-price {
-    font-size: 1.0em;
+    font-size: 0.9em;
     /* make old price more transparent */
     color: rgba(236, 230, 230, 0.5);
     margin: 5px 0;
@@ -174,7 +174,7 @@
   }
 
   .game-new-price {
-    font-size: 1.0em;
+    font-size: 0.9em;
     color: #ece6e6;
     margin: 5px 0;
   }
