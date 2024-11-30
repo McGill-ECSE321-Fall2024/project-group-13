@@ -198,6 +198,31 @@ public class ReviewService {
         return review;
     }
 
+    // Method to check if a customer has already liked a review or not
+    @Transactional
+    public Boolean checkHasLiked(int reviewID, String customerUsername) {
+        /// Retrieve the customer mad review
+        Customer customer = customerRepo.findByUsername(customerUsername);
+        Review review = reviewRepository.findByReviewID(reviewID);
+
+        // If either the customer or the review is not found we throw an exception
+        if (customer == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found.");
+        }
+
+        if (review == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found.");
+        }
+
+        // If the customer has already liked the review you cannot like it again
+        if (reviewLikeRepository.existsByReviewAndCustomer(review, customer)) {
+            return true;
+        }
+
+        // If the customer has not liked the review return false
+        return false;
+    }
+
     // Method to add a like to a review based on the reviewID and the customerID we
     // return false if it failed to add the like and true if it succeeded
     @Transactional
