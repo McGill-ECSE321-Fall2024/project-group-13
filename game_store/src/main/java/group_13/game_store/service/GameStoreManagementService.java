@@ -403,8 +403,8 @@ public class GameStoreManagementService {
         if (phoneNumber == null || !phoneNumber.matches("^\\d{3}-\\d{3}-\\d{4}$")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number must be in the format xxx-xxx-xxxx.");
         }
-
-        Employee employee = new Employee(name, username, email, password, phoneNumber, isActive);
+        String hashedPassword = accountService.hashPassword(password);
+        Employee employee = new Employee(name, username, email, hashedPassword, phoneNumber, isActive);
         employeeRepository.save(employee);
     }
 
