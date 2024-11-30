@@ -85,7 +85,7 @@ public class DataInitializer {
 
         if (customerRepo.findByUsername("defaultCustomer") == null) {
 
-            Address savedAddress = new Address("Sherbrooke St W", "H3A0G4", 845, "Montreal", "Quebec", "Canada", 0);
+            Address savedAddress = new Address("Random Street", "M3B0G7", 855, "Toronto", "Ontario", "Canada", 0);
             addressRepo.save(savedAddress);
 
             PaymentInformation savedPaymentInformation = new PaymentInformation("1234123412341234", "Default Customer",
@@ -584,16 +584,16 @@ public class DataInitializer {
         }
 
         // DELETE THIS AFTER FIXING LOGIN ISSUE
-        WishlistItem.Key key1 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Animal Crossing"));
-            WishlistItem savedWishlistItem1 = new WishlistItem(key1);
-            wishlistRepo.save(savedWishlistItem1);
+         WishlistItem.Key key1 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Animal Crossing"));
+             WishlistItem savedWishlistItem1 = new WishlistItem(key1);
+             wishlistRepo.save(savedWishlistItem1);
 
-            WishlistItem.Key key2 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Halo Infinite"));
-            WishlistItem savedWishlistItem2 = new WishlistItem(key2);
-            wishlistRepo.save(savedWishlistItem2);
+             WishlistItem.Key key2 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Halo Infinite"));
+             WishlistItem savedWishlistItem2 = new WishlistItem(key2);
+             wishlistRepo.save(savedWishlistItem2);
 
-            WishlistItem.Key key3 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Dying Light"));
-            WishlistItem savedWishlistItem3 = new WishlistItem(key3);
-            wishlistRepo.save(savedWishlistItem3);
+             WishlistItem.Key key3 = new WishlistItem.Key(customerRepo.findByUsername("defaultCustomer"), gameRepo.findByTitle("Dying Light"));
+             WishlistItem savedWishlistItem3 = new WishlistItem(key3);
+             wishlistRepo.save(savedWishlistItem3);
 }
 }

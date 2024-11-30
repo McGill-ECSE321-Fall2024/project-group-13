@@ -154,13 +154,20 @@ export default {
         console.log("permissionLevel is now: ", permission);
 
         try {
-          const wishlistGamesResponse = await axiosClient.put('/customers/' + username + '/cart/' + gameID, null, { params: { quantity: 1 } });
+          const [wishlistGamesResponse, wishListItemRemovalResponse] = await Promise.all([axiosClient.put('/customers/' + username + '/cart/' + gameID, null, { params: { quantity: 1 } }), axiosClient.delete('/customers/' + username + '/wishlist/' + gameID)]);
           this.wishlistItems = this.wishlistItems.filter(wishlistItemToDelete => Number(wishlistItemToDelete.gameID) !== Number(gameID));
           // if not a customer, display that you must a logged in customer
+
           console.log("item has been added to cart");  
         } catch (error) {
           console.error('Error fetching data:', error);
         }
+      },
+
+      handleGameClick(gameId) {
+        console.log("Game clicked: ", gameId); 
+        // Navigate to the Game View based on the gameId
+        this.$router.push({ name: 'Game', params: { gameID: gameId } });
       }
 
     // one for adding to cart
