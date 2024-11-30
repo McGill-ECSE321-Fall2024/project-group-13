@@ -360,6 +360,7 @@ export default {
         const deliveryData = response.data;
         // Store the deliveryInfoId
         this.deliveryInfoId = deliveryData.addressID;
+        this.paymentInfo.addressId = deliveryData.addressID;
         // Map the backend data to paymentInfo object
         this.deliveryInfo = {
             street: deliveryData.street,
