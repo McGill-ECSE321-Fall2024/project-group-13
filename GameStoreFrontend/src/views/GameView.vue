@@ -336,8 +336,20 @@ export default {
 
         // Reset form and hide it
         this.resetForm();
+
+        this.$swal({
+                title: 'Success',
+                text: 'Review was successfully submitted.',
+                icon: 'success',
+          });
       } catch (error) {
         console.error('Error submitting review:', error);
+
+        this.$swal({
+                title: 'Error',
+                text: error.response.data.message || 'Review could not be submitted.',
+                icon: 'error',
+          });
       }
     },
 
@@ -381,8 +393,20 @@ export default {
         // Reset form and hide it
         this.replyText = '';
         this.replyButtonWasPressed = false;
+
+        this.$swal({
+                title: 'Success',
+                text: 'Reply was successfully submitted.',
+                icon: 'success',
+          });
       } catch (error) {
         console.error('Error submitting reply:', error);
+
+        this.$swal({
+                title: 'Error',
+                text: error.response.data.message || 'Reply could not be submitted.',
+                icon: 'error',
+          });
       }
     },
 
@@ -428,8 +452,20 @@ export default {
           );
 
           console.log('Response:', response.data);
+
+          this.$swal({
+                title: 'Success',
+                text: this.game.title + ' was successfully added to your cart.',
+                icon: 'success',
+          });
       } catch (error) {
           console.error('Error adding to cart:', error);
+
+          this.$swal({
+                title: 'Error',
+                text: error.response.data.message || this.game.title + ' could not be added to your cart.',
+                icon: 'error',
+          });
       }
     },
 
@@ -438,8 +474,20 @@ export default {
           const response = await axiosClient.put(`/customers/${this.username}/wishlist/${this.gameID}`);
 
           console.log('Response:', response.data);
+
+          this.$swal({
+                title: 'Success',
+                text: this.game.title + ' was successfully added to your wishlist.',
+                icon: 'success',
+          });
       } catch (error) {
           console.error('Error adding to wishlist:', error);
+
+          this.$swal({
+                title: 'Error',
+                text: error.response.data.message || this.game.title + ' could not be added to your wishlist.',
+                icon: 'error',
+          });
       }
     },
 
@@ -454,8 +502,28 @@ export default {
           );
 
           console.log('Response:', response.data);
+          
+          if(this.permissionLevel == 2) {
+            this.$swal({
+                title: 'Success',
+                text: 'Archive request for ' + this.game.title + ' was successfully submitted.',
+                icon: 'success',
+            });
+          } else {
+            this.$swal({
+                title: 'Success',
+                text: this.game.title + ' was successfully archived.',
+                icon: 'success',
+            });
+          }
       } catch (error) {
           console.error('Error archiving game:', error);
+
+          this.$swal({
+                title: 'Error',
+                text: error.response.data.message || this.game.title + ' could not be archived.',
+                icon: 'error',
+          });
       }
     },
     
