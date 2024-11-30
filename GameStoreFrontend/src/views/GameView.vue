@@ -104,13 +104,39 @@
               <button class="like-button" v-if="this.permissionLevel == 1 && !review.hasLiked" @click="likeReview(review.reviewID)">Like</button>
               <button class="like-button" v-if="this.permissionLevel == 1 && review.hasLiked" @click="removeLikeReview(review.reviewID)">Remove Like</button>
               
+              <button class="like-button" @click="replyButtonWasPressed=true, reviewRepliedTo=review.reviewID" v-if="!review.hasReply && permissionLevel == 3 && replyButtonWasPressed === false">Reply</button>
+              
+              
               <p class="likes">Likes: {{ review.likes }}</p>
             </div>
           </div>
+
           <p class="content">{{ review.description }}</p>
           <div class="review-footer">
             <p class="rating">Rating: {{ review.score }}/5</p>
             <p class="date">Date: {{ formatDate(review.date) }}</p>
+          </div>
+          
+          <div v-if="replyButtonWasPressed && review.reviewID === reviewRepliedTo" class="review-form-container">
+            <form @submit.prevent="replyToReview(reviewRepliedTo)" class="review-form">
+
+              <div class="form-group">
+                <label for="replyText">Reply:</label>
+                <textarea id="replyText" v-model="replyText" required></textarea>
+              </div>
+
+              <div class="form-buttons">
+                <button type="submit" class="submit-review-button">Submit Reply</button>
+                <button type="button" class="cancel-review-button" @click="cancelReply">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div v-if="review.hasReply">
+            <div class="review-header">
+              <p class="username">{{ capitalizeFirstLetter(review.replierUsername) }}</p>
+            </div>
+            <p class="content">{{ review.reply }}</p>
           </div>
         </div>
       </div>
@@ -164,6 +190,11 @@ export default {
       reviews: [],
       error: null,
       permissionLevel: 0,
+
+      // Reply Section
+      replyText: '',
+      reviewRepliedTo: null,
+      replyButtonWasPressed: false,
 
       // Review Form section
       reviewText: '',
@@ -319,7 +350,64 @@ export default {
       }
     },
 
+    async replyToReview(reviewID) {
+      try {
+        if (!this.replyText) {
+          console.error('Reply text is required.');
+          return;
+        }
+
+        if(this.permissionLevel != 3) {
+          console.error('Only owners can submit replies.');
+          return;
+        }
+
+        // Prepare the review request dto
+        const replyRequest = {
+          text: this.replyText,
+        };
+
+        console.log('Reply Request:', replyRequest);
+        console.log('Game ID:', this.gameID);
+        console.log('Username:', this.username);
+
+        console.log('Submitting reply...');
+
+        // Send POST request to the API
+        const response = await axiosClient.post(
+          `/games/reviews/${reviewID}/replies`,
+          replyRequest,
+          {
+            params: {
+              loggedInUsername: this.username, // Replace with the actual username variable
+            },
+          }
+        );
+
+        // Handle successful submission
+        console.log('Reply submitted:', response.data);
+
+        // Assuming the API returns the new review object in response.data
+        const newReply = response.data;
+
+        // Add the new review to the beginning of the reviews array
+        this.reviews.unshift(newReply);
+
+        // Reset form and hide it
+        this.replyText = '';
+        this.replyButtonWasPressed = false;
+      } catch (error) {
+        console.error('Error submitting reply:', error);
+      }
+    },
+
     cancelReview() {
+      this.resetForm();
+    },
+
+    cancelReply() {
+      this.replyText = '';
+      this.replyButtonWasPressed = false;
       this.resetForm();
     },
 
@@ -442,6 +530,11 @@ export default {
 
     async checkHasLiked(reviewID) {
     try {
+      if (this.permissionLevel !== 1) {
+        console.log('Only customers can like reviews.');
+        return false;
+      }
+
       const response = await axiosClient.get(
         `/games/${this.gameID}/reviews/${reviewID}/likes`,
         {
@@ -813,6 +906,33 @@ export default {
       }
     }
   }
+}
+
+#replyText {
+  height: 40px;
+}
+
+.reply-button{
+  background-color: #7347ff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 10px;
+}
+
+.reply-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.reply-button:active {
+  background-color: #8c3de3;
+  transform: scale(0.95);
 }
 
 /* Add Review Button */
