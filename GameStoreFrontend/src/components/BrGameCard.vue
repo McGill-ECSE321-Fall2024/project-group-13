@@ -4,8 +4,8 @@
       <img :src="resolveImagePath(image)" alt="Game Image" class="game-image" />
 
       <!-- Promotional Subtext -->
-      <div class="promosubtext" v-if="promotionPercentage != 0">
-        <div class="promopct" v-if="promotionPercentage != 0">
+      <div class="promosubtext" v-if="promotionPercentage != 0 && status != 'Archived'">
+        <div class="promopct" v-if="promotionPercentage != 0 && status != 'Archived'">
           <span v-if="promotionPercentage != 0">-{{promotionPercentage}}%</span>
         </div>
       </div>

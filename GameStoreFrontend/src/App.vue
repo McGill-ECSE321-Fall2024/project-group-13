@@ -8,10 +8,12 @@ const router = useRouter();
 
 onMounted(() => {
   // Initialize session storage if not set
-  if (!session.loggedInUsername) {
+  if (!sessionStorage.getItem("loggedInUsername")) {
+    sessionStorage.setItem("loggedInUsername", "guest");
     session.loggedInUsername = "guest";
   }
-  if (!session.permissionLevel) {
+  if (!sessionStorage.getItem("permissionLevel")) {
+    sessionStorage.setItem("permissionLevel", 0);
     session.permissionLevel = 0;
   }
 });
