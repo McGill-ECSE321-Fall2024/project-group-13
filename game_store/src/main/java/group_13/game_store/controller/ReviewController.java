@@ -178,8 +178,22 @@ public class ReviewController {
     }
 
     /*
-     * /games/{gameID}/reviews/{reviewID}/likes [POST, DELETE]
+     * /games/{gameID}/reviews/{reviewID}/likes [POST, DELETE, GET]
      */
+
+    /**
+     * Get a boolean to see if a user has liked a review by its unique ID and the username of the user that is logged in
+     * 
+     * @param reviewID the ID of the review to get the number of likes for
+     * 
+     * @return the number of likes for the review
+     */
+    @GetMapping("/games/{gameID}/reviews/{reviewID}/likes")
+    public Boolean hasLikedReview(@PathVariable int reviewID,
+    @RequestParam String loggedInUsername) 
+    {
+        return reviewService.checkHasLiked(reviewID, loggedInUsername);
+    }
 
     /**
      * Add a like to a review by its unique ID (Customer and above only)

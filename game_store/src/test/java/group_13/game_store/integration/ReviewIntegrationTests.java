@@ -828,5 +828,52 @@ public class ReviewIntegrationTests {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertTrue(response.getBody().contains("User does not have permission to view reviews."));
     }
+
+    @Test
+    @org.junit.jupiter.api.Order(22)
+    public void testHasLikedReview() {
+        // Arrange
+        String username = "tim_roma";
+        int gameId = game1.getGameID();
+        int reviewId = review1ID;
+
+        // Act
+        ResponseEntity<String> response = client.getForEntity(
+            "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + username,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        assertEquals("false", response.getBody());
+
+        // Like the review
+        ResponseEntity<String> likeResponse = client.postForEntity(
+            "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + username,
+            null,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(likeResponse);
+        assertEquals(HttpStatus.OK, likeResponse.getStatusCode());
+
+        // Check if the user has liked the review
+        ResponseEntity<String> response2 = client.getForEntity(
+            "/games/" + gameId + "/reviews/" + reviewId + "/likes?loggedInUsername=" + username,
+            String.class
+        );
+
+        // Assert
+        assertNotNull(response2);
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+        assertNotNull(response2.getBody());
+
+        assertEquals("true", response2.getBody());
+    }
+
     
 }
