@@ -30,6 +30,14 @@
               Parental Rating: {{ game.parentalRating }}
             </p>
             <p id="stock">Current Stock: {{ game.stock }}</p>
+
+            <p id="price" v-if="this.permissionLevel == 0">
+              Price: ${{ (game.price * (1 - game.promotionPercentage * 0.01)).toFixed(2) }}
+            </p>
+
+            <p id="promotion" v-if="game.promotionPercentage != 0 && permissionLevel == 0">
+              {{ game.promotionName + ': -' + game.promotionPercentage + '%' }}
+            </p>
           </div>
         </div>
       </div>
@@ -39,10 +47,8 @@
       <div class="action-options" v-if="permissionLevel == 1">
         <div>
           <button class="action-buttons" id="buy-now" @click="addToCart">Add to cart</button
-          ><span id="price">${{ game.price }}</span>
-          <span id="promotion">{{
-            game.promotion ? "-" + game.promotionPercentage + "%" : ""
-          }}</span>
+          ><span id="price">${{ (game.price * (1 - game.promotionPercentage * 0.01)).toFixed(2)}}</span>
+          <span id="promotion" v-if="game.promotionPercentage != 0">-{{game.promotionPercentage + "%"}}</span>
         </div>
 
         <div>
@@ -71,7 +77,8 @@
 
       <div class="action-options" v-if="permissionLevel == 3">
         <div>
-          <button class="archive-buttons" @click="archiveGame">Archive</button>
+          <!-- <button class="archive-buttons" @click="archiveGame">Archive</button> -->
+          <RouterLink class="archive-buttons" to="/"  @click="archiveGame">Archive</RouterLink>
         </div>
       </div>
       
@@ -215,6 +222,7 @@ export default {
     this.checkCanReview();
     console.log('Permission:', this.permissionLevel);
     console.log('Username:', this.username);
+    console.log('Game ID:', this.gameID);
   },
   methods: {
     async fetchGameDetails(gameID) {
@@ -493,6 +501,7 @@ export default {
 
     async archiveGame() {
       try {
+          console.log('Archiving game API:', `/games/${this.gameID}`);
           const response = await axiosClient.delete(`/games/${this.gameID}`,
             {
               params: {
@@ -738,6 +747,11 @@ export default {
       background-color: rgb(255, 0, 81);
       border-color: rgb(255, 0, 81);
     }
+
+    #promotion {
+      background-color: rgba(231, 19, 178, 0.5);
+      border-color: rgba(231, 19, 178, 0.5);
+    }
   }
 }
 
@@ -817,6 +831,15 @@ export default {
 
         .archive-buttons {
             background-color: #ff0000;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
+            position: relative;
         }
 
         .archive-buttons:hover {
