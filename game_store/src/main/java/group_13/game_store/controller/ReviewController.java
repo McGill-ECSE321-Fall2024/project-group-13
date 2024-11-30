@@ -258,7 +258,7 @@ public class ReviewController {
 
         // If no reply is found, return a NOT_FOUND status code
         if (reply == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No reply found for review with ID " + reviewID);
+            return null;
         }
 
         return new ReplyResponseDto(reply);

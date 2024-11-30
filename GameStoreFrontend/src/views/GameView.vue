@@ -116,6 +116,15 @@
             <p class="rating">Rating: {{ review.score }}/5</p>
             <p class="date">Date: {{ formatDate(review.date) }}</p>
           </div>
+
+          <!-- Display Replies -->
+          <div class="replies" v-if="review.reply != null">
+            <div class="reply">
+              <p class="reply-username">{{ capitalizeFirstLetter(review.reply.username || 'Unknown') }}</p>
+              <p class="reply-content">{{ review.reply.text }}</p>
+              <p class="reply-date">{{ formatDate(review.reply.date) }}</p>
+            </div>
+          </div>
           
           <div v-if="replyButtonWasPressed && review.reviewID === reviewRepliedTo" class="review-form-container">
             <form @submit.prevent="replyToReview(reviewRepliedTo)" class="review-form">
@@ -132,12 +141,6 @@
             </form>
           </div>
 
-          <div v-if="review.hasReply">
-            <div class="review-header">
-              <p class="username">{{ capitalizeFirstLetter(review.replierUsername) }}</p>
-            </div>
-            <p class="content">{{ review.reply }}</p>
-          </div>
         </div>
       </div>
 
@@ -233,6 +236,7 @@ export default {
         await Promise.all(
           this.reviews.map(async (review) => {
             review.hasLiked = await this.checkHasLiked(review.reviewID);
+            review.reply = await this.fetchReply(review.reviewID);
           })
         );
       } catch (error) {
@@ -552,6 +556,21 @@ export default {
     } catch (error) {
       console.error('Error checking if review is liked:', error);
       return false; // Assume not liked in case of error
+    }
+  },
+
+  async fetchReply(reviewID) {
+    try {
+      const response = await axiosClient.get(`/games/reviews/${reviewID}/replies`, {
+        params: { loggedInUsername: this.username },
+      });
+      console.log(`Replies for reviewID ${reviewID}:`, response.data);
+
+      return response.data;
+
+    } catch (error) {
+      console.error('Error fetching reply:', error);
+      return null;
     }
   },
 
@@ -1033,5 +1052,32 @@ export default {
 .cancel-review-button:active {
   background-color: #8c3de3;
   transform: scale(0.95);
+}
+
+/* Replies Section */
+.replies {
+  margin-top: 10px;
+  padding-left: 20px;
+  border-left: 2px solid #444;
+}
+
+.reply {
+  background-color: #3c3c3c;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.reply-username {
+  font-weight: bold;
+}
+
+.reply-content {
+  margin: 5px 0;
+}
+
+.reply-date {
+  font-size: 0.7rem;
+  color: #aaa;
 }
 </style>

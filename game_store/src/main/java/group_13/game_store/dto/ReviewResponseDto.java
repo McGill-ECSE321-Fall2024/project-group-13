@@ -11,6 +11,7 @@ public class ReviewResponseDto {
     private int score;
     private int likes;
     private String reviewerUsername;
+    private Boolean hasReply;
 
     //Set the date to a LocalDate instead of a Date to make it easier to work with
     private LocalDate date;
@@ -27,6 +28,7 @@ public class ReviewResponseDto {
         this.score = review.getScore();
         this.likes = review.getLikes();
         this.reviewerUsername = review.getReviewer().getUsername();
+        this.hasReply = review.getReply() != null;
 
         //Convert the Date to a LocalDate
         this.date = review.getDate().toLocalDate();
@@ -79,6 +81,14 @@ public class ReviewResponseDto {
     
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public Boolean getHasReply() {
+        return hasReply;
+    }
+
+    public void setHasReply(Boolean hasReply) {
+        this.hasReply = hasReply;
     }
     
 }

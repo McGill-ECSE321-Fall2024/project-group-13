@@ -703,9 +703,7 @@ public class ReviewIntegrationTests {
 
         // Assert
         assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().contains("No reply found for review with ID " + review1ID));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
