@@ -98,6 +98,7 @@
             type="text"
             id="deliveryPostalCode"
             v-model="deliveryInfo.postalCode"
+            placeholder="A1A1A1"
             required
           />
           <span v-if="deliveryErrors.postalCode" class="error-message">{{ deliveryErrors.postalCode }}</span>
@@ -133,6 +134,7 @@
             type="text"
             id="creditCardNumber"
             v-model="paymentInfo.cardNumber"
+            placeholder="XXXXXXXXXXXXXXXX"
             required
           />
           <span v-if="paymentErrors.cardNumber" class="error-message">{{ paymentErrors.cardNumber }}</span>
@@ -154,7 +156,7 @@
         <!-- CVV -->
         <div class="form-group">
           <label for="cvv">CVV</label>
-          <input type="text" id="cvv" v-model="paymentInfo.cvvCode" required />
+          <input type="text" id="cvv" v-model="paymentInfo.cvvCode" placeholder="XXX" required />
           <span v-if="paymentErrors.cvvCode" class="error-message">{{ paymentErrors.cvvCode }}</span>
         </div>
 
@@ -387,7 +389,7 @@ export default {
       // Credit Card Number must be 16 digits
       const cardNumber = this.paymentInfo.cardNumber.replace(/\s+/g, '');
       if (!/^\d{16}$/.test(cardNumber)) {
-        this.paymentErrors.cardNumber = 'Credit Card Number must be 16 digits.';
+        this.paymentErrors.cardNumber = 'Credit Card Number is not valid';
         valid = false;
       }
 
@@ -420,7 +422,7 @@ export default {
       // CVV must be 3 digits
       const cvvCode = this.paymentInfo.cvvCode;
       if (!/^\d{3}$/.test(cvvCode)) {
-        this.paymentErrors.cvvCode = 'CVV must be 3 digits.';
+        this.paymentErrors.cvvCode = 'CVV is not valid';
         valid = false;
       }
 
@@ -434,6 +436,12 @@ export default {
       // Check if Address Number is empty
       if (!this.deliveryInfo.number || String(this.deliveryInfo.number).trim() === '') {
         this.deliveryErrors.number = 'Address Number is required.';
+        valid = false;
+      }
+
+      // Check if Address Number is a number
+      if (isNaN(this.deliveryInfo.number)) {
+        this.deliveryErrors.number = 'Address Number must be a number.';
         valid = false;
       }
 
@@ -510,7 +518,7 @@ export default {
             console.error('Error saving payment information:', error);
             this.$swal({
               title: 'Error',
-              text: 'Error saving new payment information.',
+              text: 'Error saving new payment information: ' + error.message || 'Error saving new payment information.',
               icon: 'error',
             });
           }
@@ -551,7 +559,7 @@ export default {
           console.error('Error saving delivery information:', error);
           this.$swal({
                 title: 'Error',
-                text: 'Error saving delivery information',
+                text: 'Error saving delivery information: ' + error.message || 'Error saving delivery information',
                 icon: 'error',
               });
         }
@@ -577,7 +585,7 @@ export default {
         console.error('Error placing order:', error);
         this.$swal({
                 title: 'Error',
-                text: 'Error placing order',
+                text: 'Error placing order: ' + error.message || 'Error placing order',
                 icon: 'error',
               });
       }
