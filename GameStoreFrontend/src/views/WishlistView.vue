@@ -12,31 +12,39 @@
           <button @click="clearCart" v-if="isACustomer" id="clearBtn"> Clear Wishlist</button>
         </div>
 
-        <div class="wishlist-items">
+        <div class="wishlist-items" v-if="wishlistItems.length > 0">
           
-          <!-- div only appears if not a customer-->
-          <div v-if="!isACustomer" id="notACustomer"> Must be a logged in customer to view your own wishlist </div>
-
           <!-- will need to add games here-->
           <div v-for="(game, index) in wishlistItems" :key="index" class="wishlist-item">
-            <img :src=resolveImagePath(game.img) alt="Game Image" class="game-image" />
+            
+            <img :src=resolveImagePath(game.img) alt="Game Image" class="game-image" @click="handleGameClick(game.gameID)"/>
 
-            <div class="game-details">
+            <div class="game-details" @click="handleGameClick(game.gameID)">
               <h2 class="game-title">{{ game.title }}</h2>
               <!-- NEED TO FIX SITUATION IN WHICH PARAGRAPH IS TOO LONG-->
-              <p class="game-description">{{ game.description }}</p>
+              <p class="game-description">{{ game.description }} </p>
             </div>
                   
             <div class="game-actions">
               <button @click="addWishlistItemToCart(game.gameID)" class="individual-wishlist-item-button">Add to Cart</button>
               <button @click="clearCartItem(game.gameID)" class="individual-wishlist-item-button">Remove from Wishlist</button>
             </div>
+          
           </div>      
 
-          </div>
+          
 
         </div>
+
+        <div v-else class="empty-wishlist">
+          <p>
+            Your wishlist is empty.
+            <router-link to="/browse">Browse games</router-link>
+            to fill your wishlist.
+          </p>
+        </div>
       
+      </div>
       </div>
 </template>
 
@@ -53,9 +61,8 @@ export default {
     
     data() {
        return {
-         wishlistItems: [],
+         wishlistItems: []
          //errorMessage: null
-         isACustomer: false
        };
      },
 
@@ -72,33 +79,13 @@ export default {
               const wishlistGamesResponse = await axiosClient.get('/customers/' + username + '/wishlist');
               // if not a customer, display that you must a logged in customer
               console.log(wishlistGamesResponse.data); 
-              this.wishlistItems = wishlistGamesResponse.data.games
-              this.isACustomer = true;
+              this.wishlistItems = wishlistGamesResponse.data.games;
             } else {
               console.log("User must be a customer account");
             }
        } catch (error) {
           console.error('Error fetching data:', error);
           this.wishlistItems = [];
-
-          if (error.response) {
-            const status = error.response.status;
-            const message = error.response.data?.message || "An error occurred.";
-                    
-            // Display user-friendly messages based on status codes or backend message
-            if (status == 403) {
-              this.errorMessage = message; // Example: Invalid credentials
-              console.log(message);
-            } else {
-              this.errorMessage = "An unexpected error occurred.";
-            }
-            this.wishlistItems = [];
-            } else {
-              // Network or unexpected error
-              console.error(error);
-              this.errorMessage = "Unable to connect to the server.";
-              this.wishlistItems = [];
-            }
        }
     },
 
@@ -219,9 +206,18 @@ export default {
   margin: 2%;
 }
 
+.empty-wishlist {
+  padding: 0%;
+  margin: 2%;
+}
+
 .game-details {
   flex: 1;
-  margin-bottom: 10%;
+  height: 150px;
+}
+
+.game-details:hover {
+  cursor: pointer;
 }
 
 .game-title {
@@ -232,10 +228,13 @@ export default {
 
 .game-description {
   margin: 5px 0;
+  word-wrap: break-word;
+  margin-right: 20px;
 }
 
 .wishlist-item {
   display: flex;
+  flex-direction: row;
   align-items: center;
   margin-bottom: 2%;
   background-color: rgba(84, 84, 84, 0.65);
@@ -250,6 +249,10 @@ export default {
   object-fit: cover;
   margin-right: 20px;
   border-radius: 10px;
+}
+
+.game-image:hover {
+  cursor: pointer;
 }
 
 .game-actions {
