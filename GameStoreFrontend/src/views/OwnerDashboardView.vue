@@ -14,10 +14,11 @@
 
         <!-- Games Section -->
         <section class="box">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;" >
             <h2 style="margin: 0;">Games</h2>
-            <select v-model="selectedPendingArchiveGame" @change="filterByPendingArchive" style="margin-left: auto; margin-right: 10px; width:200px; height:40px; margin-bottom: 0px;">
-              <option value="" disabled>Select Pending Archive Games</option>
+            <select v-model="selectedPendingArchiveGame" @change="filterByPendingArchive" style="margin-left: auto; margin-right: 10px; width:200px; height:40px; margin-bottom: 0px; " >
+              <option value="" disabled selected hidden>Archive Request...</option>
+              <option value="">No Filter</option> <!-- Option to show all games -->
               <option v-for="game in pendingArchiveGames" :value="game.id" :key="game.id">
                 {{ game.title }}
               </option>
@@ -153,6 +154,7 @@
             <li
               v-for="game in games"
               :key="game.id"
+              :style="getGameStyle(game.status)"
               style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 5px 0;"
             >
               <!-- Game Details -->
@@ -471,7 +473,7 @@ export default {
         endDate: "",
       },
       pendingArchiveGames: [], // Stores games with "PendingArchive" status
-      selectedPendingArchiveGame: null, // Stores the selected game ID
+      selectedPendingArchiveGame: "", // Stores the selected game ID
       isUpdatingEmployee: false, // Tracks whether the "Update Employee" form is visible
       currentEmployee: {
         username: "",
@@ -593,6 +595,11 @@ export default {
     },
     toggleAddPromotion() {
       this.isAddingPromotion = !this.isAddingPromotion;
+      if (this.isUpdatingPromotion) {
+        this.isUpdatingPromotion = false;
+        this.isAddingPromotion = false;
+        this.resetCurrentPromotion();
+      }
     },
     async savePromotion() {
       console.log("Game ID:", this.newPromotion.gameID);
@@ -1111,14 +1118,22 @@ export default {
     },
 
 
-    deleteGame(id) {
-      axiosClient
-        .delete(`/games/${id}`, {
+    async deleteGame(id) {
+      try {
+        const response = await axiosClient.delete(`/games/${id}`, {
           params: { loggedInUsername: "owner" },
-        })
-        .then(() => {
-          this.games = this.games.filter((game) => game.id !== id);
         });
+
+        const deletedGame = this.games.find((game) => game.id === id);
+        // Update the games list by removing the deleted game
+        this.games = this.games.filter((game) => game.id !== id);
+        deletedGame.status = "Archived";
+        this.games.push(deletedGame);
+        console.log("Game deleted successfully:", response.data);
+        alert("Game deleted successfully!");
+      } catch (error) {
+        alert("These games cannot be archived.")
+      }
     },
     deleteEmployee(username) {
       axiosClient
@@ -1140,7 +1155,24 @@ export default {
     } else {
       this.fetchGames(); // Reset to fetch all games
     }
-  },
+    },
+    getGameStyle(status) {
+      switch (status) {
+        case 'Archived':
+          return {
+            backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red tint
+            color: 'grey' // Greyed-out text
+          };
+        case 'PendingArchive':
+          return {
+            backgroundColor: 'rgba(0, 0, 255, 0.1)', // Light blue tint
+            color: 'grey' // Greyed-out text
+          };
+        default:
+          return {}; // No special styles for other statuses
+      }
+    }
+
   },
 };
 </script>
@@ -1280,14 +1312,14 @@ hr {
 }
 
 .delete__btn {
-  background-color: #380119;
-  color: #998b91;
+  background-color: #ff0000;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
   margin: 0 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   transition: background-color 0.3s ease, transform 0.2s ease;
   display: flex;
   align-items: center;
