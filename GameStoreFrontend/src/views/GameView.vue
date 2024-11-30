@@ -448,9 +448,12 @@ export default {
     },
 
     formatDate(dateString) {
+      const date = new Date(dateString);
+      date.setDate(date.getDate() + 1); // Adds one day to the date
       const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(dateString).toLocaleDateString(undefined, options);
+      return date.toLocaleDateString(undefined, options);
     },
+
 
     async addToCart() {
       try {
