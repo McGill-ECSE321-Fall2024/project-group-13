@@ -30,6 +30,14 @@
               Parental Rating: {{ game.parentalRating }}
             </p>
             <p id="stock">Current Stock: {{ game.stock }}</p>
+
+            <p id="price" v-if="this.permissionLevel == 0">
+              Price: ${{ (game.price * (1 - game.promotionPercentage * 0.01)).toFixed(2) }}
+            </p>
+
+            <p id="promotion" v-if="game.promotionPercentage != 0 && permissionLevel == 0">
+              {{ game.promotionName + ': -' + game.promotionPercentage + '%' }}
+            </p>
           </div>
         </div>
       </div>
@@ -39,10 +47,8 @@
       <div class="action-options" v-if="permissionLevel == 1">
         <div>
           <button class="action-buttons" id="buy-now" @click="addToCart">Add to cart</button
-          ><span id="price">${{ game.price }}</span>
-          <span id="promotion">{{
-            game.promotion ? "-" + game.promotionPercentage + "%" : ""
-          }}</span>
+          ><span id="price">${{ (game.price * (1 - game.promotionPercentage * 0.01)).toFixed(2)}}</span>
+          <span id="promotion" v-if="game.promotionPercentage != 0">-{{game.promotionPercentage + "%"}}</span>
         </div>
 
         <div>
@@ -71,7 +77,8 @@
 
       <div class="action-options" v-if="permissionLevel == 3">
         <div>
-          <button class="archive-buttons" @click="archiveGame">Archive</button>
+          <!-- <button class="archive-buttons" @click="archiveGame">Archive</button> -->
+          <RouterLink class="archive-buttons" to="/"  @click="archiveGame">Archive</RouterLink>
         </div>
       </div>
       
@@ -99,22 +106,53 @@
       <div class="reviews">
         <div class="review" v-for="(review, index) in reviews" :key="index">
           <div class="review-header">
-            <p class="username">{{ review.username }}</p>
+            <p class="username">{{ capitalizeFirstLetter(review.reviewerUsername) }}</p>
             <div class="likes-container">
-              <button class="like-button">Like</button>
+              <button class="like-button" v-if="this.permissionLevel == 1 && !review.hasLiked" @click="likeReview(review.reviewID)">Like</button>
+              <button class="like-button" v-if="this.permissionLevel == 1 && review.hasLiked" @click="removeLikeReview(review.reviewID)">Remove Like</button>
+              
+              <button class="like-button" @click="replyButtonWasPressed=true, reviewRepliedTo=review.reviewID" v-if="!(review.reply != null && review.reply !== '') && permissionLevel == 3 && replyButtonWasPressed === false">Reply</button>
+              
+              
               <p class="likes">Likes: {{ review.likes }}</p>
             </div>
           </div>
-          <p class="content">{{ review.content }}</p>
+
+          <p class="content">{{ review.description }}</p>
           <div class="review-footer">
-            <p class="rating">Rating: {{ review.rating }}/5</p>
-            <p class="date">Date: {{ formatDate(review.date) }}</p>
+            <p class="rating">Rating: {{ review.score }}/5</p>
+            <p class="date">{{ formatDate(review.date) }}</p>
           </div>
+
+          <!-- Display Replies -->
+          <div class="replies" v-if="review.reply != null && review.reply !== ''">
+            <div class="reply">
+              <p class="reply-username">{{ capitalizeFirstLetter(review.reply.username || 'Owner') }}</p>
+              <p class="reply-content">{{ review.reply.text }}</p>
+              <p class="reply-date">{{ formatDate(review.reply.date) }}</p>
+            </div>
+          </div>
+          
+          <div v-if="replyButtonWasPressed && review.reviewID === reviewRepliedTo" class="review-form-container">
+            <form @submit.prevent="replyToReview(reviewRepliedTo)" class="review-form">
+
+              <div class="form-group">
+                <label for="replyText">Reply:</label>
+                <textarea id="replyText" v-model="replyText" required></textarea>
+              </div>
+
+              <div class="form-buttons">
+                <button type="submit" class="submit-review-button">Submit Reply</button>
+                <button type="button" class="cancel-review-button" @click="cancelReply">Cancel</button>
+              </div>
+            </form>
+          </div>
+
         </div>
       </div>
 
       <!-- Add Review Section -->
-      <div v-if="!canReview">
+      <div v-if="canReview">
         <!-- Add Review Button -->
         <button class="add-review-button" @click="buttonWasPressed = true" v-if="!buttonWasPressed">Add a Review</button>
 
@@ -163,6 +201,11 @@ export default {
       error: null,
       permissionLevel: 0,
 
+      // Reply Section
+      replyText: '',
+      reviewRepliedTo: null,
+      replyButtonWasPressed: false,
+
       // Review Form section
       reviewText: '',
       reviewScore: '',
@@ -178,7 +221,8 @@ export default {
     this.fetchGameDetails(this.gameID);
     this.checkCanReview();
     console.log('Permission:', this.permissionLevel);
-    console.log('Can Review:', this.canReview);
+    console.log('Username:', this.username);
+    console.log('Game ID:', this.gameID);
   },
   methods: {
     async fetchGameDetails(gameID) {
@@ -190,8 +234,19 @@ export default {
           axiosClient.get(`/games/${gameID}/reviews`),
         ]);
 
+        console.log('Game Response:', gameResponse.data);
+        console.log('Review List Response:', reviewListResponse.data);
+
         this.game = gameResponse.data;
         this.reviews = reviewListResponse.data.reviews || [];
+
+        // For each review, fetch the 'hasLiked' status
+        await Promise.all(
+          this.reviews.map(async (review) => {
+            review.hasLiked = await this.checkHasLiked(review.reviewID);
+            review.reply = await this.fetchReply(review.reviewID);
+          })
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
         this.error = "Failed to load game details.";
@@ -210,10 +265,6 @@ export default {
           this.permissionLevel = 0;
         }
 
-        
-
-        console.log('Username:', this.username);
-
         // Now that username is set, call checkCanReview
         this.checkCanReview();
       } catch (error) {
@@ -227,16 +278,13 @@ export default {
 
     async checkCanReview() {
       try {
-        if (this.psermiussionLevel !== 1) {
+        if (this.permissionLevel != 1) {
           console.log('Only customers can review.');
           this.canReview = false;
           return;
         }
-        
-        console.log('Checking canReview for username:', this.username, 'and gameID:', this.gameID);
 
         const response = await axiosClient.get(`/users/${this.username}/${this.gameID}`, {});
-        console.log('Response data:', response.data);
 
         this.canReview = response.data;
       } catch (error) {
@@ -265,11 +313,6 @@ export default {
           score: this.reviewScore,
         };
 
-        console.log('Review Request:', reviewRequest);
-        console.log('Hi');
-        console.log('Bye');
-        console.log('Username:', this.username);
-
         // Send POST request to the API
         const response = await axiosClient.post(
           `/games/${this.gameID}/reviews`,
@@ -285,17 +328,108 @@ export default {
         this.canReview = false;
 
         // Handle successful submission
-        console.log('Review submitted:', response.data.getStatusCode());
-        console.log('Answer:', response.data.getBody());
+        console.log('Review submitted:', response.data);
+
+        // Assuming the API returns the new review object in response.data
+        const newReview = response.data;
+
+        newReview.hasLiked = false; // The user just submitted the review, so they haven't liked it yet
+        newReview.likes = 0; // Initial likes count
+        newReview.username = this.username; // Set the username if not included
+        newReview.date = response.data.date; // Set the current date
+        
+
+        // Add the new review to the beginning of the reviews array
+        this.reviews.unshift(newReview);
 
         // Reset form and hide it
         this.resetForm();
+
+        this.$swal({
+                title: 'Success',
+                text: 'Review was successfully submitted.',
+                icon: 'success',
+          });
       } catch (error) {
         console.error('Error submitting review:', error);
+
+        this.$swal({
+                title: 'Error',
+                text: error.response.data.message || 'Review could not be submitted.',
+                icon: 'error',
+          });
+      }
+    },
+
+    async replyToReview(reviewID) {
+      try {
+        if (!this.replyText) {
+          console.error('Reply text is required.');
+          return;
+        }
+
+        if(this.permissionLevel != 3) {
+          console.error('Only owners can submit replies.');
+          return;
+        }
+
+        // Prepare the review request dto
+        const replyRequest = {
+          text: this.replyText,
+        };
+
+        // Send POST request to the API
+        const response = await axiosClient.post(
+          `/games/reviews/${reviewID}/replies`,
+          replyRequest,
+          {
+            params: {
+              loggedInUsername: this.username, // Replace with the actual username variable
+            },
+          }
+        );
+
+        // Handle successful submission
+        console.log('Reply submitted:', response.data);
+
+        // Assuming the API returns the new review object in response.data
+        const newReply = response.data;
+
+        // Find the review in the array
+        const review = this.reviews.find((r) => r.reviewID === reviewID);
+
+        if (review) {
+          // Add the reply to the review
+          review.reply = newReply;
+        }
+
+        // Reset form and hide it
+        this.replyText = '';
+        this.replyButtonWasPressed = false;
+
+        this.$swal({
+                title: 'Success',
+                text: 'Reply was successfully submitted.',
+                icon: 'success',
+          });
+      } catch (error) {
+        console.error('Error submitting reply:', error);
+
+        this.$swal({
+                title: 'Error',
+                text: error.response.data.message || 'Reply could not be submitted.',
+                icon: 'error',
+          });
       }
     },
 
     cancelReview() {
+      this.resetForm();
+    },
+
+    cancelReply() {
+      this.replyText = '';
+      this.replyButtonWasPressed = false;
       this.resetForm();
     },
 
@@ -305,14 +439,21 @@ export default {
       this.reviewScore = '';
     },
 
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+
     handleImageError(event) {
       event.target.src = "../assets/placeholder.jpg";
     },
 
     formatDate(dateString) {
+      const date = new Date(dateString);
+      date.setDate(date.getDate() + 1); // Adds one day to the date
       const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(dateString).toLocaleDateString(undefined, options);
+      return date.toLocaleDateString(undefined, options);
     },
+
 
     async addToCart() {
       try {
@@ -327,8 +468,20 @@ export default {
           );
 
           console.log('Response:', response.data);
+
+          this.$swal({
+                title: 'Success',
+                text: this.game.title + ' was successfully added to your cart.',
+                icon: 'success',
+          });
       } catch (error) {
           console.error('Error adding to cart:', error);
+
+          this.$swal({
+                title: 'Error',
+                text: error.response.data.message || this.game.title + ' could not be added to your cart.',
+                icon: 'error',
+          });
       }
     },
 
@@ -337,13 +490,26 @@ export default {
           const response = await axiosClient.put(`/customers/${this.username}/wishlist/${this.gameID}`);
 
           console.log('Response:', response.data);
+
+          this.$swal({
+                title: 'Success',
+                text: this.game.title + ' was successfully added to your wishlist.',
+                icon: 'success',
+          });
       } catch (error) {
           console.error('Error adding to wishlist:', error);
+
+          this.$swal({
+                title: 'Error',
+                text: error.response.data.message || this.game.title + ' could not be added to your wishlist.',
+                icon: 'error',
+          });
       }
     },
 
     async archiveGame() {
       try {
+          console.log('Archiving game API:', `/games/${this.gameID}`);
           const response = await axiosClient.delete(`/games/${this.gameID}`,
             {
               params: {
@@ -353,10 +519,126 @@ export default {
           );
 
           console.log('Response:', response.data);
+          
+          if(this.permissionLevel == 2) {
+            this.$swal({
+                title: 'Success',
+                text: 'Archive request for ' + this.game.title + ' was successfully submitted.',
+                icon: 'success',
+            });
+          } else {
+            this.$swal({
+                title: 'Success',
+                text: this.game.title + ' was successfully archived.',
+                icon: 'success',
+            });
+          }
       } catch (error) {
           console.error('Error archiving game:', error);
+
+          this.$swal({
+                title: 'Error',
+                text: error.response.data.message || this.game.title + ' could not be archived.',
+                icon: 'error',
+          });
       }
     },
+    
+    async likeReview(reviewID) {
+      try {
+        const response = await axiosClient.post(
+          `/games/${this.gameID}/reviews/${reviewID}/likes`,
+          {},
+          {
+            params: {
+              loggedInUsername: this.username,
+            },
+          }
+        );
+
+        console.log('Review liked:', response.data);
+
+        // Find the review in the array
+        const review = this.reviews.find((r) => r.reviewID === reviewID);
+
+        if (review) {
+          // Update 'hasLiked' and 'likes' properties directly
+          review.hasLiked = true;
+          review.likes += 1;
+        }
+      } catch (error) {
+        console.error('Error liking review:', error);
+      }
+    },
+
+    
+    async removeLikeReview(reviewID) {
+      try {
+        const response = await axiosClient.delete(`/games/${this.gameID}/reviews/${reviewID}/likes`,
+          {
+            params: {
+              loggedInUsername: this.username,
+            },
+          }
+        );
+        
+        console.log('Response:', response.data);
+
+         // Find the review in the array
+        const review = this.reviews.find((r) => r.reviewID === reviewID);
+
+        if (review) {
+          // Update 'hasLiked' and 'likes' properties directly
+          review.hasLiked = false;
+          review.likes -= 1;
+        }
+
+      } catch (error) {
+        console.error('Error liking review:', error);
+      }
+    },
+
+    async checkHasLiked(reviewID) {
+    try {
+      if (this.permissionLevel != 1) {
+        console.log('Only customers can like reviews.');
+        return false;
+      }
+
+      const response = await axiosClient.get(
+        `/games/${this.gameID}/reviews/${reviewID}/likes`,
+        {
+          params: {
+            loggedInUsername: this.username,
+          },
+        }
+      );
+
+      console.log('checkHasLiked response:', response.data);
+
+      // Return the boolean value directly
+      return response.data === true;
+
+    } catch (error) {
+      console.error('Error checking if review is liked:', error);
+      return false; // Assume not liked in case of error
+    }
+  },
+
+  async fetchReply(reviewID) {
+    try {
+      const response = await axiosClient.get(`/games/reviews/${reviewID}/replies`, {
+        params: { loggedInUsername: this.username },
+      });
+
+      return response.data;
+
+    } catch (error) {
+      console.error('Error fetching reply:', error);
+      return null;
+    }
+  },
+
   },
 };
 </script>
@@ -473,6 +755,11 @@ export default {
       background-color: rgb(255, 0, 81);
       border-color: rgb(255, 0, 81);
     }
+
+    #promotion {
+      background-color: rgba(231, 19, 178, 0.5);
+      border-color: rgba(231, 19, 178, 0.5);
+    }
   }
 }
 
@@ -552,6 +839,15 @@ export default {
 
         .archive-buttons {
             background-color: #ff0000;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
+            position: relative;
         }
 
         .archive-buttons:hover {
@@ -710,6 +1006,33 @@ export default {
   }
 }
 
+#replyText {
+  height: 40px;
+}
+
+.reply-button{
+  background-color: #7347ff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 10px;
+}
+
+.reply-button:hover {
+  background-color: #a970ff;
+  transform: scale(1.05);
+}
+
+.reply-button:active {
+  background-color: #8c3de3;
+  transform: scale(0.95);
+}
+
 /* Add Review Button */
 .add-review-button {
   background-color: #7347ff;
@@ -808,5 +1131,36 @@ export default {
 .cancel-review-button:active {
   background-color: #8c3de3;
   transform: scale(0.95);
+}
+
+/* Replies Section */
+.replies {
+  margin-top: 10px;
+  padding-left: 20px;
+  border-left: 2px solid #444;
+}
+
+.reply {
+  background-color: #3c3c3c;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.reply-username {
+  font-size: 1rem;
+  font-weight: bold;
+  text-decoration: underline;
+  margin: 0;
+}
+
+.reply-content {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+.reply-date {
+  font-size: 0.7rem;
+  color: #aaa;
 }
 </style>

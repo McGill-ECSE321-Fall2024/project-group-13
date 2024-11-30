@@ -35,6 +35,16 @@
                             <option value="desc">High to Low</option>
                         </select>
 
+                         <!-- Sort by Promotion Dropdown -->
+                         <select 
+                            class="sort-dropdown" 
+                            v-model="sortByPromos" 
+                            @change="handleSortByPromos"
+                        >
+                            <option value="false">Show All Games</option>
+                            <option value="true">Show Only Promotions</option>
+                        </select>
+
 
                         <button id="clearBtn" @click="handleClear">Clear</button>
                     </div>
@@ -109,7 +119,8 @@ export default {
             selectedCategories: [],
             games: [],
             searchBar: '',
-            sortPriceDirection: 'off'
+            sortPriceDirection: 'off',
+            sortByPromos: 'false'
         }
     },
 
@@ -149,6 +160,16 @@ export default {
 
                 this.games = gameResponse.data.games;
 
+                // if the price sort is on, sort the games
+                if (this.sortPriceDirection !== 'off') {
+                    this.handleSortByPrice();
+                }
+
+                // if the promotions sort is on, sort the games
+                if (this.sortByPromos === 'true') {
+                    this.games = this.games.filter(game => game.promotionPercentage > 0);
+                }
+
             } catch(error) {
                 console.log("Error searching, " + error);
                 this.games = [];
@@ -162,6 +183,7 @@ export default {
             this.selectedCategories = [];
             this.searchBar = '';
             this.sortPriceDirection = 'off';
+            this.sortByPromos = 'false';
         } catch(error) {
             console.log("Error clearing search, " + error);
             }},
@@ -173,6 +195,14 @@ export default {
                     this.searchBar = '';
                     const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: sessionStorage.getItem('loggedInUsername'), category: category}});
                     this.games = gameResponse.data.games;
+                    // if the price sort is on, sort the games
+                    if (this.sortPriceDirection !== 'off') {
+                        this.handleSortByPrice();
+                    }
+                    // if the promotions sort is on, sort the games
+                    if (this.sortByPromos === 'true') {
+                        this.games = this.games.filter(game => game.promotionPercentage > 0);
+                    }
                 } else {
                     this.selectedCategories = [];
                     const gameResponse = await axiosClient.get('/games', {params : { loggedInUsername: sessionStorage.getItem('loggedInUsername')}});
@@ -198,7 +228,16 @@ export default {
                 } else if (this.sortPriceDirection === 'desc') {
                       this.games.sort((a, b) => b.price - a.price);
             }
-}
+},
+        handleSortByPromos() {
+            console.log("Sort by promotions clicked");
+
+            if (this.sortByPromos === 'true') {
+                this.games = this.games.filter(game => game.promotionPercentage > 0);
+            } else {
+                this.handleClear();
+            }
+        }
     },
 }
 </script>

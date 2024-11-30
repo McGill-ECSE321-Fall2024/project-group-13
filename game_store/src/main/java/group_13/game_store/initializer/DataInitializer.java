@@ -19,11 +19,13 @@ import group_13.game_store.model.Game;
 import group_13.game_store.model.GameCategory;
 import group_13.game_store.model.Promotion;
 import group_13.game_store.model.UserAccount;
+import group_13.game_store.model.WishlistItem;
 import group_13.game_store.repository.GameCategoryRepository;
 import group_13.game_store.repository.GameRepository;
 import group_13.game_store.repository.OwnerRepository;
 import group_13.game_store.repository.PromotionRepository;
 import group_13.game_store.repository.UserAccountRepository;
+import group_13.game_store.repository.WishlistItemRepository;
 import group_13.game_store.service.AccountService;
 import java.util.Map;
 import java.util.HashMap;
@@ -58,6 +60,9 @@ public class DataInitializer {
     private GameRepository gameRepo;
 
     @Autowired
+    private WishlistItemRepository wishlistRepo;
+
+    @Autowired
     private UserAccountRepository userAccountRepo;
 
     @PostConstruct
@@ -80,7 +85,7 @@ public class DataInitializer {
 
         if (customerRepo.findByUsername("defaultCustomer") == null) {
 
-            Address savedAddress = new Address("Sherbrooke St W", "H3A0G4", 845, "Montreal", "Quebec", "Canada", 0);
+            Address savedAddress = new Address("Random Street", "M3B0G7", 855, "Toronto", "Ontario", "Canada", 0);
             addressRepo.save(savedAddress);
 
             PaymentInformation savedPaymentInformation = new PaymentInformation("1234123412341234", "Default Customer",
@@ -576,8 +581,6 @@ public class DataInitializer {
                 simulationCategory
             );
             gameRepo.save(animalCrossingNewHorizons);
-
-        
-    }
+        }
 }
 }

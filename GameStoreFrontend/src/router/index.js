@@ -62,8 +62,11 @@ const router = createRouter({
       path: '/owner-dashboard',
       name: 'OwnerDashboard',
       component: OwnerDashboardView,
-    }
-
+    },
+    {
+      path: '/:pathMatch(.*)*', // Catch all unmatched routes and redirect to home
+      redirect: '/',
+    },
   ],
 })
 

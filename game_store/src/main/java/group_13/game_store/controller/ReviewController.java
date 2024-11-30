@@ -178,8 +178,22 @@ public class ReviewController {
     }
 
     /*
-     * /games/{gameID}/reviews/{reviewID}/likes [POST, DELETE]
+     * /games/{gameID}/reviews/{reviewID}/likes [POST, DELETE, GET]
      */
+
+    /**
+     * Get a boolean to see if a user has liked a review by its unique ID and the username of the user that is logged in
+     * 
+     * @param reviewID the ID of the review to get the number of likes for
+     * 
+     * @return the number of likes for the review
+     */
+    @GetMapping("/games/{gameID}/reviews/{reviewID}/likes")
+    public Boolean hasLikedReview(@PathVariable int reviewID,
+    @RequestParam String loggedInUsername) 
+    {
+        return reviewService.checkHasLiked(reviewID, loggedInUsername);
+    }
 
     /**
      * Add a like to a review by its unique ID (Customer and above only)
@@ -244,7 +258,7 @@ public class ReviewController {
 
         // If no reply is found, return a NOT_FOUND status code
         if (reply == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No reply found for review with ID " + reviewID);
+            return null;
         }
 
         return new ReplyResponseDto(reply);
