@@ -21,11 +21,15 @@ public class AddressRepositoryTests {
     @Autowired
     private CustomerRepository customerRepo;
 
+    @Autowired
+    private PaymentInformationRepository paymentRepo;
+
     // clearing the Adress table that was loaded in before testing 
     @BeforeEach
     @AfterEach
     public void clearDatabase() {
         customerRepo.deleteAll();
+        paymentRepo.deleteAll();
         addressRepository.deleteAll();
     }
 
