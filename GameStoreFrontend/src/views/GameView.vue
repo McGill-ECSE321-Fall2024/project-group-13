@@ -300,6 +300,18 @@ export default {
         // Handle successful submission
         console.log('Review submitted:', response.data);
 
+        // Assuming the API returns the new review object in response.data
+        const newReview = response.data;
+
+        newReview.hasLiked = false; // The user just submitted the review, so they haven't liked it yet
+        newReview.likes = 0; // Initial likes count
+        newReview.username = this.username; // Set the username if not included
+        newReview.date = response.data.date; // Set the current date
+        
+
+        // Add the new review to the beginning of the reviews array
+        this.reviews.unshift(newReview);
+
         // Reset form and hide it
         this.resetForm();
       } catch (error) {
