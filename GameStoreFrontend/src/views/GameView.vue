@@ -111,7 +111,7 @@
               <button class="like-button" v-if="this.permissionLevel == 1 && !review.hasLiked" @click="likeReview(review.reviewID)">Like</button>
               <button class="like-button" v-if="this.permissionLevel == 1 && review.hasLiked" @click="removeLikeReview(review.reviewID)">Remove Like</button>
               
-              <button class="like-button" @click="replyButtonWasPressed=true, reviewRepliedTo=review.reviewID" v-if="!review.hasReply && permissionLevel == 3 && replyButtonWasPressed === false">Reply</button>
+              <button class="like-button" @click="replyButtonWasPressed=true, reviewRepliedTo=review.reviewID" v-if="!(review.reply != null && review.reply !== '') && permissionLevel == 3 && replyButtonWasPressed === false">Reply</button>
               
               
               <p class="likes">Likes: {{ review.likes }}</p>
