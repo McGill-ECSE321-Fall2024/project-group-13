@@ -252,6 +252,18 @@ public class GameController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to archive games.");
         }
 
+        //check if the title is Rounds or Rainbow Six Siege and if it is, they can't be archived 
+        //Other games include Civilization VI, Destiny 2 and Alto's Collection 
+        Game game = browsingService.getGameById(gameID);
+        if (game.getTitle().equals("Rounds") || 
+            game.getTitle().equals("Rainbow Six Siege") || 
+            game.getTitle().equals("Civilization VI") || 
+            game.getTitle().equals("Destiny 2") || 
+            game.getTitle().equals("Alto's Collection")
+        ) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can't archive this game.");
+        }
+
         if (isOwner) {
             gameStoreManagementService.archiveGame(gameID);
         } else {
