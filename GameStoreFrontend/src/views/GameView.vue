@@ -114,13 +114,13 @@
           <p class="content">{{ review.description }}</p>
           <div class="review-footer">
             <p class="rating">Rating: {{ review.score }}/5</p>
-            <p class="date">Date: {{ formatDate(review.date) }}</p>
+            <p class="date">{{ formatDate(review.date) }}</p>
           </div>
 
           <!-- Display Replies -->
-          <div class="replies" v-if="review.reply != null">
+          <div class="replies" v-if="review.reply != null && review.reply !== ''">
             <div class="reply">
-              <p class="reply-username">{{ capitalizeFirstLetter(review.reply.username || 'Unknown') }}</p>
+              <p class="reply-username">{{ capitalizeFirstLetter(review.reply.username || 'Owner') }}</p>
               <p class="reply-content">{{ review.reply.text }}</p>
               <p class="reply-date">{{ formatDate(review.reply.date) }}</p>
             </div>
@@ -214,7 +214,7 @@ export default {
     this.fetchGameDetails(this.gameID);
     this.checkCanReview();
     console.log('Permission:', this.permissionLevel);
-    console.log('Can Review:', this.canReview);
+    console.log('Username:', this.username);
   },
   methods: {
     async fetchGameDetails(gameID) {
@@ -257,10 +257,6 @@ export default {
           this.permissionLevel = 0;
         }
 
-        
-
-        console.log('Username:', this.username);
-
         // Now that username is set, call checkCanReview
         this.checkCanReview();
       } catch (error) {
@@ -279,12 +275,9 @@ export default {
           this.canReview = false;
           return;
         }
-        
-        console.log('Checking canReview for username:', this.username, 'and gameID:', this.gameID);
 
         const response = await axiosClient.get(`/users/${this.username}/${this.gameID}`, {});
 
-        console.log('Response data:', response.data);
         this.canReview = response.data;
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -311,12 +304,6 @@ export default {
           description: this.reviewText,
           score: this.reviewScore,
         };
-
-        console.log('Review Request:', reviewRequest);
-        console.log('Game ID:', this.gameID);
-        console.log('Username:', this.username);
-
-        console.log('Submitting review...');
 
         // Send POST request to the API
         const response = await axiosClient.post(
@@ -370,12 +357,6 @@ export default {
         const replyRequest = {
           text: this.replyText,
         };
-
-        console.log('Reply Request:', replyRequest);
-        console.log('Game ID:', this.gameID);
-        console.log('Username:', this.username);
-
-        console.log('Submitting reply...');
 
         // Send POST request to the API
         const response = await axiosClient.post(
@@ -534,7 +515,7 @@ export default {
 
     async checkHasLiked(reviewID) {
     try {
-      if (this.permissionLevel !== 1) {
+      if (this.permissionLevel != 1) {
         console.log('Only customers can like reviews.');
         return false;
       }
@@ -564,7 +545,6 @@ export default {
       const response = await axiosClient.get(`/games/reviews/${reviewID}/replies`, {
         params: { loggedInUsername: this.username },
       });
-      console.log(`Replies for reviewID ${reviewID}:`, response.data);
 
       return response.data;
 
@@ -1069,11 +1049,15 @@ export default {
 }
 
 .reply-username {
+  font-size: 1rem;
   font-weight: bold;
+  text-decoration: underline;
+  margin: 0;
 }
 
 .reply-content {
   margin: 5px 0;
+  font-size: 1rem;
 }
 
 .reply-date {
