@@ -154,7 +154,7 @@
       console.error('Error increasing quantity:', error);
       this.$swal({
                 title: 'Error',
-                text: 'There was an issue updating the quantity, please try again',
+                text: 'Error updating quanitity: ' + error.message || 'There was an issue updating the quantity, please try again',
                 icon: 'error',
               });
     }
@@ -214,7 +214,7 @@
       console.error('Error removing game from cart:', error);
       this.$swal({
                 title: 'Error',
-                text: 'There was an issue removing the cart item, please try again',
+                text: 'Error removing cart item: ' + error.message || 'There was an issue removing the cart item, please try again',
                 icon: 'error',
               });
     }
@@ -231,7 +231,7 @@
       console.error('Error clearing cart:', error);
       this.$swal({
                 title: 'Error',
-                text: 'There was an issue clearing the cart, please try again',
+                text: 'Error clearing cart: ' + error.message || 'There was an issue clearing the cart, please try again',
                 icon: 'error',
               });
     }

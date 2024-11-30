@@ -518,7 +518,7 @@ export default {
             console.error('Error saving payment information:', error);
             this.$swal({
               title: 'Error',
-              text: 'Error saving new payment information.',
+              text: 'Error saving new payment information: ' + error.message || 'Error saving new payment information.',
               icon: 'error',
             });
           }
@@ -559,7 +559,7 @@ export default {
           console.error('Error saving delivery information:', error);
           this.$swal({
                 title: 'Error',
-                text: 'Error saving delivery information',
+                text: 'Error saving delivery information: ' + error.message || 'Error saving delivery information',
                 icon: 'error',
               });
         }
@@ -585,7 +585,7 @@ export default {
         console.error('Error placing order:', error);
         this.$swal({
                 title: 'Error',
-                text: 'Error placing order',
+                text: 'Error placing order: ' + error.message || 'Error placing order',
                 icon: 'error',
               });
       }
