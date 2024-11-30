@@ -101,7 +101,9 @@
           <div class="review-header">
             <p class="username">{{ capitalizeFirstLetter(review.reviewerUsername) }}</p>
             <div class="likes-container">
-              <button class="like-button" v-if="this.permissionLevel == 1" @click="likeReview(review.reviewID)">Like</button>
+              <button class="like-button" v-if="this.permissionLevel == 1 && !review.hasLiked" @click="likeReview(review.reviewID)">Like</button>
+              <button class="like-button" v-if="this.permissionLevel == 1 && review.hasLiked" @click="removeLikeReview(review.reviewID)">Remove Like</button>
+              
               <p class="likes">Likes: {{ review.likes }}</p>
             </div>
           </div>
@@ -195,6 +197,13 @@ export default {
 
         this.game = gameResponse.data;
         this.reviews = reviewListResponse.data.reviews || [];
+
+        // For each review, fetch the 'hasLiked' status
+        await Promise.all(
+          this.reviews.map(async (review) => {
+            review.hasLiked = await this.checkHasLiked(review.reviewID);
+          })
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
         this.error = "Failed to load game details.";
@@ -367,8 +376,35 @@ export default {
     
     async likeReview(reviewID) {
       try {
-        const response = await axiosClient.post(`/games/${this.gameID}/reviews/${reviewID}/likes`,
-          null, // No request body is needed
+        const response = await axiosClient.post(
+          `/games/${this.gameID}/reviews/${reviewID}/likes`,
+          {},
+          {
+            params: {
+              loggedInUsername: this.username,
+            },
+          }
+        );
+
+        console.log('Review liked:', response.data);
+
+        // Find the review in the array
+        const review = this.reviews.find((r) => r.reviewID === reviewID);
+
+        if (review) {
+          // Update 'hasLiked' and 'likes' properties directly
+          review.hasLiked = true;
+          review.likes += 1;
+        }
+      } catch (error) {
+        console.error('Error liking review:', error);
+      }
+    },
+
+    
+    async removeLikeReview(reviewID) {
+      try {
+        const response = await axiosClient.delete(`/games/${this.gameID}/reviews/${reviewID}/likes`,
           {
             params: {
               loggedInUsername: this.username,
@@ -377,10 +413,43 @@ export default {
         );
         
         console.log('Response:', response.data);
+
+         // Find the review in the array
+        const review = this.reviews.find((r) => r.reviewID === reviewID);
+
+        if (review) {
+          // Update 'hasLiked' and 'likes' properties directly
+          review.hasLiked = false;
+          review.likes -= 1;
+        }
+
       } catch (error) {
         console.error('Error liking review:', error);
       }
     },
+
+    async checkHasLiked(reviewID) {
+    try {
+      const response = await axiosClient.get(
+        `/games/${this.gameID}/reviews/${reviewID}/likes`,
+        {
+          params: {
+            loggedInUsername: this.username,
+          },
+        }
+      );
+
+      console.log('checkHasLiked response:', response.data);
+
+      // Return the boolean value directly
+      return response.data === true;
+
+    } catch (error) {
+      console.error('Error checking if review is liked:', error);
+      return false; // Assume not liked in case of error
+    }
+  },
+
   },
 };
 </script>
