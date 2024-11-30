@@ -10,15 +10,109 @@
           <p class="game-stock" :class="{ 'in-stock': game.stock > 0, 'out-of-stock': game.stock === 0 }">
             {{ game.stock > 0 ? 'In Stock' : 'Out of Stock' }}
           </p>
-          <p class="game-description">{{ game.price }}</p>
+          <p class="game-description">{{ game.price.toFixed(2) }}</p>
           <div class="game-quantity">
             <span class="quantity-number">Quantity: {{ game.quantity }}</span>
           </div>
         </div>
     </div>
 
-    <!-- Payment Information -->
-    <div class="payment-info">
+    <!-- Delivery Information -->
+    <div class="delivery-info">
+      <h2>Address</h2>
+      <form>
+        <!-- Address Number -->
+        <div class="form-group">
+          <label for="deliveryAddressNumber">Address Number</label>
+          <input
+            type="text"
+            id="deliveryAddressNumber"
+            v-model="deliveryInfo.number"
+            required
+          />
+          <span v-if="deliveryErrors.number" class="error-message">{{ deliveryErrors.number }}</span>
+        </div>
+
+        <!-- Street -->
+        <div class="form-group">
+          <label for="deliveryStreet">Street</label>
+          <input
+            type="text"
+            id="deliveryStreet"
+            v-model="deliveryInfo.street"
+            required
+          />
+          <span v-if="deliveryErrors.street" class="error-message">{{ deliveryErrors.street }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="deliveryApartmentNumber">
+            Apartment Number (Optional)
+          </label>
+          <input
+            type="text"
+            id="deliveryApartmentNumber"
+            v-model="deliveryInfo.apartmentNo"
+          />
+        </div>
+        <!-- City -->
+        <div class="form-group">
+          <label for="deliveryCity">City</label>
+          <input
+            type="text"
+            id="deliveryCity"
+            v-model="deliveryInfo.city"
+            required
+          />
+          <span v-if="deliveryErrors.city" class="error-message">{{ deliveryErrors.city }}</span>
+        </div>
+
+        <!-- State/Province -->
+        <div class="form-group">
+          <label for="deliveryProvinceState">Province/State</label>
+          <input
+            type="text"
+            id="deliveryProvinceState"
+            v-model="deliveryInfo.stateOrProvince"
+            required
+          />
+          <span v-if="deliveryErrors.stateOrProvince" class="error-message">{{ deliveryErrors.stateOrProvince }}</span>
+        </div>
+
+        <!-- Country -->
+        <div class="form-group">
+          <label for="deliveryCountry">Country</label>
+          <input
+            type="text"
+            id="deliveryCountry"
+            v-model="deliveryInfo.country"
+            required
+          />
+          <span v-if="deliveryErrors.country" class="error-message">{{ deliveryErrors.country }}</span>
+        </div>
+
+        <!-- Postal Code -->
+        <div class="form-group">
+          <label for="deliveryPostalCode">Postal Code</label>
+          <input
+            type="text"
+            id="deliveryPostalCode"
+            v-model="deliveryInfo.postalCode"
+            required
+          />
+          <span v-if="deliveryErrors.postalCode" class="error-message">{{ deliveryErrors.postalCode }}</span>
+        </div>
+
+        <!-- Save Button -->
+        <div class="form-group">
+          <button type="button" @click="saveDeliveryInfo">
+            {{ deliveryInfoExists ? 'Update Address' : 'Save New Address' }}
+          </button>
+        </div>
+      </form>
+    </div>
+     <!-- Payment Information -->
+     <div class="payment-info">
       <h2>Payment Information</h2>
       <form>
         <!-- Billing Name -->
@@ -41,6 +135,7 @@
             v-model="paymentInfo.cardNumber"
             required
           />
+          <span v-if="paymentErrors.cardNumber" class="error-message">{{ paymentErrors.cardNumber }}</span>
         </div>
 
         <!-- Expiry Date -->
@@ -53,12 +148,14 @@
             placeholder="MM/YY"
             required
           />
+          <span v-if="paymentErrors.expiryDate" class="error-message">{{ paymentErrors.expiryDate }}</span>
         </div>
 
         <!-- CVV -->
         <div class="form-group">
           <label for="cvv">CVV</label>
           <input type="text" id="cvv" v-model="paymentInfo.cvvCode" required />
+          <span v-if="paymentErrors.cvvCode" class="error-message">{{ paymentErrors.cvvCode }}</span>
         </div>
 
         <div class="form-group">
@@ -69,82 +166,7 @@
       </form>
     </div>
 
-    <!-- Delivery Information -->
-    <div class="delivery-info">
-      <h2>Delivery Information</h2>
-      <form>
-
-        <div class="form-group">
-          <label for="deliveryStreet">Street</label>
-          <input
-            type="text"
-            id="deliveryStreet"
-            v-model="deliveryInfo.street"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="deliveryAddressNumber">Address Number</label>
-          <input
-            type="text"
-            id="deliveryAddressNumber"
-            v-model="deliveryInfo.number"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="deliveryApartmentNumber">
-            Apartment Number (Optional)
-          </label>
-          <input
-            type="text"
-            id="deliveryApartmentNumber"
-            v-model="deliveryInfo.apartmentNo"
-          />
-        </div>
-        <div class="form-group">
-          <label for="deliveryCity">City</label>
-          <input
-            type="text"
-            id="deliveryCity"
-            v-model="deliveryInfo.city"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="deliveryProvinceState">Province/State</label>
-          <input
-            type="text"
-            id="deliveryProvinceState"
-            v-model="deliveryInfo.stateOrProvince"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="deliveryCountry">Country</label>
-          <input
-            type="text"
-            id="deliveryCountry"
-            v-model="deliveryInfo.country"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="deliveryPostalCode">Postal Code</label>
-          <input
-            type="text"
-            id="deliveryPostalCode"
-            v-model="deliveryInfo.postalCode"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <button type="button" @click="saveDeliveryInfo">
-             {{ deliveryInfoExists ? 'Update Delivery Information' : 'Save New Delivery Information' }}
-         </button>
-        </div>
-      </form>
-    </div>
+    <!-- Order Breakdown -->
     <div class="order-breakdown">
           <h2>Order Breakdown</h2>
           <div class="breakdown-item">
@@ -160,7 +182,7 @@
               <span>${{ deliveryFee.toFixed(2) }}</span>
           </div>
           <div class="breakdown-item">
-              <span>QST (15%): </span>
+              <span>QST (10%): </span>
               <span>${{ taxes.toFixed(2) }}</span>
           </div>
           <div class="breakdown-total">
@@ -184,6 +206,8 @@ export default {
   name: "OrderView",
   data() {
     return {
+      paymentErrors: {},
+      deliveryErrors: {},
       deliveryInfoExists: false,
       paymentInfoExists: false,
       paymentInfoId: null,
@@ -217,7 +241,7 @@ export default {
       },
       subtotal: 0,
       deliveryFee: 5,
-      taxRate: 0.15, // 15% QST
+      taxRate: 0.10, // 10% QST
           };
       },
       created() {
@@ -226,6 +250,12 @@ export default {
           this.fetchDeliveryInfo();
       },
       computed: {
+          LOGGEDINUSERNAME() {
+          return sessionStorage.getItem('loggedInUsername');
+          },
+          PERMISSIONLEVEL() {
+          return sessionStorage.getItem('permissionLevel');
+          },
           taxes() {
           return this.subtotal * this.taxRate;
           },
@@ -239,6 +269,24 @@ export default {
           }
       },
   methods: {
+    convertExpiryDateToMMYY(dateStr) {
+      // dateStr is in 'YYYY-MM-DD'
+      const date = new Date(dateStr);
+      const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+      const year = date.getFullYear().toString().slice(-2);   // Last two digits of the year
+      return `${month}/${year}`;
+    },
+
+    convertExpiryDateToYYYYMMDD(expiryStr) {
+      // expiryStr is in 'MM/YY'
+      const [monthStr, yearStr] = expiryStr.split('/');
+      const month = parseInt(monthStr, 10);
+      const year = parseInt(yearStr, 10) + 2000; // Assuming years are in 2000s
+      // Set day to the last day of the month
+      const day = new Date(year, month, 0).getDate(); // Zero gets the last day of the previous month
+      return `${year}-${('0' + month).slice(-2)}-${('0' + day).slice(-2)}`;
+    },
+
     resolveImagePath(image) {
       try {
         // Resolve path using import.meta.URL
@@ -255,7 +303,7 @@ export default {
     },
     async fetchCartData() {
       try {
-        const response = await axios.get('http://localhost:8080/customers/defaultCustomer/cart');
+        const response = await axios.get(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart`);
         const cartData = response.data;
 
         // Map backend data to your games array
@@ -268,16 +316,18 @@ export default {
     },
     async fetchPaymentInfo() {
       try {
-        const response = await axios.get('http://localhost:8080/customers/defaultCustomer/paymentInfo');
+        const response = await axios.get(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/paymentInfo`);
         const paymentData = response.data;
 
         // Store the paymentInfoId
         this.paymentInfoId = paymentData.paymentInfoID;
+         // Convert expiryDate to 'MM/YY' format
+        const expiryDateMMYY = this.convertExpiryDateToMMYY(paymentData.expiryDate);
         // Map the backend data to paymentInfo object
         this.paymentInfo = {
           billingName: paymentData.billingName,
           cardNumber: paymentData.cardNumber,
-          expiryDate: paymentData.expiryDate,
+          expiryDate: expiryDateMMYY,
           cvvCode: paymentData.cvvCode,
           addressId: paymentData.billingAddress.addressID,
           billingAddress: {
@@ -304,11 +354,10 @@ export default {
     },
     async fetchDeliveryInfo() {
       try {
-        const response = await axios.get('http://localhost:8080/customers/defaultCustomer/address?loggedInUsername=defaultCustomer');
+        const response = await axios.get(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/address?loggedInUsername=${this.LOGGEDINUSERNAME}`);
         const deliveryData = response.data;
         // Store the deliveryInfoId
         this.deliveryInfoId = deliveryData.addressID;
-        console.log(deliveryData.addressID);
         // Map the backend data to paymentInfo object
         this.deliveryInfo = {
             street: deliveryData.street,
@@ -331,51 +380,186 @@ export default {
         }
       }
     },
-    async savePaymentInfo() {
-      try {
-        const urlBase = 'http://localhost:8080/customers/defaultCustomer/paymentInfo';
-        if (this.paymentInfoExists) {
-          // Update existing payment information
-          const response = await axios.put(`${urlBase}/${this.paymentInfoId}`, this.paymentInfo);
-          alert('Payment information updated successfully.');
-        } else {
-          // Add new payment information
-          const response = await axios.post(urlBase, this.paymentInfo);
-          alert('Payment information saved successfully.');
+    validatePaymentInfo() {
+      this.paymentErrors = {}; // Reset errors
+      let valid = true;
 
-          // Set paymentInfoExists to true and store the new paymentInfoId
-          this.paymentInfoExists = true;
-          this.paymentInfoId = response.data.id;
-        }
-      } catch (error) {
-        console.error('Error saving payment information:', error);
-        alert('Error saving new payment information');
+      // Credit Card Number must be 16 digits
+      const cardNumber = this.paymentInfo.cardNumber.replace(/\s+/g, '');
+      if (!/^\d{16}$/.test(cardNumber)) {
+        this.paymentErrors.cardNumber = 'Credit Card Number must be 16 digits.';
+        valid = false;
       }
-    },
-    async saveDeliveryInfo() {
-      try {
-        const urlBase = 'http://localhost:8080/customers/defaultCustomer/address';
-        if (this.paymentInfoExists) {
-          // Update existing payment information
-          const response = await axios.put(`${urlBase}/${this.deliveryInfoId}?loggedInUsername=defaultCustomer`, this.deliveryInfo);
-          alert('Delivery information updated successfully.');
-        } else {
-          // Add new payment information
-          const response = await axios.post(`${urlBase}?loggedInUsername=defaultCustomer`, this.deliveryInfo);
-          alert('Delivery information saved successfully.');
 
-          // Set deliveryInfoExists to true and store the new deliveryInfoId
-          this.deliveryInfoExists = true;
-          this.deliveryInfoId = response.data.id;
+        // Expiry Date must be after today's date
+        const expiryDate = this.paymentInfo.expiryDate;
+        if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+          this.paymentErrors.expiryDate = 'Expiry Date must be in MM/YY format.';
+          valid = false;
+        } else {
+          const [expMonthStr, expYearStr] = expiryDate.split('/');
+          const expMonth = parseInt(expMonthStr, 10);
+          const expYear = parseInt(expYearStr, 10) + 2000; // Assuming years are in 2000s
+
+          if (expMonth < 1 || expMonth > 12) {
+            this.paymentErrors.expiryDate = 'Expiry Month must be between 01 and 12.';
+            valid = false;
+          } else {
+            // Get the last day of the expiry month
+            const lastDayOfExpiryMonth = new Date(expYear, expMonth, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today's date to midnight
+
+            if (lastDayOfExpiryMonth < today) {
+              this.paymentErrors.expiryDate = 'Expiry Date must be after today\'s date.';
+              valid = false;
+            }
+          }
         }
-      } catch (error) {
-        console.error('Error saving delivery information:', error);
-        alert('Error saving new delivery information');
+
+      // CVV must be 3 digits
+      const cvvCode = this.paymentInfo.cvvCode;
+      if (!/^\d{3}$/.test(cvvCode)) {
+        this.paymentErrors.cvvCode = 'CVV must be 3 digits.';
+        valid = false;
+      }
+
+      return valid;
+    },
+
+    validateDeliveryInfo() {
+      this.deliveryErrors = {}; // Reset errors
+      let valid = true;
+
+      // Check if Address Number is empty
+      if (!this.deliveryInfo.number || String(this.deliveryInfo.number).trim() === '') {
+        this.deliveryErrors.number = 'Address Number is required.';
+        valid = false;
+      }
+
+      // Check if Street is empty
+      if (!this.deliveryInfo.street || this.deliveryInfo.street.trim() === '') {
+        this.deliveryErrors.street = 'Street is required.';
+        valid = false;
+      }
+
+      // Check if City is empty
+      if (!this.deliveryInfo.city || this.deliveryInfo.city.trim() === '') {
+        this.deliveryErrors.city = 'City is required.';
+        valid = false;
+      }
+
+      // Check if State/Province is empty
+      if (!this.deliveryInfo.stateOrProvince || this.deliveryInfo.stateOrProvince.trim() === '') {
+        this.deliveryErrors.stateOrProvince = 'State/Province is required.';
+        valid = false;
+      }
+
+      // Check if Country is empty
+      if (!this.deliveryInfo.country || this.deliveryInfo.country.trim() === '') {
+        this.deliveryErrors.country = 'Country is required.';
+        valid = false;
+      }
+
+      // Postal Code must have the form A1A1A1
+      const postalCode = this.deliveryInfo.postalCode;
+      if (!/^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/.test(postalCode)) {
+        this.deliveryErrors.postalCode = 'Invalid Postal Code';
+        valid = false;
+      }
+
+      return valid;
+    },
+      async savePaymentInfo() {
+        if (!this.paymentInfo.addressId) {
+          this.$swal({
+            title: 'Error',
+            text: 'Please set address before adding payment information.',
+            icon: 'error',
+          });
+          return;
+        }
+        if (this.validatePaymentInfo()) {
+          try {
+            console.log(this.paymentInfo.addressId);
+            const urlBase = `http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/paymentInfo`;
+            const paymentInfoToSend = { ...this.paymentInfo };
+            paymentInfoToSend.expiryDate = this.convertExpiryDateToYYYYMMDD(this.paymentInfo.expiryDate);
+            if (this.paymentInfoExists) {
+              // Update existing payment information
+              const response = await axios.put(`${urlBase}/${this.paymentInfoId}`, paymentInfoToSend);
+              this.$swal({
+                title: 'Success',
+                text: 'Payment information updated successfully.',
+                icon: 'success',
+              });
+            } else {
+              // Add new payment information
+              const response = await axios.post(urlBase, paymentInfoToSend);
+              this.$swal({
+                title: 'Success',
+                text: 'Payment information saved successfully.',
+                icon: 'success',
+              });
+
+              // Set paymentInfoExists to true and store the new paymentInfoId
+              this.paymentInfoExists = true;
+              this.paymentInfoId = response.data.id;
+            }
+          } catch (error) {
+            console.error('Error saving payment information:', error);
+            this.$swal({
+              title: 'Error',
+              text: 'Error saving new payment information.',
+              icon: 'error',
+            });
+          }
+        }
+      },
+
+    async saveDeliveryInfo() {
+      if (this.validateDeliveryInfo()){
+        try {
+          const urlBase = `http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/address`;
+          if (this.deliveryInfoExists) {
+            // Update existing delivery information
+            const response = await axios.put(`${urlBase}/${this.deliveryInfoId}?loggedInUsername=${this.LOGGEDINUSERNAME}`, this.deliveryInfo);
+            this.paymentInfo.addressId = response.data.addressID;
+
+            console.log(response.data.addressID);
+            console.log(this.paymentInfo.addressId);
+            this.$swal({
+                title: 'Success',
+                text: 'Address updated successfully.',
+                icon: 'success',
+              });
+          } else {
+            // Add new delivery information
+            const response = await axios.post(`${urlBase}?loggedInUsername=${this.LOGGEDINUSERNAME}`, this.deliveryInfo);
+            this.$swal({
+                title: 'Success',
+                text: 'Address saved successfully.',
+                icon: 'success',
+              });
+
+            // Set deliveryInfoExists to true and store the new deliveryInfoId
+            this.deliveryInfoExists = true;
+            this.deliveryInfoId = response.data.addressID;
+            this.paymentInfo.addressId = response.data.addressID;
+          }
+        } catch (error) {
+          console.error('Error saving delivery information:', error);
+          this.$swal({
+                title: 'Error',
+                text: 'Error saving delivery information',
+                icon: 'error',
+              });
+        }
       }
     },
     async placeOrder() {
       try {
-        const response = await axios.post('http://localhost:8080/customers/defaultCustomer/orders?loggedInUsername=defaultCustomer', {
+        const response = await axios.post(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/orders?loggedInUsername=${this.LOGGEDINUSERNAME}`, {
           paymentInfoID: this.paymentInfoId,
           addressID: this.deliveryInfoId,
           games: this.games.map((game) => ({
@@ -384,10 +568,18 @@ export default {
           })),
         });
         this.$router.push('/');
-        alert('Order placed successfully.');
+        this.$swal({
+                title: 'Success',
+                text: 'Order Placed Successfully',
+                icon: 'success',
+              });
       } catch (error) {
         console.error('Error placing order:', error);
-        alert('Error placing order');
+        this.$swal({
+                title: 'Error',
+                text: 'Error placing order',
+                icon: 'error',
+              });
       }
     },
   },
@@ -395,6 +587,11 @@ export default {
 </script>
 
 <style scoped>
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+}
 
 .checkout {
   margin: 15%;
@@ -473,6 +670,7 @@ export default {
 }
 
 .form-group label {
+  color: rgba(156, 163, 175, 1);
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
@@ -480,14 +678,19 @@ export default {
 
 .form-group input {
   width: 100%;
+  border-radius: 0.375rem;
   padding: 8px;
   box-sizing: border-box;
+  background-color: #1e1e1e;
+  color: rgba(243, 244, 246, 1);
+  border: 1px solid rgba(55, 65, 81, 1);
 }
 
 .form-group button {
   padding: 10px 15px;
   cursor: pointer;
   background-color: #BB86FC;
+  border-radius: 0.375rem;
 }
 
 .payment-info h3,
@@ -525,5 +728,6 @@ width: 100%;
 font-size: 16px;
 cursor: pointer;
 background-color:  #BB86FC;
+border-radius: 0.375rem;
 }
 </style>

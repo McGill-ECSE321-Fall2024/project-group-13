@@ -150,7 +150,20 @@ public class ReviewService {
             }
         }
 
-        return customerHasGame;
+        if(customerHasGame == false){
+            return customerHasGame;
+        }
+
+        boolean customerNotReviewed = false;
+        List<Review> reviews = reviewRepository.findByReviewedGame_GameID(gameID);
+        for (Review review : reviews) {
+            if (review.getReviewer().getUsername().equals(reviewerID)) {
+                customerNotReviewed = true;
+            }
+        }
+
+        // If the customer does not already have a review, return true as we can leave a review
+        return !customerNotReviewed;
     }
 
     // Update an existing review

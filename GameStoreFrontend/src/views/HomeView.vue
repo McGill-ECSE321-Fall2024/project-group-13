@@ -121,14 +121,18 @@ export default {
   },
 
   async created() {
+    const LOGGEDINUSERNAME = sessionStorage.getItem('loggedInUsername');
+    const PERMISSIONLEVEL = sessionStorage.getItem('permissionLevel');
+    console.log("Logged in username: ", LOGGEDINUSERNAME);
+    console.log("Permission level: ", PERMISSIONLEVEL);
     // Fetch the displayed games by calling the API
     try {
         const [roundsResponse, r6Response, civ6Response, altoResponse, d2Response] = await Promise.all([
-      axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Rounds'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Rainbow Six Siege'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Civilization VI'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Alto\'s Collection'}}),
-        axiosClient.get('/games', {params: {loggedInUsername: 'owner', title: 'Destiny 2'}},)
+      axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Rounds'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Rainbow Six Siege'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Civilization VI'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Alto\'s Collection'}}),
+        axiosClient.get('/games', {params: {loggedInUsername: LOGGEDINUSERNAME, title: 'Destiny 2'}},)
     ]);
 
     this.roundsGame = roundsResponse.data.games[0];
@@ -144,6 +148,7 @@ export default {
   methods: {
     handleGameClick(game) {
       console.log('Game clicked: ', game); // later will route to game view
+      this.$router.push({name: 'Game', params: {gameID: game.gameID}});
     }
   }
 }
@@ -253,7 +258,7 @@ export default {
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
-        height: 825px;
+        height: 725px;
         width: 100%;
     }  
 
@@ -279,22 +284,24 @@ export default {
     margin-left: 5px;
     }
 
-    .cardFlex{
-        height: 550px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-evenly;
-    } 
+    .cardFlex {
+    height: 500px; 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-left: 10px; 
+    margin-right: 10px; 
+}
 
-    .card{
-        height: 500px;
-        width: 450px;
-        background-color: black;
-        margin: 10px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+    .card {
+    height: 450px; 
+    width: 400px; 
+    background-color: black;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
     .platforms {
         display: flex;

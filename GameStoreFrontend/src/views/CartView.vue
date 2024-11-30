@@ -1,34 +1,70 @@
 <template>
   <div class="cart">
     <h1 class="title">My Cart</h1>
-    <div class="cart-items">
-      <div v-for="(game, index) in games" :key="index" class="cart-item">
-        <img :src="resolveImagePath(game.img)" alt="Game Image" class="game-image" />
-        <div class="game-details">
-          <h2 class="game-title">{{ game.title }}</h2>
-          <p class="game-description">{{ game.description }}</p>
-          <p class="game-stock" :class="{ 'in-stock': game.stock > 0, 'out-of-stock': game.stock === 0 }">
-            {{ game.stock > 0 ? 'In Stock' : 'Out of Stock' }}
-          </p>
-          <p class="game-price">${{ game.price.toFixed(2) }}</p>
-          <div class="game-quantity">
-            <button class="quantity-button" @click="decreaseQuantity(game.gameID, game.quantity)">
-              -
-            </button>
-            <span class="quantity-number">{{ game.quantity }}</span>
-            <button class="quantity-button" @click="increaseQuantity(game.gameID, game.quantity, game.stock)">
-              +
+
+    <!-- Check if the cart is empty -->
+    <div v-if="games.length > 0">
+      <!-- Existing cart items -->
+      <div class="cart-items">
+        <div v-for="(game, index) in games" :key="index" class="cart-item">
+          <img :src="resolveImagePath(game.img)" alt="Game Image" class="game-image" />
+          <div class="game-details">
+            <h2 class="game-title">{{ game.title }}</h2>
+            <p class="game-description">{{ game.description }}</p>
+            <p
+              class="game-stock"
+              :class="{ 'in-stock': game.stock > 0, 'out-of-stock': game.stock === 0 }"
+            >
+              {{ game.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+            </p>
+            <p class="game-price">${{ game.price.toFixed(2) }}</p>
+            <div class="game-quantity">
+              <button
+                class="quantity-button"
+                @click="decreaseQuantity(game.gameID, game.quantity)"
+              >
+                -
+              </button>
+              <span class="quantity-number">{{ game.quantity }}</span>
+              <button
+                class="quantity-button"
+                @click="increaseQuantity(game.gameID, game.quantity, game.stock)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div class="game-actions">
+            <button class="action-button" @click="removeFromCart(game.gameID)">
+              Remove from Cart
             </button>
           </div>
         </div>
-        <div class="game-actions">
-          <button class="action-button" @click="removeFromCart(game.gameID)">Remove from Cart</button>
-        </div>
       </div>
     </div>
+
+    <!-- Display this when the cart is empty -->
+    <div v-else class="empty-cart">
+      <p>
+        Your Cart is empty.
+        <router-link to="/browse">Browse games</router-link>
+        to fill your cart.
+      </p>
+    </div>
+
+    <!-- Cart summary and checkout button -->
     <div class="cart-summary">
-      <p class="subtotal">Subtotal: ${{ subtotalPrice.toFixed(2) }}</p>
-      <button class="checkout-button" @click="goToCheckout">Checkout</button>
+      <!-- Only show subtotal if there are items in the cart -->
+      <p class="subtotal" v-if="games.length > 0">
+        Subtotal: ${{ subtotalPrice.toFixed(2) }}
+      </p>
+      <button
+        class="checkout-button"
+        @click="goToCheckout"
+        :disabled="games.length === 0"
+      >
+        Checkout
+      </button>
     </div>
   </div>
 </template>
@@ -47,10 +83,19 @@
     created() {
       this.fetchCartData();
     },
+
+    computed: {
+      LOGGEDINUSERNAME() {
+        return sessionStorage.getItem('loggedInUsername');
+        },
+      PERMISSIONLEVEL() {
+        return sessionStorage.getItem('permissionLevel');
+        },
+      },
     methods: {
       async fetchCartData() {
         try {
-          const response = await axios.get('http://localhost:8080/customers/defaultCustomer/cart');
+          const response = await axios.get(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart`);
           const cartData = response.data;
           this.games = cartData.games.map((game) => ({...game, quantity: game.quantity || 1,}));
           this.subtotalPrice = cartData.subtotalPrice;
@@ -82,7 +127,7 @@
     try {
       // Update the quantity in the backend
       await axios.put(
-        `http://localhost:8080/customers/defaultCustomer/cart/${gameID}/quantity/${newQuantity}`
+        `http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart/${gameID}/quantity/${newQuantity}`
       );
       // Update the quantity in the local state
       const game = this.games.find(
@@ -107,7 +152,7 @@
     try {
       if (newQuantity > 0) {
         await axios.put(
-          `http://localhost:8080/customers/defaultCustomer/cart/${gameID}/quantity/${newQuantity}`
+          `http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart/${gameID}/quantity/${newQuantity}`
         );
         const game = this.games.find(
           (game) => Number(game.gameID) === Number(gameID)
@@ -128,7 +173,7 @@
 
     async removeFromCart(gameID) {
     try {
-      await axios.delete(`http://localhost:8080/customers/defaultCustomer/cart/${gameID}`);
+      await axios.delete(`http://localhost:8080/customers/${this.LOGGEDINUSERNAME}/cart/${gameID}`);
       // Remove the game from the games array
       this.games = this.games.filter(game => Number(game.gameID) !== Number(gameID));
       // Recalculate the subtotal price
@@ -143,6 +188,16 @@
   </script>
   
   <style scoped>
+  .checkout-button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+/* Optionally, adjust text color and other styles when disabled */
+.checkout-button:disabled:hover {
+  background-color: grey; /* Prevent hover effect */
+}
+
 .cart {
   margin: 10%;
   margin-top: 100px;
