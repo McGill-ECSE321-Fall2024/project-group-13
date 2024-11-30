@@ -4,12 +4,22 @@
       <img :src="resolveImagePath(image)" alt="Game Image" class="game-image" />
 
       <!-- Promotional Subtext -->
-      <div class="promosubtext" v-if="promotionPercentage != 0 && status != 'Archived'">
-        <div class="promopct" v-if="promotionPercentage != 0 && status != 'Archived'">
-          <span v-if="promotionPercentage != 0">-{{promotionPercentage}}%</span>
+      <div class="promosubtext" v-if="promotionPercentage != 0 && visibility != 'Archived'">
+        <div class="promopct" v-if="promotionPercentage != 0 && visibility != 'Archived'">
+          <span v-if="promotionPercentage != 0 && visibility != 'Archived'">-{{promotionPercentage}}%</span>
         </div>
       </div>
+
+      <!-- If Arhived, display "Archived" where the promotional subtext would be but  with same style background and text color but red -->
+      <div class="archivedsubtext" v-if="visibility == 'Archived'">
+        <div class="archivedpct" v-if="visibility == 'Archived'">
+          <span v-if="visibility == 'Archived'">Archived</span>
+        </div>
+    
+
     </div>
+
+    
     
     <div class="game-content">
       <h2 class="game-title">{{ title }}</h2>
@@ -20,6 +30,7 @@
       </div>
 
       <p class="game-description">{{ description }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -195,6 +206,27 @@
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
+  }
+
+  .archivedsubtext {
+    position: absolute; 
+    top: 0px; 
+    left: 0px; 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px 10px;
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    gap: 8px;
+    background: rgba(226, 14, 7, 0.1);
+    backdrop-filter: blur(10px);
+  }
+  
+  .archivedpct > span {
+    font-weight: bold;
+    color: rgb(228, 173, 170);
+    font-size: 0.75em;
   }
   </style>
   
