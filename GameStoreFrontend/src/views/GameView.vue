@@ -395,8 +395,13 @@ export default {
         // Assuming the API returns the new review object in response.data
         const newReply = response.data;
 
-        // Add the new review to the beginning of the reviews array
-        this.reviews.unshift(newReply);
+        // Find the review in the array
+        const review = this.reviews.find((r) => r.reviewID === reviewID);
+
+        if (review) {
+          // Add the reply to the review
+          review.reply = newReply;
+        }
 
         // Reset form and hide it
         this.replyText = '';
