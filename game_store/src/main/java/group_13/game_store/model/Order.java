@@ -27,7 +27,7 @@ public class Order
   @GeneratedValue
   private int orderID;
   private Date purchaseDate;
-  private int totalPrice;
+  private double totalPrice;
   private Date returnDate;
   private boolean isReturned;
 
@@ -75,7 +75,7 @@ public class Order
     return wasSet;
   }
 
-  public boolean setTotalPrice(int aTotalPrice)
+  public boolean setTotalPrice(double aTotalPrice)
   {
     boolean wasSet = false;
     totalPrice = aTotalPrice;
@@ -102,7 +102,7 @@ public class Order
     return purchaseDate;
   }
 
-  public int getTotalPrice()
+  public double getTotalPrice()
   {
     return totalPrice;
   }

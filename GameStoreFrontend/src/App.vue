@@ -38,7 +38,7 @@ function handleLogout() {
             <RouterLink to="/cart" class="nav-item" v-if="session.permissionLevel == 1">Cart</RouterLink>
             <RouterLink to="/wishlist" class="nav-item" v-if="session.permissionLevel == 1">Wishlist</RouterLink>
             <RouterLink to="/owner-dashboard" class="nav-item" v-if="session.permissionLevel == 3">Owner Dashboard</RouterLink>
-            <RouterLink to="/account" class="nav-item" v-if="session.permissionLevel != 0">Account</RouterLink>
+            <RouterLink to="/account" class="nav-item" v-if="session.permissionLevel == 1">Account</RouterLink>
             <RouterLink to="/login" class="nav-item" v-if="session.permissionLevel == 0">Login/Register</RouterLink>
             <button class="nav-item" v-if="session.permissionLevel != 0" @click="handleLogout">Logout</button>
           </div>
