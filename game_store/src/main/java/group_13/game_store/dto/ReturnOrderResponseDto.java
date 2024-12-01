@@ -7,7 +7,7 @@ import group_13.game_store.model.Order;
 
 public class ReturnOrderResponseDto {
     private Date returnDate;
-    private int totalPrice;
+    private double totalPrice;
     private boolean isReturned;
     private String customerUsername;
     private int orderId;
@@ -27,7 +27,7 @@ public class ReturnOrderResponseDto {
         return returnDate;
     }
 
-    public int getTotalPrice() {
+    public double getTotalPrice() {
         return totalPrice;
     }
 
