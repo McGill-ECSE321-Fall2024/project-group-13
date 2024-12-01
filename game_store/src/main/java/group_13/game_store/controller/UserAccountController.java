@@ -30,6 +30,7 @@ import group_13.game_store.service.PaymentService;
 import group_13.game_store.service.ReviewService;
 import group_13.game_store.model.UserAccount;
 import group_13.game_store.model.Customer;
+import group_13.game_store.model.GameCopy;
 import group_13.game_store.model.Order;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -181,7 +182,9 @@ public class UserAccountController {
 
         List<OrderCreationResponseDto> allOrdersOfCustomers = new ArrayList<OrderCreationResponseDto>();
         for (Order order : orderManagementService.getOrderHistoryOfCustomer(username)) {
-            allOrdersOfCustomers.add(new OrderCreationResponseDto(order));
+            // Get the game copies associated with the order
+            List<GameCopy> gameCopies = orderManagementService.getGameCopiesOfOrder(order.getOrderID());
+            allOrdersOfCustomers.add(new OrderCreationResponseDto(order, gameCopies));
         }
 
         return new OrderListDto(allOrdersOfCustomers);
@@ -208,8 +211,11 @@ public class UserAccountController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order made by " + username + " has not been made.");
         }
 
+        // Get the game copies associated with the order
+        List<GameCopy> gameCopies = orderManagementService.getGameCopiesOfOrder(createdOrder.getOrderID());
+
         // will need to the return variable for PaymentService.purchaseCart for this method to allow the return of a created OrderResponseDto
-        return new OrderCreationResponseDto(createdOrder);    
+        return new OrderCreationResponseDto(createdOrder, gameCopies);    
     }
 
     /**
@@ -231,7 +237,11 @@ public class UserAccountController {
         if (foundOrder == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order " + String.valueOf(orderId) + " made by " + username + " has not been made.");
         }
-        return new OrderCreationResponseDto(foundOrder);
+
+        // Get the game copies associated with the order
+        List<GameCopy> gameCopies = orderManagementService.getGameCopiesOfOrder(foundOrder.getOrderID());
+
+        return new OrderCreationResponseDto(foundOrder, gameCopies);
     }
 
     /**

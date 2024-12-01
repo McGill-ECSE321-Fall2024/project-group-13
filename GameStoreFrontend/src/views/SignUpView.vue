@@ -186,7 +186,7 @@ export default {
 }
 
 .sign-in {
-  margin-top: 10px;
+  margin-top: 20px;
   display: block;
   width: 100%;
   background-color: rgba(167, 139, 250, 1);
@@ -217,6 +217,7 @@ export default {
 }
 
 .login {
+  margin-top: 10px;
   text-align: center;
   font-size: 0.75rem;
   line-height: 1rem;

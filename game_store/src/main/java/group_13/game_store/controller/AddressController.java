@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/customers/{customerId}")
 public class AddressController {
 

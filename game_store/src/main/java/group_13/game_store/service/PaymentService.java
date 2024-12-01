@@ -115,19 +115,25 @@ public class PaymentService {
         Order order = new Order(currentDate, null, customer);
         order = orderRepo.save(order);
         // Reduce stock for each game and create GameCopy records
+        double totalPrice = 0;
         GameCopy gameCopy;
         for (int i = 0; i < cartItems.length; i++) {
             game = cartItems[i].getKey().getGame();
             game.setStock(game.getStock() - cartItems[i].getQuantity());
             game = gameRepo.save(game);
+            double gamePrice = game.getPrice();
 
             for (int j = 0; j < cartItems[i].getQuantity(); j++) {
                 gameCopy = new GameCopy(order, game);
                 gameCopy = gameCopyRepo.save(gameCopy);
+                totalPrice += gamePrice;
             }
         }
         // Clear customer's cart and save the order
         clearCart(customer);
+        totalPrice *= 1.1;  // Add the 10% QST
+        totalPrice += 5;   // Add $5 delivery fee
+        order.setTotalPrice(totalPrice);
         order = orderRepo.save(order);
         return order;
     }

@@ -121,4 +121,11 @@ public class OrderManagementService {
         List<Order> listOfCustomerOrder = orderRepo.findByCustomer_Username(aCustomer);
         return listOfCustomerOrder;
     }
+
+    // Returns a list of all of the game copies associated with an order
+    @Transactional
+    public List<GameCopy> getGameCopiesOfOrder(int orderID) {
+        List<GameCopy> gameCopiesOfOrder = copyRepo.findByOrder_OrderID(orderID);
+        return gameCopiesOfOrder;
+    }
 }

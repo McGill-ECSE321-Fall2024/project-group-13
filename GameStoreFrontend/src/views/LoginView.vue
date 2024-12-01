@@ -51,7 +51,7 @@ export default {
                 console.log(sessionStorage.getItem("loggedInUsername"))
                 console.log(newLoginDTO)
                 console.log(this.username)
-				const response = await axiosClient.post("/login", newLoginDTO, {
+				        const response = await axiosClient.post("/login", newLoginDTO, {
                     params: { loggedInUsername: sessionStorage.getItem("loggedInUsername") }   // Add the query parameter
                 });
                 this.username = response.data.username;
@@ -195,6 +195,7 @@ export default {
 }
 
 .create-account {
+  margin-top: 10px;
   text-align: center;
   font-size: 0.75rem;
   line-height: 1rem;
