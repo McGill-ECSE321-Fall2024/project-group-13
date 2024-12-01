@@ -871,7 +871,7 @@ public class GameIntegrationTests {
                 org.json.JSONObject json = new org.json.JSONObject(response.getBody());
                 assertEquals(404, json.getInt("status"));
                 assertEquals("Not Found", json.getString("error"));
-                assertEquals("Game with ID 1000 not found.", json.getString("message"));
+                assertEquals("Game not found", json.getString("message"));
                 } catch (org.json.JSONException e) {
                         fail("Response body is not a valid JSON");
                 }
