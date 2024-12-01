@@ -718,17 +718,20 @@ public class GameStoreManagementTest {
     @Test
     public void testAddEmployeeValid() {
         // Act
-        gameStoreManagementService.addEmployee("John Doe", "johndoe", "johndoe@example.com", "password123", "123-456-7890", true);
+        String password = "password123";
+        gameStoreManagementService.addEmployee("John Doe", "johndoe", "johndoe@example.com", password, "123-456-7890", true);
 
         // Assert
         ArgumentCaptor<Employee> captor = ArgumentCaptor.forClass(Employee.class);
         verify(employeeRepository, times(1)).save(captor.capture());
         Employee savedEmployee = captor.getValue();
 
+        //hash password 
+        String hashedPassword = accountService.hashPassword(password);
         assertEquals("John Doe", savedEmployee.getName());
         assertEquals("johndoe", savedEmployee.getUsername());
         assertEquals("johndoe@example.com", savedEmployee.getEmail());
-        assertEquals("password123", savedEmployee.getPassword());
+        assertEquals(hashedPassword, savedEmployee.getPassword());
         assertEquals("123-456-7890", savedEmployee.getPhoneNumber());
         assertTrue(savedEmployee.getIsActive());
     }
