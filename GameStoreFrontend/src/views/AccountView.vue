@@ -72,7 +72,7 @@
             </div>
             <div class="input">
                 <label for="postal">Postal Code</label>
-                <input type="text" name="postal" id="postal" placeholder="" required v-model="deliveryInfo.address.postalCode">
+                <input type="text" name="postal" id="postal" placeholder="A1A1A1" required v-model="deliveryInfo.address.postalCode">
             </div>
             <button class="button" @click="saveDeliveryInfo" v-bind:disabled="!isAddressInputValid()">Update Address</button>
         </form>
@@ -86,7 +86,7 @@
             </div>
             <div class="input">
                 <label for="card-number">Card Number</label>
-                <input type="text" name="card-number" id="card-number" placeholder="" required v-model="paymentInfo.cardNumber">
+                <input type="text" name="card-number" id="card-number" placeholder="XXXXXXXXXXXXXXXX" required v-model="paymentInfo.cardNumber">
             </div>
             <div class="input">
                 <label for="expiry-date">Expiry Date</label>
@@ -95,7 +95,7 @@
 
             <div class="input">
                 <label for="cvv">CVV Code</label>
-                <input type="number" name="cvv" id="cvv" placeholder="" required v-model="paymentInfo.cvvCode">
+                <input type="number" name="cvv" id="cvv" placeholder="XXX" required v-model="paymentInfo.cvvCode">
             </div>
             <button class="button" @click="savePaymentInfo" v-bind:disabled="!isPaymentInputValid()">Update Payment Information</button>
         </form>
@@ -352,7 +352,7 @@ const axiosClient = axios.create({
             console.log(this.paymentInfo.addressId);
             this.$swal({
                 title: 'Success',
-                text: 'Payment information updated successfully.',
+                text: 'Address updated successfully.',
                 icon: 'success',
               });
           } else {
@@ -367,7 +367,7 @@ const axiosClient = axios.create({
             console.log("address id: " + this.paymentInfo.addressId)
             this.$swal({
                 title: 'Success',
-                text: 'Payment information saved successfully.',
+                text: 'Address saved successfully.',
                 icon: 'success',
               });
           }
@@ -410,7 +410,7 @@ const axiosClient = axios.create({
                 this.paymentInfoId = response.data.id;
                 this.$swal({
                 title: 'Success',
-                text: 'Address updated successfully.',
+                text: 'Payment information updated successfully.',
                 icon: 'success',
               });
             } else {
@@ -422,7 +422,7 @@ const axiosClient = axios.create({
                 this.paymentInfoId = response.data.id;
                 this.$swal({
                 title: 'Success',
-                text: 'Address saved successfully.',
+                text: 'Payment information saved successfully.',
                 icon: 'success',
               });
             }

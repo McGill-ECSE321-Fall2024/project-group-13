@@ -166,7 +166,6 @@
                 <span>Parental Rating: {{ game.parentalRating }}</span><br />
                 <span>Status: {{ game.status }}</span><br />
                 <span>Category ID: {{ game.categoryId }}</span><br />
-                <img :src="game.img" alt="Game Image" style="max-width: 150px; margin-top: 5px;" />
               </div>
               <!-- Delete Button -->
               <div style="display: flex; gap: 10px; justify-content: flex-end;">
