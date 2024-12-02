@@ -184,9 +184,54 @@
             <button class="action__btn" @click="toggleAddPromotion">Add Promotion</button>
           </div>
 
-          <!-- Conditional Fields for Adding/Updating Promotion -->
+          <!-- Add Promotion Form -->
           <div
-            v-if="isAddingPromotion || isUpdatingPromotion"
+            v-if="isAddingPromotion"
+            style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"
+          >
+            <div style="margin-bottom: 10px;">
+              <label for="game-select">Select Game:</label>
+              <select v-model="newPromotion.gameID" id="game-select">
+                <option v-for="game in games" :value="game.id" :key="game.id">
+                  {{ game.title }}
+                </option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="title">Title:</label>
+              <input v-model="newPromotion.title" id="title" type="text" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="description">Description:</label>
+              <textarea v-model="newPromotion.description" id="description"></textarea>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="percentage">Percentage (%):</label>
+              <input v-model="newPromotion.percentage" id="percentage" type="number" min="1" max="100" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="start-date">Start Date:</label>
+              <input v-model="newPromotion.startDate" id="start-date" type="date" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label for="end-date">End Date:</label>
+              <input v-model="newPromotion.endDate" id="end-date" type="date" />
+            </div>
+
+            <div class="button-container">
+              <button class="action__btn" @click="savePromotion">Save</button>
+              <button class="action__btn" @click="toggleAddPromotion">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Update Promotion Form -->
+          <div
+            v-if="isUpdatingPromotion"
             style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"
           >
             <div style="margin-bottom: 10px;">
@@ -224,12 +269,11 @@
             </div>
 
             <div class="button-container">
-              <button class="action__btn" @click="isUpdatingPromotion ? saveUpdatedPromotion() : savePromotion()">
-                Save
-              </button>
-              <button class="action__btn" @click="toggleAddPromotion">Cancel</button>
+              <button class="action__btn" @click="saveUpdatedPromotion">Save</button>
+              <button class="action__btn" @click="toggleUpdatePromotion">Cancel</button>
             </div>
           </div>
+
 
           <!-- List of Promotions -->
           <ul class="list" style="list-style: none; padding: 0; margin: 0;">
@@ -595,11 +639,16 @@ export default {
     },
     toggleAddPromotion() {
       this.isAddingPromotion = !this.isAddingPromotion;
-      if (this.isUpdatingPromotion) {
-        this.isUpdatingPromotion = false;
-        this.isAddingPromotion = false;
-        this.resetCurrentPromotion();
-      }
+      this.resetNewPromotion();
+      // if (this.isUpdatingPromotion) {
+      //   this.isUpdatingPromotion = false;
+      //   this.isAddingPromotion = false;
+      //   this.resetCurrentPromotion();
+      // }
+    },
+    toggleUpdatePromotion() {
+      this.isUpdatingPromotion = !this.isUpdatingPromotion;
+      this.resetCurrentPromotion();
     },
     async savePromotion() {
       console.log("Game ID:", this.newPromotion.gameID);
