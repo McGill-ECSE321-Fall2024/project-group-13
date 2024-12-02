@@ -75,6 +75,7 @@
                 <input type="text" name="postal" id="postal" placeholder="A1A1A1" required v-model="deliveryInfo.address.postalCode">
             </div>
             <button class="button" @click="saveDeliveryInfo" v-bind:disabled="!isAddressInputValid()">Update Address</button>
+            <p v-if="addressErrorMessage" class="error-message">{{  addressErrorMessage }}</p>
         </form>
         </div>
         <div class="payment-info">
@@ -98,6 +99,7 @@
                 <input type="number" name="cvv" id="cvv" placeholder="XXX" required v-model="paymentInfo.cvvCode">
             </div>
             <button class="button" @click="savePaymentInfo" v-bind:disabled="!isPaymentInputValid()">Update Payment Information</button>
+            <p v-if="paymentErrorMessage" class="error-message">{{  paymentErrorMessage }}</p>
         </form>
         </div>
     </div>
@@ -155,6 +157,8 @@ const axiosClient = axios.create({
     return {
       activeTab: "profile", // Default tab
       orders: [],
+      addressErrorMessage: null,
+      paymentErrorMessage: null,
       username: null,
       name: null,
       email: null,
@@ -371,6 +375,8 @@ const axiosClient = axios.create({
                 icon: 'success',
               });
           }
+          this.addressErrorMessage = "";
+
         } catch (error) {
             console.log("error")
             // Check if the error is a server response with a status code
@@ -380,17 +386,17 @@ const axiosClient = axios.create({
                 
                 // Display user-friendly messages based on status codes or backend message
                 if (status === 400 || status === 404) {
-                    this.errorMessage = message; // Example: Invalid credentials
+                    this.addressErrorMessage = message; // Example: Invalid credentials
                     console.log(message);
                 } else if (status === 403) {
-                    this.errorMessage = "Access denied. Please contact support.";
+                    this.addressErrorMessage = "Access denied. Please contact support.";
                 } else {
-                    this.errorMessage = "An unexpected error occurred.";
+                    this.addressErrorMessage = "An unexpected error occurred.";
                 }
             } else {
                 // Network or unexpected error
                 console.error(error);
-                this.errorMessage = "Unable to connect to the server.";
+                this.addressErrorMessage = "Unable to connect to the server.";
             }
           }
       },
@@ -426,6 +432,7 @@ const axiosClient = axios.create({
                 icon: 'success',
               });
             }
+            this.paymentErrorMessage = "";
 
 
             }
@@ -438,17 +445,17 @@ const axiosClient = axios.create({
                 
                 // Display user-friendly messages based on status codes or backend message
                 if (status === 400 || status === 404) {
-                    this.errorMessage = message; // Example: Invalid credentials
+                    this.paymentErrorMessage = message; // Example: Invalid credentials
                     console.log(message);
                 } else if (status === 403) {
-                    this.errorMessage = "Access denied. Please contact support.";
+                    this.paymentErrorMessage = "Access denied. Please contact support.";
                 } else {
-                    this.errorMessage = "An unexpected error occurred.";
+                    this.paymentErrorMessage = "An unexpected error occurred.";
                 }
             } else {
                 // Network or unexpected error
                 console.error(error);
-                this.errorMessage = "Unable to connect to the server.";
+                this.paymentErrorMessage = "Unable to connect to the server.";
             }
           }
         },
@@ -509,8 +516,7 @@ const axiosClient = axios.create({
             },
 
             isAddressInputValid() {
-            return this.deliveryInfo.address.apartmentNo   
-            && this.deliveryInfo.address.city
+            return this.deliveryInfo.address.city
             && this.deliveryInfo.address.country
             && this.deliveryInfo.address.number
             && this.deliveryInfo.address.postalCode
@@ -781,5 +787,12 @@ body {
     background-color: rgba(75, 85, 99, 1);
     color: rgba(243, 244, 246, 0.5);
     cursor: not-allowed;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 10px;
+    text-align: center;
 }
 </style>

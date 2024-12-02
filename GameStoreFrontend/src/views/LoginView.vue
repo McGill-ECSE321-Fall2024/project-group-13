@@ -35,8 +35,8 @@ export default {
 		return {
 			username: null,
 			password: null,
-            permissionLevel: 0,
-            errorMessage: null
+      permissionLevel: 0,
+      errorMessage: null
 		};
 	},
     methods: {
