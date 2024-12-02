@@ -639,11 +639,6 @@ export default {
     toggleAddPromotion() {
       this.isAddingPromotion = !this.isAddingPromotion;
       this.resetNewPromotion();
-      // if (this.isUpdatingPromotion) {
-      //   this.isUpdatingPromotion = false;
-      //   this.isAddingPromotion = false;
-      //   this.resetCurrentPromotion();
-      // }
     },
     toggleUpdatePromotion() {
       this.isUpdatingPromotion = !this.isUpdatingPromotion;
