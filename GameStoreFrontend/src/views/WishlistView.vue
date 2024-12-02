@@ -9,7 +9,7 @@
         <hr class="below-title"> 
         
         <div>
-          <button @click="clearCart" v-if="isACustomer" id="clearBtn"> Clear Wishlist</button>
+          <button @click="clearCart" v-if="wishlistItems.length > 0" id="clearBtn"> Clear Wishlist</button>
         </div>
 
         <div class="wishlist-items" v-if="wishlistItems.length > 0">
@@ -61,19 +61,23 @@ export default {
     
     data() {
        return {
-         wishlistItems: []
+         wishlistItems: [],
          //errorMessage: null
        };
      },
 
     async created() {
       // Fetch the games from logged in user's wishlist (if they are a customer)
-      // FIX THIS ISSUE WITH GUEST
-      const username = sessionStorage.getItem("loggedInUsername") 
-      const permission = parseInt(sessionStorage.getItem("permissionLevel"))
+
+      //const isACustomer = sessionStorage.getItem("isACustomer");
+      // convert isACustomer from a string to a boolean
+      //this.isACustomerInPage = JSON.parse(isACustomer);
+
+      const username = sessionStorage.getItem("loggedInUsername"); 
+      const permission = parseInt(sessionStorage.getItem("permissionLevel"));
       console.log("loggedInUsername is now:" , username);
       console.log("permissionLevel is now: ", permission);
-    
+
       try {
             if (permission === 1) {
               const wishlistGamesResponse = await axiosClient.get('/customers/' + username + '/wishlist');
