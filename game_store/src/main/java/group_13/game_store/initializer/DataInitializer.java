@@ -168,7 +168,7 @@ public class DataInitializer {
                 "r6.jpg", 
                 50, 
                 19.99,
-                "Mature", 
+                "18+", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -183,7 +183,7 @@ public class DataInitializer {
                 "rounds.jpg", 
                 30, 
                 9.99, 
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -198,7 +198,7 @@ public class DataInitializer {
                 "civ6.jpg", 
                 40, 
                 29.99, 
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 strategyCategory
             );
@@ -213,7 +213,7 @@ public class DataInitializer {
                 "d2.jpg", 
                 60, 
                 10.00, 
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -229,7 +229,7 @@ public class DataInitializer {
                 "steep.jpg", 
                 20, 
                 14.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 sportsCategory
             );
@@ -245,7 +245,7 @@ public class DataInitializer {
                 "alto.jpg", 
                 40, 
                 9.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 adventureCategory
             );
@@ -261,7 +261,7 @@ public class DataInitializer {
                 "amongus.webp", 
                 50, 
                 4.99,
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 partyCategory
             );
@@ -276,7 +276,7 @@ public class DataInitializer {
                 "minecraft.jpg", 
                 100, 
                 19.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 sandboxCategory
             );
@@ -291,7 +291,7 @@ public class DataInitializer {
                 "bloons.jpg", 
                 30, 
                 9.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 strategyCategory
             );
@@ -306,7 +306,7 @@ public class DataInitializer {
                 "deeprock.jpg", 
                 20, 
                 29.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -321,7 +321,7 @@ public class DataInitializer {
                 "riskofrain.webp", 
                 30, 
                 24.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -336,7 +336,7 @@ public class DataInitializer {
                 "terraria.jpg", 
                 50, 
                 9.99,
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 sandboxCategory
             );
@@ -351,7 +351,7 @@ public class DataInitializer {
                 "zelda.jpg", 
                 30, 
                 59.99,
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 adventureCategory
             );
@@ -366,7 +366,7 @@ public class DataInitializer {
                 "lego.jpg", 
                 40, 
                 19.99,
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 adventureCategory
             );
@@ -381,7 +381,7 @@ public class DataInitializer {
                 "golf.jpg", 
                 20, 
                 14.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 sportsCategory
             );
@@ -396,7 +396,7 @@ public class DataInitializer {
                 "rocketleague.jpg", 
                 50, 
                 19.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 sportsCategory
             );
@@ -411,7 +411,7 @@ public class DataInitializer {
                 "fifa24.jpeg", 
                 60, 
                 59.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 sportsCategory
             );
@@ -426,7 +426,7 @@ public class DataInitializer {
                 "nba2k24.jpeg", 
                 40, 
                 59.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 sportsCategory
             );
@@ -441,7 +441,7 @@ public class DataInitializer {
                 "dyinglight.jpg", 
                 30, 
                 19.99,
-                "Mature", 
+                "18+", 
                 Game.VisibilityStatus.Visible, 
                 horrorCategory
             );
@@ -456,7 +456,7 @@ public class DataInitializer {
                 "brawlhalla.jpg", 
                 50, 
                 1.99,
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 partyCategory
             );
@@ -471,7 +471,7 @@ public class DataInitializer {
                 "smashbros.jpeg",  
                 40, 
                 59.99,
-                "Everyone 10+", 
+                "10+", 
                 Game.VisibilityStatus.Visible, 
                 partyCategory
             );
@@ -486,7 +486,7 @@ public class DataInitializer {
                 "mariokart.jpg", 
                 30, 
                 59.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 partyCategory
             );
@@ -501,7 +501,7 @@ public class DataInitializer {
                 "phasmophobia.jpg", 
                 20, 
                 13.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 horrorCategory
             );
@@ -516,7 +516,7 @@ public class DataInitializer {
                 "farmingsim24.jpg", 
                 30, 
                 39.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 simulationCategory
             );
@@ -531,7 +531,7 @@ public class DataInitializer {
                 "overwatch.webp", 
                 50, 
                 19.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -546,7 +546,7 @@ public class DataInitializer {
                 "sims4.jpg", 
                 40, 
                 39.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 simulationCategory
             );
@@ -561,7 +561,7 @@ public class DataInitializer {
                 "halo.jpg", 
                 60, 
                 59.99,
-                "Teen", 
+                "14+", 
                 Game.VisibilityStatus.Visible, 
                 shooterCategory
             );
@@ -576,7 +576,7 @@ public class DataInitializer {
                 "animalcrossing.jpg", 
                 50, 
                 59.99,
-                "Everyone", 
+                "All", 
                 Game.VisibilityStatus.Visible, 
                 simulationCategory
             );
