@@ -66,7 +66,7 @@
             <div style="margin-bottom: 10px;">
               <label for="game-status">Status:</label>
               <select v-model="newGame.status" id="game-status">
-                <option value="Available">Available</option>
+                <option value="Visible">Visible</option>
                 <option value="Unavailable">Unavailable</option>
               </select>
             </div>
@@ -129,7 +129,7 @@
             <div style="margin-bottom: 10px;">
               <label for="game-status">Status:</label>
               <select v-model="currentGame.status" id="game-status" required>
-                <option value="Available">Available</option>
+                <option value="Visible">Visible</option>
                 <option value="Unavailable">Unavailable</option>
               </select>
             </div>
@@ -458,7 +458,7 @@ export default {
         stock: 0,
         price: 0.0,
         parentalRating: "",
-        status: "Available", // Default status
+        status: "Visible", // Default status
         categoryId: null, // ID of the selected category
       },
       isUpdatingPromotion: false, // Tracks whether the "Update Promotion" form is visible
@@ -490,7 +490,7 @@ export default {
         stock: 0,
         price: 0.0,
         parentalRating: "",
-        status: "Available", // Default value
+        status: "Visible", // Default value
         categoryId: null, // Default category
       },
     };
@@ -854,7 +854,7 @@ export default {
         stock: 0,
         price: 0.0,
         parentalRating: "",
-        status: "Available",
+        status: "Visible",
         categoryId: null,
       };
     },
@@ -1110,7 +1110,7 @@ export default {
         stock: 0,
         price: 0.0,
         parentalRating: "",
-        status: "Available",
+        status: "Visible",
         categoryId: null,
       };
       this.isUpdatingGame = false;
